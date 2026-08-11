@@ -77,8 +77,9 @@ export function TimetableDashboard() {
   // Client-only clock & locked group / excluded courses / overrides loader
   useEffect(() => {
     loadSyncFromUrl()
-    pullRealtimeSync()
-    const syncInterval = setInterval(() => pullRealtimeSync(), 3000)
+    const autoSync = () => pullRealtimeSync()
+    autoSync()
+    const syncInterval = setInterval(autoSync, 2000)
 
     const lg = getLockedGroup()
     setLockedGroup(lg)
@@ -95,6 +96,8 @@ export function TimetableDashboard() {
     window.addEventListener(EXCLUDED_COURSES_CHANGED_EVENT, updateEx)
     window.addEventListener(SCHEDULE_OVERRIDES_CHANGED, updateOv)
     window.addEventListener(REALTIME_SYNC_CHANGED_EVENT, updateSync)
+    window.addEventListener('focus', autoSync)
+    document.addEventListener('visibilitychange', autoSync)
 
     const update = () => {
       const now = new Date()
@@ -115,6 +118,8 @@ export function TimetableDashboard() {
       window.removeEventListener(EXCLUDED_COURSES_CHANGED_EVENT, updateEx)
       window.removeEventListener(SCHEDULE_OVERRIDES_CHANGED, updateOv)
       window.removeEventListener(REALTIME_SYNC_CHANGED_EVENT, updateSync)
+      window.removeEventListener('focus', autoSync)
+      document.removeEventListener('visibilitychange', autoSync)
     }
   }, [])
 

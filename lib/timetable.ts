@@ -178,6 +178,7 @@ export function saveLockedGroup(group: GroupKey | null): void {
       window.localStorage.removeItem(LOCKED_GROUP_STORE_KEY)
     }
     window.dispatchEvent(new Event(LOCKED_GROUP_CHANGED_EVENT))
+    pushRealtimeSync()
   } catch { /* Storage unavailable */ }
 }
 
@@ -208,9 +209,22 @@ export function exportDashboardData(): DashboardBackupData {
 export function importDashboardData(data: DashboardBackupData): boolean {
   if (typeof window === 'undefined' || !data) return false
   try {
-    if (data.attendance) saveAttendanceLog(data.attendance)
-    if (data.lockedGroup !== undefined) saveLockedGroup(data.lockedGroup)
-    if (data.excludedCourses) saveExcludedCourses(data.excludedCourses)
+    if (data.attendance) {
+      window.localStorage.setItem(ATTENDANCE_STORE_KEY, JSON.stringify(data.attendance))
+      window.dispatchEvent(new Event(ATTENDANCE_CHANGED_EVENT))
+    }
+    if (data.lockedGroup !== undefined) {
+      if (data.lockedGroup) {
+        window.localStorage.setItem(LOCKED_GROUP_STORE_KEY, data.lockedGroup)
+      } else {
+        window.localStorage.removeItem(LOCKED_GROUP_STORE_KEY)
+      }
+      window.dispatchEvent(new Event(LOCKED_GROUP_CHANGED_EVENT))
+    }
+    if (data.excludedCourses) {
+      window.localStorage.setItem(EXCLUDED_COURSES_STORE_KEY, JSON.stringify(data.excludedCourses))
+      window.dispatchEvent(new Event(EXCLUDED_COURSES_CHANGED_EVENT))
+    }
     if (data.scheduleOverrides) {
       window.localStorage.setItem('academic-dashboard-schedule-overrides', JSON.stringify(data.scheduleOverrides))
       window.dispatchEvent(new Event('academic-dashboard-schedule-overrides-changed'))
@@ -358,6 +372,7 @@ export function saveExcludedCourses(excluded: Exclude<CourseId, 'clubs'>[]): voi
   try {
     window.localStorage.setItem(EXCLUDED_COURSES_STORE_KEY, JSON.stringify(excluded))
     window.dispatchEvent(new Event(EXCLUDED_COURSES_CHANGED_EVENT))
+    pushRealtimeSync()
   } catch { /* Storage unavailable */ }
 }
 

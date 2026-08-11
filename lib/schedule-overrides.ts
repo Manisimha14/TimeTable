@@ -1,4 +1,4 @@
-import type { CourseId } from './timetable'
+import { pushRealtimeSync, type CourseId } from './timetable'
 
 export type OverrideType = 'cancel' | 'reschedule' | 'extra'
 
@@ -40,6 +40,7 @@ export function saveScheduleOverrides(overrides: ScheduleOverride[]): void {
   try {
     window.localStorage.setItem(SCHEDULE_OVERRIDES_STORE_KEY, JSON.stringify(overrides))
     window.dispatchEvent(new Event(SCHEDULE_OVERRIDES_CHANGED))
+    pushRealtimeSync()
   } catch {
     /* LocalStorage unavailable */
   }

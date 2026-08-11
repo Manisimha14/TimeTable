@@ -26,9 +26,12 @@ export function loadPersonalDeadlines(): PersonalDeadline[] {
   } catch { return defaultPersonalDeadlines }
 }
 
+import { pushRealtimeSync } from './timetable'
+
 export function savePersonalDeadlines(deadlines: PersonalDeadline[]) {
   window.localStorage.setItem(PERSONAL_DEADLINES_STORE_KEY, JSON.stringify(deadlines))
   window.dispatchEvent(new Event(PERSONAL_DEADLINES_CHANGED))
+  pushRealtimeSync()
 }
 
 export function deadlineDateLabel(iso: string): string {

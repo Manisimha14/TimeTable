@@ -169,7 +169,7 @@ export function DailyNotifications({
               initial={{ opacity: 0, scale: 0.95, y: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -8 }}
-              className="absolute right-0 top-12 z-50 w-80 max-w-[90vw] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96"
+              className="fixed inset-x-3 top-16 z-50 max-h-[80vh] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-96 sm:max-h-none"
             >
               <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-3">
                 <div className="flex items-center gap-2">
