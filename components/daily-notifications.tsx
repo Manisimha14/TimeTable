@@ -99,14 +99,16 @@ export function DailyNotifications({
   const showSystemNotification = async (title: string, body: string) => {
     if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return
 
+    const iconUrl = `${window.location.origin}/icon.png`
+
     if ('serviceWorker' in navigator) {
       try {
         const reg = await navigator.serviceWorker.ready
         if (reg && reg.showNotification) {
           await reg.showNotification(title, {
             body,
-            icon: '/icon.png',
-            badge: '/icon.png',
+            icon: iconUrl,
+            badge: iconUrl,
             vibrate: [200, 100, 200],
           } as any)
           return
@@ -115,7 +117,7 @@ export function DailyNotifications({
     }
 
     try {
-      new Notification(title, { body, icon: '/icon.png' })
+      new Notification(title, { body, icon: iconUrl })
     } catch {}
   }
 
