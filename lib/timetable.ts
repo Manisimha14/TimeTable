@@ -566,6 +566,56 @@ export function setAttendanceStatus(key: string, status: AttendanceStatus | null
   saveAttendanceLog(next)
 }
 
+export const STUDIED_LOG_STORE_KEY = 'academic-dashboard-studied-by-course'
+export const STUDIED_LOG_CHANGED_EVENT = 'academic-dashboard-studied-log-changed'
+
+export function getStudiedLog(): Record<string, number> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const saved = window.localStorage.getItem(STUDIED_LOG_STORE_KEY)
+    return saved ? (JSON.parse(saved) as Record<string, number>) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function saveStudiedLog(log: Record<string, number>): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(STUDIED_LOG_STORE_KEY, JSON.stringify(log))
+    window.dispatchEvent(new Event(STUDIED_LOG_CHANGED_EVENT))
+    pushRealtimeSync()
+  } catch { /* Storage unavailable */ }
+}
+
+export function setStudiedCount(courseId: string, count: number): void {
+  const current = getStudiedLog()
+  const next = { ...current, [courseId]: Math.max(0, count) }
+  saveStudiedLog(next)
+}
+
+export function getCourseAutoCompletion(
+  courseId: CourseId,
+  group: GroupKey = 'A',
+  overrides: ScheduleOverride[] = getScheduleOverrides(),
+  now = new Date(),
+): { total: number; held: number; percent: number } {
+  const allOccs = allCourseOccurrences(group, overrides)
+  const courseOccs = allOccs.filter((occ) => occ.courseId === courseId && occ.type === 'class')
+  const tMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+  const minToday = now.getHours() * 60 + now.getMinutes()
+  
+  const heldOccs = courseOccs.filter(
+    (occ) => occ.ms < tMs || (occ.ms === tMs && occ.endMin <= minToday),
+  )
+
+  const total = timetable.courses[courseId]?.sessions.length ?? courseOccs.length
+  const held = heldOccs.length
+  const percent = total > 0 ? Math.min(100, Math.round((held / total) * 100)) : 0
+
+  return { total, held, percent }
+}
+
 import { isoToMs } from './academic-calendar'
 import { getScheduleOverrides, type ScheduleOverride } from './schedule-overrides'
 

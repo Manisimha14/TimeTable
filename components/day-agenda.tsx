@@ -137,14 +137,13 @@ export function DayAgenda({
       </div>
 
       {/* Events List */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`${weekIndex}-${selectedDay}`}
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="space-y-3"
-        >
+      <motion.div
+        key={`${weekIndex}-${selectedDay}`}
+        initial={{ opacity: 0.6, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15, ease: 'easeOut' }}
+        className="space-y-3 touch-pan-y"
+      >
           {selectedBlocked.blocked ? (
             <motion.div
               variants={riseItem}
@@ -289,7 +288,6 @@ export function DayAgenda({
             })
           )}
         </motion.div>
-    </AnimatePresence>
-  </div>
-)
+    </div>
+  )
 }

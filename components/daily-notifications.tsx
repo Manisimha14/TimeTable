@@ -20,17 +20,23 @@ import {
   XCircle,
   Lock,
   Send,
+  GraduationCap,
+  BookOpen,
 } from 'lucide-react'
 import {
   allCourseOccurrences,
   ATTENDANCE_CHANGED_EVENT,
+  COURSE_ORDER,
   EXCLUDED_COURSES_CHANGED_EVENT,
   getAttendanceLog,
   getAttendanceMetrics,
+  getCourseAutoCompletion,
   getExcludedCourses,
   getLockedGroup,
+  getStudiedLog,
   LOCKED_GROUP_CHANGED_EVENT,
   setAttendanceStatus,
+  STUDIED_LOG_CHANGED_EVENT,
   type AttendanceStatus,
   type CourseId,
   type GroupKey,
@@ -265,6 +271,15 @@ export function DailyNotifications({
     }, 1500)
   }
 
+  const [studiedLog, setStudiedLog] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    const updateStudied = () => setStudiedLog(getStudiedLog())
+    updateStudied()
+    window.addEventListener(STUDIED_LOG_CHANGED_EVENT, updateStudied)
+    return () => window.removeEventListener(STUDIED_LOG_CHANGED_EVENT, updateStudied)
+  }, [])
+
   const todayMsVal = now ? Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) : 0
   const nowMin = now ? now.getHours() * 60 + now.getMinutes() : 0
 
@@ -273,7 +288,25 @@ export function DailyNotifications({
     [group, overrides, excluded],
   )
 
-  // Background checks for system push notifications (starting / ending)
+  const upcoming7DayExams = useMemo(() => {
+    return upcomingEvents(10, now ?? new Date()).filter(
+      (ev) => ev.daysUntil <= 7 && (ev.type === 'end-term' || ev.label.toLowerCase().includes('exam') || ev.label.toLowerCase().includes('eval')),
+    )
+  }, [now])
+
+  const totalBacklogSessions = useMemo(() => {
+    let sum = 0
+    COURSE_ORDER.forEach((cId) => {
+      const autoComp = getCourseAutoCompletion(cId, group, overrides, now ?? new Date())
+      const st = studiedLog[cId] ?? 0
+      if (autoComp.held > st) {
+        sum += (autoComp.held - st)
+      }
+    })
+    return sum
+  }, [group, overrides, now, studiedLog])
+
+  // Background checks for system push notifications (starting / ending / 7-day exam / backlog)
   useEffect(() => {
     if (
       typeof window === 'undefined' ||
@@ -358,12 +391,42 @@ export function DailyNotifications({
           showSystemNotification(`SST Term 5: ${ended.code} Ended!`, `Log attendance now: ${meme}`)
         }
       }
+
+      // 3. 7-Day Exam Alert Push Notification
+      const upcomingExams = upcomingEvents(10, nowObj).filter(
+        (ev) => ev.daysUntil <= 7 && (ev.type === 'end-term' || ev.label.toLowerCase().includes('exam') || ev.label.toLowerCase().includes('eval')),
+      )
+      if (upcomingExams.length > 0) {
+        const exam = upcomingExams[0]
+        const notifyKey = `exam-${exam.date}`
+        if (!sentNotifications.has(notifyKey) && !isSnoozed(notifyKey)) {
+          sentNotifications.add(notifyKey)
+          const examMemes = [
+            `Inka ${exam.daysUntil === 0 ? 'eeroju' : exam.daysUntil + ' days lo'} ${exam.label} start! Book open cheyyi raa bujji 📚`,
+            `Exam week osthondhi (${exam.label})! All nighterlu and revision start cheyalsina time ⚡`,
+            `Orey inka ${exam.daysUntil} days eh undhi ${exam.label} ki! Backlog and syllabus cover chey ☕`,
+          ]
+          const meme = examMemes[Math.floor(Math.random() * examMemes.length)]
+          playChime()
+          showSystemNotification(`SST Exam Alert: ${exam.label}`, meme)
+        }
+      }
+
+      // 4. Backlog Alert Push Notification
+      if (totalBacklogSessions >= 3 && !sentNotifications.has('backlog-alert')) {
+        sentNotifications.add('backlog-alert')
+        playChime()
+        showSystemNotification(
+          'Self-Study Backlog Warning 📚',
+          `Mee account lo ${totalBacklogSessions} sessions self-study backlog koodipoyindi masteru! Fast ga Courses tab lo log & review chesei ⚡`,
+        )
+      }
     }
 
     const interval = setInterval(checkAndNotify, 20000)
     checkAndNotify()
     return () => clearInterval(interval)
-  }, [occurrences, log, soundOn])
+  }, [occurrences, log, soundOn, totalBacklogSessions])
 
   const todayOccurrences = useMemo(
     () => occurrences.filter((o) => o.ms === todayMsVal),
@@ -409,7 +472,9 @@ export function DailyNotifications({
   const urgentCount =
     (liveSession ? 1 : 0) +
     (unloggedSessions.length > 0 && !dismissedToday.has('unlogged') ? 1 : 0) +
-    (allAssessedMetrics.isBelow80 && !dismissedToday.has('lowattendance') ? 1 : 0)
+    (allAssessedMetrics.isBelow80 && !dismissedToday.has('lowattendance') ? 1 : 0) +
+    (upcoming7DayExams.length > 0 && !dismissedToday.has('examalert') ? 1 : 0) +
+    (totalBacklogSessions >= 3 && !dismissedToday.has('backlogalert') ? 1 : 0)
 
   const requestPush = async () => {
     if (!('Notification' in window)) return

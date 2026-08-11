@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { ArrowUpRight, ClipboardCheck, Link2, Users, ListChecks, CheckSquare, Square } from 'lucide-react'
+import { ArrowUpRight, ClipboardCheck, Link2, Users, ListChecks, CheckSquare, Square, Plus, Minus, BookOpen, AlertCircle, CheckCircle2 } from 'lucide-react'
 import {
   courseClass,
   evaluationSchemes,
   facultiesFor,
+  getCourseAutoCompletion,
+  getStudiedLog,
+  setStudiedCount,
+  STUDIED_LOG_CHANGED_EVENT,
   type Course,
 } from '@/lib/timetable'
 import { staggerContainer, riseItem } from '@/lib/motion'
@@ -14,12 +18,18 @@ import { cn } from '@/lib/utils'
 
 export function CourseDetail({ course }: { course: Course }) {
   const [completedSessions, setCompletedSessions] = useState<Record<string, boolean>>({})
+  const [studiedLog, setStudiedLog] = useState<Record<string, number>>({})
 
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem('academic-dashboard-syllabus-completed')
       if (saved) setCompletedSessions(JSON.parse(saved))
     } catch (e) {}
+
+    const updateStudied = () => setStudiedLog(getStudiedLog())
+    updateStudied()
+    window.addEventListener(STUDIED_LOG_CHANGED_EVENT, updateStudied)
+    return () => window.removeEventListener(STUDIED_LOG_CHANGED_EVENT, updateStudied)
   }, [])
 
   const toggleSessionCompleted = (index: number) => {
@@ -34,10 +44,18 @@ export function CourseDetail({ course }: { course: Course }) {
     }
   }
 
-  const courseCompletedCount = course.sessions.filter((_, idx) => completedSessions[`${course.id}-${idx}`]).length
-  const progressPercent = course.sessions.length
-    ? Math.round((courseCompletedCount / course.sessions.length) * 100)
-    : 0
+  const autoCompletion = getCourseAutoCompletion(course.id)
+  const autoCompletedCount = autoCompletion.held
+  const totalCourseSessions = course.sessions.length || autoCompletion.total
+  const autoProgressPercent = totalCourseSessions ? Math.round((autoCompletedCount / totalCourseSessions) * 100) : 0
+
+  const studiedCount = studiedLog[course.id] ?? 0
+  const backlogCount = Math.max(0, autoCompletedCount - studiedCount)
+
+  const handleStudiedChange = (delta: number) => {
+    const next = Math.max(0, studiedCount + delta)
+    setStudiedCount(course.id, next)
+  }
 
   const schemes = evaluationSchemes(course)
   const faculties = facultiesFor(course.id)
@@ -56,40 +74,95 @@ export function CourseDetail({ course }: { course: Course }) {
       {/* Header */}
       <motion.div
         variants={riseItem}
-        className="rounded-2xl border border-[color:var(--c-border)] bg-[color:var(--c-soft)] p-5"
+        className="rounded-2xl border border-[color:var(--c-border)] bg-[color:var(--c-soft)] p-5 space-y-4"
       >
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-md bg-[color:var(--c-solid)] px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-            {course.code}
-          </span>
-          <span className="text-xs font-medium text-[color:var(--c-text)]/80">
-            {course.sessions.length} sessions
-          </span>
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center rounded-md bg-[color:var(--c-solid)] px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+              {course.code}
+            </span>
+            <span className="text-xs font-medium text-[color:var(--c-text)]/80">
+              {totalCourseSessions} sessions planned
+            </span>
+          </div>
+          <h2 className="mt-2 text-balance font-display text-2xl font-bold text-[color:var(--c-text)]">
+            {course.name}
+          </h2>
+          {faculties.length > 0 && (
+            <p className="mt-2 flex items-center gap-1.5 text-sm text-[color:var(--c-text)]/80">
+              <Users className="size-4" />
+              {faculties.join(', ')}
+            </p>
+          )}
         </div>
-        <h2 className="mt-2 text-balance font-display text-2xl font-bold text-[color:var(--c-text)]">
-          {course.name}
-        </h2>
-        {faculties.length > 0 && (
-          <p className="mt-2 flex items-center gap-1.5 text-sm text-[color:var(--c-text)]/80">
-            <Users className="size-4" />
-            {faculties.join(', ')}
-          </p>
-        )}
 
-        {course.sessions.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-[color:var(--c-border)]/40 space-y-1.5">
-            <div className="flex items-center justify-between text-xs font-semibold text-[color:var(--c-text)]">
-              <span>Syllabus Completion: {courseCompletedCount} / {course.sessions.length} sessions</span>
-              <span>{progressPercent}%</span>
+        {/* 1. Automatic Session Progress */}
+        <div className="pt-3 border-t border-[color:var(--c-border)]/40 space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-[color:var(--c-text)]">
+            <span>⚡ Automatic Session Progress (Sessions Held)</span>
+            <span>{autoCompletedCount} / {totalCourseSessions} ({autoProgressPercent}%)</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-[color:var(--c-solid)] transition-all duration-300"
+              style={{ width: `${autoProgressPercent}%` }}
+            />
+          </div>
+        </div>
+
+        {/* 2. Student Self-Study Progress & Backlog Tracker */}
+        <div className="pt-3 border-t border-[color:var(--c-border)]/40 space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[color:var(--c-text)]">
+              <BookOpen className="size-4" />
+              <span>Studied Progress & Self-Study Backlog</span>
             </div>
-            <div className="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-[color:var(--c-solid)] transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
+            {backlogCount > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                <AlertCircle className="size-3" />
+                -{backlogCount} Session{backlogCount === 1 ? '' : 's'} Backlog
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                <CheckCircle2 className="size-3" />
+                Up to Date! 🎉
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-background/60 p-2.5 border border-[color:var(--c-border)]/30">
+            <div className="text-xs">
+              <p className="font-semibold text-foreground">
+                {studiedCount} of {autoCompletedCount} held sessions studied
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {backlogCount > 0 ? `${backlogCount} session(s) pending self-study review` : 'All completed sessions reviewed'}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleStudiedChange(-1)}
+                disabled={studiedCount <= 0}
+                className="inline-flex size-7 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs transition hover:bg-muted disabled:opacity-40 active:scale-95"
+                title="Decrease studied count"
+              >
+                <Minus className="size-3.5" />
+              </button>
+              <span className="min-w-6 text-center text-xs font-bold tabular-nums text-foreground">
+                {studiedCount}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleStudiedChange(1)}
+                className="inline-flex size-7 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs transition hover:bg-muted active:scale-95"
+                title="Increase studied count"
+              >
+                <Plus className="size-3.5" />
+              </button>
             </div>
           </div>
-        )}
+        </div>
       </motion.div>
 
       {/* Evaluation criteria */}
