@@ -103,6 +103,23 @@ export function DailyNotifications({
 
     const sentNotifications = new Set<string>()
 
+    const playChime = () => {
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime)
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12)
+        gain.gain.setValueAtTime(0.08, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
+        osc.start()
+        osc.stop(ctx.currentTime + 0.4)
+      } catch (e) {}
+    }
+
     const checkAndNotify = () => {
       const nowObj = new Date()
       const tMs = Date.UTC(nowObj.getFullYear(), nowObj.getMonth(), nowObj.getDate())
@@ -122,6 +139,7 @@ export function DailyNotifications({
             "Late aithe attendance cut! Parigethu masteru campus lo ⚡"
           ]
           const meme = startMemes[Math.floor(Math.random() * startMemes.length)]
+          playChime()
           new Notification(`SST Term 5: ${upcoming.code} Starting Soon!`, {
             body: `${upcoming.code} starts at ${Math.floor(upcoming.startMin/60)}:${(upcoming.startMin%60).toString().padStart(2, '0')}. ${meme}`,
             icon: '/favicon.png'
@@ -143,6 +161,7 @@ export function DailyNotifications({
             "Attend aiyava? Present log cheyyi, lekapothe direct ga 0% eh! 🔥"
           ]
           const meme = endMemes[Math.floor(Math.random() * endMemes.length)]
+          playChime()
           new Notification(`SST Term 5: ${ended.code} Ended!`, {
             body: `Log attendance now: ${meme}`,
             icon: '/favicon.png'
