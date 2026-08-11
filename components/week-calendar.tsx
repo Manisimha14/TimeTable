@@ -59,12 +59,20 @@ export function WeekCalendar({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      {/* Header row */}
-      <div
-        className="grid border-b border-border bg-muted/40"
-        style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(0, 1fr))` }}
-      >
-        <div className="border-r border-border" aria-hidden />
+      {/* Mobile Swipe Tip */}
+      <div className="flex items-center justify-between border-b border-border bg-muted/60 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground sm:hidden">
+        <span>Weekly Grid View</span>
+        <span className="text-primary font-bold">↔ Swipe to view all 6 days</span>
+      </div>
+
+      <div className="overflow-x-auto touch-pan-x scrollbar-none">
+        <div className="min-w-[680px] sm:min-w-0">
+          {/* Header row */}
+          <div
+            className="grid border-b border-border bg-muted/40"
+            style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(0, 1fr))` }}
+          >
+            <div className="border-r border-border" aria-hidden />
         {days.map((day, i) => {
           const cell = week?.days[i]
           const isToday = i === effectiveToday
@@ -263,6 +271,8 @@ export function WeekCalendar({
             </div>
           )
         })}
+      </div>
+        </div>
       </div>
     </div>
   )

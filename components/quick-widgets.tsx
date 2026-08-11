@@ -273,14 +273,14 @@ export function QuickWidgets({ group }: { group: GroupKey }) {
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           {autoCourseReason && (
             <span
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-2 text-xs font-bold text-primary"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/20 px-2 py-1.5 text-[11px] font-bold text-primary sm:px-2.5 sm:py-2 sm:text-xs"
               title={`Contextually auto-selected because: ${autoCourseReason}`}
             >
-              <Sparkles className="size-3.5 text-primary" />
-              {autoCourseReason}
+              <Sparkles className="size-3.5 text-primary shrink-0" />
+              <span>{autoCourseReason}</span>
             </span>
           )}
 
@@ -356,13 +356,13 @@ export function QuickWidgets({ group }: { group: GroupKey }) {
                 <div className="mt-2.5 flex gap-2">
                   <button
                     onClick={() => updateStatus('present')}
-                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition hover:brightness-95"
+                    className="inline-flex min-h-[42px] flex-1 items-center justify-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition hover:brightness-95 active:scale-95"
                   >
                     <Check className="size-3.5" /> Present
                   </button>
                   <button
                     onClick={() => updateStatus('missed')}
-                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground transition hover:border-destructive/50 hover:text-destructive"
+                    className="inline-flex min-h-[42px] flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground transition hover:border-destructive/50 hover:text-destructive active:scale-95"
                   >
                     <CircleX className="size-3.5" /> Missed
                   </button>

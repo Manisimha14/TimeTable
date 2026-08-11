@@ -315,7 +315,7 @@ export function TimetableDashboard() {
         <div
           role="tablist"
           aria-label="Select view"
-          className="scrollbar-none mt-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1 sm:inline-flex sm:w-auto max-[420px]:gap-0.5"
+          className="scrollbar-none mt-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1 touch-pan-x sm:inline-flex sm:w-auto"
         >
           {VIEWS.map(({ id, label, shortLabel, icon: Icon }) => (
             <button
@@ -324,7 +324,7 @@ export function TimetableDashboard() {
               aria-selected={view === id}
               onClick={() => setView(id)}
               className={cn(
-                'relative inline-flex min-w-max flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition sm:flex-none sm:gap-2 sm:px-4 sm:text-sm max-[420px]:px-1 max-[420px]:text-[11px]',
+                'relative inline-flex min-h-[40px] min-w-max flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold transition sm:flex-none sm:gap-2 sm:px-4 sm:text-sm active:scale-95',
                 view === id
                   ? 'text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground',
@@ -337,8 +337,8 @@ export function TimetableDashboard() {
                   className="absolute inset-0 rounded-lg bg-primary shadow-sm"
                 />
               )}
-              <span className="relative flex items-center gap-2">
-                <Icon className="size-3.5 shrink-0 sm:size-4" />
+              <span className="relative flex items-center gap-1.5 sm:gap-2">
+                <Icon className="size-4 shrink-0" />
                 <span className={shortLabel ? 'hidden sm:inline' : undefined}>{label}</span>
                 {shortLabel && <span className="sm:hidden">{shortLabel}</span>}
               </span>
