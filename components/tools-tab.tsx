@@ -354,14 +354,15 @@ export function ToolsTab({ group }: { group: GroupKey }) {
               {pdfs.map((pdf) => (
                 <div
                   key={pdf.id}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-muted/20 p-2.5"
+                  className="flex max-w-full items-center justify-between gap-2.5 overflow-hidden rounded-xl border border-border bg-muted/20 p-2.5"
                 >
                   <FileText className="size-4 shrink-0 text-primary" />
                   <a
                     href={pdf.dataUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground hover:text-primary"
+                    title={pdf.name}
+                    className="min-w-0 flex-1 truncate text-xs font-semibold text-foreground hover:text-primary sm:text-sm"
                   >
                     {pdf.name}
                   </a>
@@ -371,9 +372,10 @@ export function ToolsTab({ group }: { group: GroupKey }) {
                       const next = pdfs.filter((item) => item.id !== pdf.id)
                       setPdfs(next)
                       window.localStorage.setItem(PDF_STORE_KEY, JSON.stringify(next))
+                      pushRealtimeSync()
                     }}
                     aria-label={`Remove ${pdf.name}`}
-                    className="p-1 text-muted-foreground hover:text-destructive"
+                    className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive active:scale-95"
                   >
                     <Trash2 className="size-4" />
                   </button>

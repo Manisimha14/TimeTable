@@ -235,27 +235,27 @@ export function importDashboardData(data: DashboardBackupData): boolean {
       }
       window.dispatchEvent(new Event(LOCKED_GROUP_CHANGED_EVENT))
     }
-    if (data.excludedCourses) {
+    if (data.excludedCourses !== undefined) {
       window.localStorage.setItem(EXCLUDED_COURSES_STORE_KEY, JSON.stringify(data.excludedCourses))
       window.dispatchEvent(new Event(EXCLUDED_COURSES_CHANGED_EVENT))
     }
-    if (data.scheduleOverrides) {
+    if (data.scheduleOverrides !== undefined) {
       window.localStorage.setItem('academic-dashboard-schedule-overrides', JSON.stringify(data.scheduleOverrides))
       window.dispatchEvent(new Event('academic-dashboard-schedule-overrides-changed'))
     }
-    if (data.personalDeadlines) {
+    if (data.personalDeadlines !== undefined) {
       window.localStorage.setItem('academic-dashboard-personal-deadlines', JSON.stringify(data.personalDeadlines))
       window.dispatchEvent(new Event('academic-dashboard-personal-deadlines-changed'))
     }
-    if (data.shortcuts) {
+    if (data.shortcuts !== undefined) {
       window.localStorage.setItem('academic-dashboard-important-links', JSON.stringify(data.shortcuts))
       window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
     }
-    if (data.pdfs) {
+    if (data.pdfs !== undefined) {
       window.localStorage.setItem('academic-dashboard-pinned-pdfs', JSON.stringify(data.pdfs))
       window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
     }
-    if (data.gradeTarget) {
+    if (data.gradeTarget !== undefined) {
       window.localStorage.setItem('academic-dashboard-grade-target', JSON.stringify(data.gradeTarget))
       window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
     }

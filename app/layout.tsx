@@ -20,7 +20,10 @@ export const metadata: Metadata = {
   description:
     'Interactive weekly timetable and academic calendar dashboard for the Scaler School of Technology (SST 2029 Batch, Term 5). Track attendance, syllabus, and class reschedules.',
   icons: {
-    icon: '/favicon.png',
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
     shortcut: '/favicon.png',
     apple: '/favicon.png',
   },
@@ -46,9 +49,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="icon" href="/favicon.png" type="image/png" sizes="any" />
-        <link rel="shortcut icon" href="/favicon.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="icon" href="/favicon.png?v=2" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.png?v=2" type="image/png" />
+        <link rel="apple-touch-icon" href="/favicon.png?v=2" />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
