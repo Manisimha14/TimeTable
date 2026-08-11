@@ -1,0 +1,417 @@
+[
+  {
+    "date": "2026-08-03",
+    "type": "start",
+    "label": "Term Start"
+  },
+  {
+    "date": "2026-08-06",
+    "type": "start",
+    "label": "Term Start"
+  },
+  {
+    "date": "2026-08-10",
+    "type": "start",
+    "label": "Term Start"
+  },
+  {
+    "date": "2026-08-15",
+    "type": "holiday",
+    "label": "Independence Day"
+  },
+  {
+    "date": "2026-08-26",
+    "type": "holiday",
+    "label": "Eid-Milad / Onam"
+  },
+  {
+    "date": "2026-08-28",
+    "type": "holiday",
+    "label": "Raksha Bandhan"
+  },
+  {
+    "date": "2026-09-10",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-09-11",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-09-12",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-09-13",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-09-14",
+    "type": "holiday",
+    "label": "Ganesh Chaturthi, Varasiddhi Vinayaka Vrata"
+  },
+  {
+    "date": "2026-10-02",
+    "type": "holiday",
+    "label": "Gandhi Jayanti"
+  },
+  {
+    "date": "2026-10-19",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2026-10-20",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2026-10-21",
+    "type": "holiday",
+    "label": "Holiday"
+  },
+  {
+    "date": "2026-10-22",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2026-10-23",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2026-10-24",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2026-10-25",
+    "type": "holiday",
+    "label": "Maharishi Valmiki Jayanti"
+  },
+  {
+    "date": "2026-10-29",
+    "type": "start",
+    "label": "Term Start"
+  },
+  {
+    "date": "2026-11-01",
+    "type": "holiday",
+    "label": "Kannada Rajyothsava"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-11-07",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-11-09",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-11-10",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-11-11",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-11-12",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-11-24",
+    "type": "holiday",
+    "label": "Guru Nanak Jayanti"
+  },
+  {
+    "date": "2026-12-10",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-12-11",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-12-12",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-12-13",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2026-12-25",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-12-26",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-12-27",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-12-28",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-12-29",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-12-30",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2026-12-31",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2027-01-01",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2027-01-02",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2027-01-03",
+    "type": "break",
+    "label": "Break"
+  },
+  {
+    "date": "2027-01-15",
+    "type": "holiday",
+    "label": "Uttarayana Punyakala, Makara Sankranti Festival"
+  },
+  {
+    "date": "2027-01-20",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-01-21",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-01-22",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-01-23",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-01-24",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-01-25",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-01-26",
+    "type": "holiday",
+    "label": "Republic Day"
+  },
+  {
+    "date": "2027-02-01",
+    "type": "start",
+    "label": "Term Start"
+  },
+  {
+    "date": "2027-03-04",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-03-05",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-03-06",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-03-07",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-03-10",
+    "type": "holiday",
+    "label": "Ramzan, Eid-ul-Fitr"
+  },
+  {
+    "date": "2027-03-22",
+    "type": "holiday",
+    "label": "Holi"
+  },
+  {
+    "date": "2027-03-26",
+    "type": "holiday",
+    "label": "Good Friday"
+  },
+  {
+    "date": "2027-04-07",
+    "type": "holiday",
+    "label": "Ugadi, Gudi Padwa"
+  },
+  {
+    "date": "2027-04-08",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-04-09",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-04-10",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-04-11",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-04-12",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-04-13",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-04-14",
+    "type": "holiday",
+    "label": "Dr. B.R. Ambedkar Jayanti"
+  },
+  {
+    "date": "2027-04-19",
+    "type": "holiday",
+    "label": "Mahavir Jayanti"
+  },
+  {
+    "date": "2027-04-20",
+    "type": "start",
+    "label": "Term Start"
+  },
+  {
+    "date": "2027-05-01",
+    "type": "holiday",
+    "label": "May Day"
+  },
+  {
+    "date": "2027-05-09",
+    "type": "holiday",
+    "label": "Basava Jayanti, Akshaya Tritiya"
+  },
+  {
+    "date": "2027-05-17",
+    "type": "holiday",
+    "label": "Bakrid"
+  },
+  {
+    "date": "2027-05-20",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-05-21",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-05-22",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-05-23",
+    "type": "mid-term",
+    "label": "Mid-Term Exam"
+  },
+  {
+    "date": "2027-06-15",
+    "type": "holiday",
+    "label": "Last Day of Moharam"
+  },
+  {
+    "date": "2027-06-25",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-06-26",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-06-27",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-06-28",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-06-29",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  },
+  {
+    "date": "2027-06-30",
+    "type": "end-term",
+    "label": "End-Term Exam"
+  }
+]

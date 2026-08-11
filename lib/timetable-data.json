@@ -1,0 +1,2012 @@
+{
+  "meta": {
+    "term": "Term 5",
+    "batch": "SST 2029 Batch",
+    "period": "Aug 2026 – Oct 2026",
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "groups": {
+      "A": "Group A",
+      "B": "Group B",
+      "C": "Group C"
+    },
+    "timeRange": {
+      "startMin": 540,
+      "endMin": 1185
+    }
+  },
+  "courses": {
+    "cml": {
+      "id": "cml",
+      "code": "CML",
+      "name": "Classical Machine Learning",
+      "color": "violet",
+      "sessions": [
+        {
+          "number": "1",
+          "title": "Intro to Classical ML",
+          "topics": [
+            "Introduce supervised vs unsupervised learning and when each applies.",
+            "Walk through the end-to-end classical ML pipeline from data to evaluation.",
+            "Sketch a first sklearn workflow with a proper train/test split."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/477519/#/problems"
+        },
+        {
+          "number": "2",
+          "title": "Data preparation for ML",
+          "topics": [
+            "Cover train/test hygiene and common leakage patterns.",
+            "Apply encoding and scaling as preprocessing steps.",
+            "Compare strategies for missing values before modeling."
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "3",
+          "title": "Linear Regression deep dive",
+          "topics": [
+            "Go beyond the DA 101 intuition for linear regression.",
+            "Cover the hypothesis, cost function, and closed-form solution.",
+            "Introduce feature scaling basics needed for stable fitting."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/477525/#/problems"
+        },
+        {
+          "number": "4",
+          "title": "Linear Regression assumptions",
+          "topics": [
+            "State the classical linear regression assumptions and why each matters.",
+            "Diagnose violations using residual plots and simple checks.",
+            "Discuss practical remedies when assumptions fail in real data."
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "5",
+          "title": "Gradient Descent",
+          "topics": [
+            "Derive the gradient descent update rule and the role of learning rate.",
+            "Compare batch, mini-batch, and stochastic gradient descent.",
+            "Discuss practical pitfalls such as diverging loss and poor feature scaling."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/477530/#/problems\nhttps://www.scaler.com/hire/test/477533/#/problems\nhttps://www.scaler.com/hire/test/785633/#/problems"
+        },
+        {
+          "number": "6",
+          "title": "Bias-Variance & Polynomial Regression",
+          "topics": [
+            "Explain underfitting vs overfitting through the bias-variance tradeoff.",
+            "Use polynomial features to control model complexity.",
+            "Build intuition for learning curves as a diagnostic tool."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/477536/#/problems"
+        },
+        {
+          "number": "7",
+          "title": "Regularization & Cross-Validation",
+          "topics": [
+            "Introduce Ridge, Lasso, and Elastic Net regularization.",
+            "Apply k-fold cross-validation for reliable model assessment.",
+            "Practice hyperparameter selection with validation strategies."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/785636/#/problems"
+        },
+        {
+          "number": "8",
+          "title": "Logistic Regression, Metrics & Imbalance",
+          "topics": [
+            "Review logistic regression for binary classification.",
+            "Cover the confusion matrix along with precision, recall, F1, ROC, and AUC.",
+            "Study class imbalance, metric pitfalls, and threshold tuning for operating-point tradeoffs."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/477539/#/problems\nhttps://www.scaler.com/hire/test/477555/#/problems\nhttps://www.scaler.com/hire/test/579746/#/problems\nhttps://www.scaler.com/hire/test/579749/#/problems"
+        },
+        {
+          "number": "9",
+          "title": "k-Nearest Neighbours",
+          "topics": [
+            "Introduce distance metrics used by k-nearest neighbours.",
+            "Discuss how to choose k and its effect on bias and variance.",
+            "Give a first look at the curse of dimensionality for distance-based methods."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/problem/15857/\nhttps://www.scaler.com/hire/test/problem/15860/\nhttps://www.scaler.com/hire/test/problem/15898/\nhttps://www.scaler.com/hire/test/problem/15900/\nhttps://www.scaler.com/hire/test/problem/16082/\nhttps://www.scaler.com/hire/test/problem/16260/\nhttps://www.scaler.com/hire/test/problem/16455/\nhttps://www.scaler.com/hire/test/problem/16457/\nhttps://www.scaler.com/hire/test/problem/18036/\nhttps://www.scaler.com/hire/test/problem/20423/\nhttps://www.scaler.com/hire/test/problem/24768/\nhttps://www.scaler.com/hire/test/problem/25269/"
+        },
+        {
+          "number": "10",
+          "title": "Lab Session 1",
+          "topics": [
+            "Lab Session 1 - Implementing ML Algorithms on business problems (Regression/Classification)"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "11",
+          "title": "Decision Trees 1",
+          "topics": [
+            "Explain Gini and entropy as splitting criteria.",
+            "Grow decision trees from root to leaves.",
+            "Identify how trees overfit and why that matters."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/problem/16172/\nhttps://www.scaler.com/hire/test/problem/16628/\nhttps://www.scaler.com/hire/test/problem/16630/\nhttps://www.scaler.com/hire/test/problem/25488/\nhttps://www.scaler.com/hire/test/problem/25639/\nhttps://www.scaler.com/hire/test/problem/25755/\nhttps://www.scaler.com/hire/test/problem/25764/"
+        },
+        {
+          "number": "12",
+          "title": "Decision Trees 2",
+          "topics": [
+            "Cover pruning as a control for tree complexity.",
+            "Handle categorical vs numeric features in tree splits.",
+            "Introduce feature importance from tree models."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/problem/17480/\nhttps://www.scaler.com/hire/test/problem/25644/\nhttps://www.scaler.com/hire/test/problem/25647/\nhttps://www.scaler.com/hire/test/problem/25649/\nhttps://www.scaler.com/hire/test/problem/25735/\nhttps://www.scaler.com/hire/test/problem/25740/\nhttps://www.scaler.com/hire/test/problem/25747/\nhttps://www.scaler.com/hire/test/problem/25806/"
+        },
+        {
+          "number": "13",
+          "title": "Bagging & Random Forest",
+          "topics": [
+            "Explain bootstrap aggregating (bagging) as an ensemble idea.",
+            "Build Random Forests and how random feature selection helps.",
+            "Connect ensembles to variance reduction."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/problem/16803/\nhttps://www.scaler.com/hire/test/problem/18768/\nhttps://www.scaler.com/hire/test/problem/25818/\nhttps://www.scaler.com/hire/test/problem/25819/\nhttps://www.scaler.com/hire/test/problem/25830/\nhttps://www.scaler.com/hire/test/problem/25850/"
+        },
+        {
+          "number": "14",
+          "title": "Boosting (GBM / XGBoost intro)",
+          "topics": [
+            "Introduce AdaBoost and the gradient boosting idea.",
+            "Give a practical first look at XGBoost.",
+            "Cover basic tuning levers for boosting models."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/problem/16849/\nhttps://www.scaler.com/hire/test/problem/16856/\nhttps://www.scaler.com/hire/test/problem/25974/\nhttps://www.scaler.com/hire/test/problem/25975/\nhttps://www.scaler.com/hire/test/problem/25987/\nhttps://www.scaler.com/hire/test/problem/25994/\nhttps://www.scaler.com/hire/test/problem/25996/\nhttps://www.scaler.com/hire/test/problem/26069/"
+        },
+        {
+          "number": "15",
+          "title": "Clustering (KMeans + hierarchical)",
+          "topics": [
+            "Run KMeans with elbow and silhouette diagnostics.",
+            "Introduce hierarchical clustering and dendrograms.",
+            "Discuss when clustering is useful versus when it is not."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/433035/#/problems\nhttps://www.scaler.com/hire/test/433037/#/problems"
+        },
+        {
+          "number": "17",
+          "title": "Dimensionality reduction (PCA)",
+          "topics": [
+            "Explain variance explained by principal components.",
+            "Place PCA in a modeling pipeline with downstream estimators.",
+            "Show visualization and compression use cases."
+          ],
+          "assignments": "https://www.scaler.com/hire/test/441178/#/problems"
+        },
+        {
+          "number": "18",
+          "title": "Competition kickoff",
+          "topics": [
+            "Introduce the competition dataset and primary evaluation metric.",
+            "Walk through an EDA checklist before modeling.",
+            "Set expectations for a strong baseline via outside-class submissions."
+          ],
+          "assignments": ""
+        }
+      ],
+      "evaluations": [
+        {
+          "component": "Assignments (PSP)",
+          "weightage": "25%",
+          "comments": "Hire/problem sets mapped per session"
+        },
+        {
+          "component": "Mid-Course Quiz",
+          "weightage": "15%",
+          "comments": "After sessions 1-9 (through kNN)"
+        },
+        {
+          "component": "End Term Exam",
+          "weightage": "40%",
+          "comments": ""
+        },
+        {
+          "component": "Kaggle Competition",
+          "weightage": "20%",
+          "comments": "Outside-class leaderboard after kickoff (session 18)"
+        },
+        {
+          "component": "For Internship Exempted & Course Repeat Students",
+          "weightage": "",
+          "comments": ""
+        },
+        {
+          "component": "Assignments (PSP)",
+          "weightage": "30%",
+          "comments": "Hire/problem sets mapped per session"
+        },
+        {
+          "component": "End Term Exam",
+          "weightage": "50%",
+          "comments": ""
+        },
+        {
+          "component": "Kaggle Competition",
+          "weightage": "20%",
+          "comments": "Outside-class leaderboard after kickoff (session 18)"
+        }
+      ]
+    },
+    "mern": {
+      "id": "mern",
+      "code": "MERN",
+      "name": "Building Web Applications",
+      "color": "emerald",
+      "sessions": [
+        {
+          "number": "1",
+          "title": "MERN-1 : Intro to nodejs and Backend development",
+          "topics": [
+            "Understand the role of Node.js in backend development. Learn about its event-driven architecture, modules, and how to set up a simple server using the http module."
+          ],
+          "assignments": "116293, 116765"
+        },
+        {
+          "number": "2",
+          "title": "MERN-2 : Introduction to Express",
+          "topics": [],
+          "assignments": "116767, 116766"
+        },
+        {
+          "number": "3",
+          "title": "MERN-3 : Intro to Mongodb and CRUD operation",
+          "topics": [
+            "Learn how to connect Node.js applications to MongoDB using Mongoose. Implement full CRUD operations on a persistent NoSQL database."
+          ],
+          "assignments": "116794, 116811"
+        },
+        {
+          "number": "4",
+          "title": "MERN-4: MVC Architecture (Model View and Controllers)",
+          "topics": [
+            "Understand the MVC pattern and apply it to structure backend code for better readability, scalability, and separation of concerns."
+          ],
+          "assignments": "116843 , 116827"
+        },
+        {
+          "number": "5",
+          "title": "MERN-5: Project - Build a Social Media App-1 (Backend and Frontend Setup)",
+          "topics": [
+            "Scaffold a full-stack MERN app. Set up the React frontend, Express backend, and prepare the environment for future feature integration."
+          ],
+          "assignments": "117078 ,117110"
+        },
+        {
+          "number": "6",
+          "title": "MERN-6: Project - Build a Social Media App-2 (Connect to DB and create Models)",
+          "topics": [
+            "Create MongoDB models for User and Post data. Establish a working DB connection and validate the data flow between backend and database."
+          ],
+          "assignments": "116817, 116818"
+        },
+        {
+          "number": "7",
+          "title": "MERN-7: Project - Build a Social Media App-3 (Authentication and Authorization with JWT )",
+          "topics": [
+            "Implement secure authentication and authorization using JWT. Learn user registration, login flows, and protected routes."
+          ],
+          "assignments": "116902, 116909"
+        },
+        {
+          "number": "8",
+          "title": "MERN-8: Project - Build a Social Media App-4 (User Controllers , Middlewares and Cloudinary)",
+          "topics": [
+            "Build reusable controller functions, apply custom middleware for validations and error handling, and integrate Cloudinary for profile image uploads."
+          ],
+          "assignments": "117240, 117239"
+        },
+        {
+          "number": "9",
+          "title": "MERN-9: Project - Build a Social Media App-5 (Implementing Posts API for Profile and UI)",
+          "topics": [
+            "Develop APIs for creating, reading, and deleting posts. Integrate them with the frontend to render dynamic user feeds."
+          ],
+          "assignments": "119428, 119448"
+        },
+        {
+          "number": "10",
+          "title": "MERN-10: Project -Build a Social Media App-6 (Implementing Follow Unfollow Users and UI)",
+          "topics": [
+            "Implement social graph features like follow/unfollow. Update UI to reflect changes and manage state based on user relationships."
+          ],
+          "assignments": "119448, 119429"
+        },
+        {
+          "number": "11",
+          "title": "MERN-11: Project - Build a Social Media App-7 (Implementing Like and comment API and UI)",
+          "topics": [
+            "Add interactivity with like and comment APIs. Reflect real-time updates on the UI with proper feedback to users."
+          ],
+          "assignments": "255373, 255372, 255362"
+        },
+        {
+          "number": "12",
+          "title": "MERN-12: Project - Build a Social Media App-8 (Implementing Realtime Chat and Notifications with Socket.io)",
+          "topics": [
+            "Introduce Socket.io to enable real-time messaging and notification features. Set up socket connections and user mapping."
+          ],
+          "assignments": "255355, 255360"
+        },
+        {
+          "number": "13",
+          "title": "MERN-13: Project - Build a Social Media App-9 (Implementing Realtime Chat and Notifications with Socket.io)-2",
+          "topics": [
+            "Finalize chat and notification features with optimized socket events and frontend integration. Handle edge cases and message persistence."
+          ],
+          "assignments": "255341, 255342"
+        },
+        {
+          "number": "14",
+          "title": "MERN-14: Project - Build a Social Media App-10 (Optimizing the App for better performance)",
+          "topics": [
+            "Improve app performance with lazy loading, code splitting, response caching, and frontend responsiveness tuning."
+          ],
+          "assignments": "255286, 255361"
+        },
+        {
+          "number": "15",
+          "title": "MERN-15: Project - Build a Social Media App-11( Adding Intelligence - Smart Captions with Gemini)",
+          "topics": [
+            "Integrate Google Gemini API to generate intelligent captions for posts. Explore prompt engineering and API consumption within MERN stack."
+          ],
+          "assignments": "255367, 255395"
+        },
+        {
+          "number": "16",
+          "title": "MERN-16: Project - Build a Social Media App-12(Deployment of a Fullstack App)",
+          "topics": [
+            "Deploy the complete app using platforms like Render, Vercel, or Railway. Configure environment variables and CI/CD basics."
+          ],
+          "assignments": "255395, 255424, 255397"
+        }
+      ],
+      "evaluations": [
+        {
+          "component": "Assignments (PSP)",
+          "weightage": "20%",
+          "comments": ""
+        },
+        {
+          "component": "End term",
+          "weightage": "30%",
+          "comments": ""
+        },
+        {
+          "component": "Final Project",
+          "weightage": "30%",
+          "comments": ""
+        },
+        {
+          "component": "AI Mock Interview",
+          "weightage": "20%",
+          "comments": ""
+        },
+        {
+          "component": "For Internship Exempted & Course Repeat Students",
+          "weightage": "",
+          "comments": ""
+        },
+        {
+          "component": "Assignments (PSP)",
+          "weightage": "20%",
+          "comments": ""
+        },
+        {
+          "component": "End term",
+          "weightage": "30%",
+          "comments": ""
+        },
+        {
+          "component": "Final Project",
+          "weightage": "30%",
+          "comments": ""
+        },
+        {
+          "component": "AI Mock Interview",
+          "weightage": "20%",
+          "comments": ""
+        }
+      ]
+    },
+    "cn": {
+      "id": "cn",
+      "code": "CN",
+      "name": "Computer Networks",
+      "color": "amber",
+      "sessions": [
+        {
+          "number": "1",
+          "title": "Introduction to Computer Networks",
+          "topics": [
+            "Why Computer Networks?",
+            "Types of Networks (LAN, WAN, MAN)",
+            "Internet Architecture",
+            "Network Edge vs Network Core",
+            "Packet Switching vs Circuit Switching",
+            "Delay, Latency, Throughput",
+            "Bandwidth & Bottlenecks",
+            "Network Devices (Hub, Switch, Router, Modem)",
+            "OSI vs TCP/IP (Bird's Eye View)"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "2",
+          "title": "Network Packets and Layered Communication",
+          "topics": [
+            "Protocols",
+            "Encapsulation",
+            "Decapsulation",
+            "Headers",
+            "Payload",
+            "Frames vs Packets vs Segments",
+            "Ethernet Frame",
+            "MTU",
+            "Fragmentation",
+            "MAC Addresses"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "3",
+          "title": "IP Addresses and Subnetting I",
+          "topics": [
+            "Why IP Addresses?",
+            "IPv4",
+            "Binary Refresher",
+            "Network ID",
+            "Host ID",
+            "Subnet Mask",
+            "CIDR Notation",
+            "Public vs Private IP",
+            "Loopback Address"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "4",
+          "title": "IP Addresses and Subnetting II",
+          "topics": [
+            "Subnetting Problems",
+            "Variable Length Subnetting (Optional)",
+            "IPv6",
+            "Default Gateway",
+            "Broadcast Address",
+            "Network Address",
+            "Introduction to NAT"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "5",
+          "title": "Graph Algorithms for Networking",
+          "topics": [
+            "Graph Representation",
+            "BFS",
+            "DFS",
+            "Dijkstra"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "6",
+          "title": "Graph Algorithms for Networking II",
+          "topics": [
+            "Bellman-Ford",
+            "Minimum Spanning Tree (High Level)",
+            "Why Routing uses Graphs"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "7",
+          "title": "Routing and Forwarding I",
+          "topics": [
+            "Router",
+            "Routing Table",
+            "Longest Prefix Match",
+            "Static Routing",
+            "Default Route",
+            "Packet Forwarding",
+            "Hop-by-Hop Routing"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "8",
+          "title": "Routing and Forwarding II",
+          "topics": [
+            "Distance Vector Routing",
+            "Link State Routing",
+            "RIP",
+            "OSPF",
+            "BGP (High Level)",
+            "Convergence",
+            "Routing Loops"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "9",
+          "title": "DNS and Internet Applications",
+          "topics": [
+            "Why DNS?",
+            "DNS Hierarchy",
+            "Recursive Resolver",
+            "Root Server",
+            "TLD Server",
+            "Caching",
+            "URL Anatomy",
+            "HTTP Basics",
+            "HTTP Request",
+            "HTTP Response",
+            "Status Codes",
+            "Cookies",
+            "Sessions"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "10",
+          "title": "TCP, UDP and Socket Programming",
+          "topics": [
+            "Transport Layer",
+            "Ports",
+            "TCP",
+            "UDP",
+            "Three-way Handshake",
+            "Four-way Close",
+            "Reliability",
+            "Flow Control",
+            "Sliding Window (Conceptual)",
+            "Socket Programming Concepts",
+            "Client-Server Model"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "11",
+          "title": "NAT, DHCP and Local Network Communication",
+          "topics": [
+            "ARP",
+            "NAT",
+            "PAT",
+            "DHCP",
+            "Lease Process",
+            "Default Gateway",
+            "Home Router",
+            "Private Networks"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "12",
+          "title": "Network Troubleshooting",
+          "topics": [
+            "ping",
+            "traceroute",
+            "nslookup",
+            "dig",
+            "netstat",
+            "ss",
+            "tcpdump",
+            "Wireshark",
+            "Reading Packet Captures",
+            "Common Networking Problems"
+          ],
+          "assignments": ""
+        },
+        {
+          "number": "13",
+          "title": "Complete Internet Journey + Revision",
+          "topics": [
+            "Browser Cache",
+            "DNS Lookup",
+            "ARP",
+            "DHCP (if needed)",
+            "TCP Handshake",
+            "TLS Handshake",
+            "HTTP Request",
+            "Router Forwarding",
+            "NAT",
+            "Load Balancer",
+            "Web Server",
+            "HTTP Response",
+            "TCP Close"
+          ],
+          "assignments": ""
+        }
+      ],
+      "evaluations": [
+        {
+          "component": "Assignments",
+          "weightage": "35%",
+          "comments": "Assignments may include questions in and outside the dashboard\nAssignment Score = PSP * [Assignment section in end-term exam]"
+        },
+        {
+          "component": "End term",
+          "weightage": "40%",
+          "comments": ""
+        },
+        {
+          "component": "Quiz",
+          "weightage": "25%",
+          "comments": "Based on the concepts discussed in the class."
+        },
+        {
+          "component": "For Internship Exempted & Course Repeat Students",
+          "weightage": "",
+          "comments": ""
+        },
+        {
+          "component": "Assignments (PSP)",
+          "weightage": "35%",
+          "comments": ""
+        },
+        {
+          "component": "End Term Viva",
+          "weightage": "25%",
+          "comments": ""
+        },
+        {
+          "component": "End term Exam",
+          "weightage": "40%",
+          "comments": ""
+        }
+      ]
+    },
+    "fdsa": {
+      "id": "fdsa",
+      "code": "FDSA",
+      "name": "FDSA Repeat",
+      "color": "rose",
+      "sessions": [
+        {
+          "number": "1",
+          "title": "FDSA: Bit Manipulations 1",
+          "topics": [
+            "Module Introduction",
+            "Bitwise Operations [AND OR & XOR]",
+            "Basic AND XOR OR Properties",
+            "Left Shift & Right Shift",
+            "Check Bit / Set Bit / Flip Bit / Unset Bit",
+            "Find the min XOR pair in array"
+          ],
+          "assignments": "27344\n26930\n26950\n17892\n383"
+        },
+        {
+          "number": "",
+          "title": "Lab 1",
+          "topics": [],
+          "assignments": "936\n6604\n19558\n1085"
+        },
+        {
+          "number": "2",
+          "title": "FDSA: Bit Manipulations 2",
+          "topics": [
+            "Single Number",
+            "Find Two Missing Numbers",
+            "Sum of Xor of all Pairs"
+          ],
+          "assignments": "192\n193\n35182\n35183"
+        },
+        {
+          "number": "",
+          "title": "Lab 2",
+          "topics": [],
+          "assignments": "195\n9184\n9412\n330"
+        },
+        {
+          "number": "3",
+          "title": "FDSA: Binary Search 1",
+          "topics": [
+            "Search for the element K in sorted array with unique elements.",
+            "Search first & last occurrence of K in sorted array with repeated elements.",
+            "Every element occurs twice consecutively except for 1, find that element",
+            "Matrix Median"
+          ],
+          "assignments": "204\n199\n4131\n357"
+        },
+        {
+          "number": "",
+          "title": "Lab 3",
+          "topics": [],
+          "assignments": "4132\n196\n198\n203"
+        },
+        {
+          "number": "4",
+          "title": "FDSA: Binary Search 2",
+          "topics": [
+            "Allocate Books",
+            "Special Integer",
+            "Find Smallest Again"
+          ],
+          "assignments": "200\n270\n4133\n9155"
+        },
+        {
+          "number": "",
+          "title": "Lab 4",
+          "topics": [],
+          "assignments": "5153\n1104\n271\n4129"
+        },
+        {
+          "number": "5",
+          "title": "FDSA: Hashing 1",
+          "topics": [
+            "Revison of HashMap & HashSet",
+            "Iterate over HashMap & HashSet",
+            "Common Elements in 2 Arrays",
+            "Hash Function + Collision + Chaining",
+            "Distinct Numbers in Window"
+          ],
+          "assignments": "31492\n10203\n27502\n333"
+        },
+        {
+          "number": "",
+          "title": "Lab 5",
+          "topics": [],
+          "assignments": "11882\n1302\n27714\n27741"
+        },
+        {
+          "number": "6",
+          "title": "FDSA: Hashing 2",
+          "topics": [
+            "Longest Subarray with sum = 0",
+            "Count of Subarray with unique elements",
+            "Length of longest consecutive sequence"
+          ],
+          "assignments": "27776\n27742\n1226\n152"
+        },
+        {
+          "number": "",
+          "title": "Lab 6",
+          "topics": [],
+          "assignments": "161\n4808\n275\n4827"
+        },
+        {
+          "number": "7",
+          "title": "FDSA: Linked List 1",
+          "topics": [
+            "Introduction + Use of Linked List over array",
+            "Access K'th index node",
+            "Insert element X at position K",
+            "Delete all occurrences of X"
+          ],
+          "assignments": "30649\n173094\n30536\n30667"
+        },
+        {
+          "number": "",
+          "title": "Lab 7",
+          "topics": [],
+          "assignments": "39\n31\n38\n159"
+        },
+        {
+          "number": "8",
+          "title": "FDSA: Linked List 2",
+          "topics": [
+            "Middle Element of List",
+            "Palindrome List",
+            "Merge Two Sorted List",
+            "Merge Sort on Linked List"
+          ],
+          "assignments": "4370\n331\n36\n34"
+        },
+        {
+          "number": "",
+          "title": "Lab 8",
+          "topics": [],
+          "assignments": "40\n380\n4386\n41"
+        },
+        {
+          "number": "9",
+          "title": "FDSA: Linked List 3",
+          "topics": [
+            "Check if given linked list has cycle",
+            "Find the start of the cycle",
+            "Doubly Linked List Introduction",
+            "Delete the current node in DLL",
+            "K Most Recent Integer (LRU Cache)"
+          ],
+          "assignments": "4226\n37\n239"
+        },
+        {
+          "number": "",
+          "title": "Lab 9",
+          "topics": [],
+          "assignments": "45\n33\n44\n4390"
+        },
+        {
+          "number": "10",
+          "title": "FDSA: Stacks 1",
+          "topics": [
+            "Introduction & Operations of Stack",
+            "Stack Implementation via Linked List",
+            "Double Character Trouble",
+            "Min Stack"
+          ],
+          "assignments": "1064\n678\n968\n52"
+        },
+        {
+          "number": "",
+          "title": "Lab 10",
+          "topics": [],
+          "assignments": "46\n4353\n4347\n274"
+        },
+        {
+          "number": "11",
+          "title": "FDSA: Stacks 2",
+          "topics": [
+            "Nearest Smaller & Greater Element on Left",
+            "Nearest Smaller & Greater Element on Right",
+            "Count of Subarrays where A[i] is Minimum",
+            "Sum of (Max - Min) for all subarrays"
+          ],
+          "assignments": "332\n263\n7042\n4366"
+        },
+        {
+          "number": "",
+          "title": "Lab 11",
+          "topics": [],
+          "assignments": "49\n9290\n4218\n6"
+        },
+        {
+          "number": "12",
+          "title": "FDSA: Queues",
+          "topics": [
+            "Introduction of Queues",
+            "Implement Queue via Stacks",
+            "Introduction of Deque",
+            "Sliding Window Maximum"
+          ],
+          "assignments": "11439\n50"
+        },
+        {
+          "number": "",
+          "title": "Lab 12",
+          "topics": [],
+          "assignments": "4364\n3297\n4365\n4363"
+        },
+        {
+          "number": "13",
+          "title": "FDSA: Binary Trees 1",
+          "topics": [
+            "Structure & Nomenclature of Binary Tree",
+            "Traversal using Recursion",
+            "[Preorder + Inorder + Postorder]",
+            "Iterative Preorder Traversal"
+          ],
+          "assignments": "222\n214\n229\n231"
+        },
+        {
+          "number": "",
+          "title": "Lab 13",
+          "topics": [],
+          "assignments": "334\n228\n4859\n234"
+        },
+        {
+          "number": "14",
+          "title": "FDSA: Binary Trees 2",
+          "topics": [
+            "Find the Height Binary Tree",
+            "Check if Binary Tree if Height Balanced",
+            "Level Order Traversal",
+            "ZigZag Level Order Traversal"
+          ],
+          "assignments": "225\n206\n5714\n233"
+        },
+        {
+          "number": "",
+          "title": "Lab 14",
+          "topics": [],
+          "assignments": "4401\n15\n235\n9256"
+        },
+        {
+          "number": "15",
+          "title": "FDSA: Binary Trees 3",
+          "topics": [
+            "Construct Binary Tree from Inorder & Preorder traversal",
+            "Flatten Binary Tree to Linked List"
+          ],
+          "assignments": "219\n224\n220\n4675"
+        },
+        {
+          "number": "",
+          "title": "Lab 15",
+          "topics": [],
+          "assignments": "378\n5715\n4394\n4677"
+        }
+      ],
+      "evaluations": [
+        {
+          "component": "Assignment Test 1",
+          "weightage": "15%",
+          "comments": "Duration = 1 Hour\n(Problems from Assignments)"
+        },
+        {
+          "component": "Mid Term",
+          "weightage": "30%",
+          "comments": "Duration = 2 Hours"
+        },
+        {
+          "component": "Assignment Test 2",
+          "weightage": "15%",
+          "comments": "Duration = 1 Hour\n(Problems from Assignments)"
+        },
+        {
+          "component": "End Term",
+          "weightage": "40%",
+          "comments": "Duration = 2 Hours"
+        },
+        {
+          "component": "In-class Participation",
+          "weightage": "-",
+          "comments": "Deductions in marks can be done based on disciplinary actions during the classes"
+        }
+      ]
+    },
+    "clubs": {
+      "id": "clubs",
+      "code": "Clubs",
+      "name": "Academic Clubs",
+      "color": "sky",
+      "sessions": [],
+      "evaluations": []
+    }
+  },
+  "eventsByGroup": {
+    "A": [
+      {
+        "id": "Monday-2-6",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 600,
+        "endMin": 720,
+        "startLabel": "10:00 AM",
+        "endLabel": "12:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": false,
+        "faculty": "Mrinal",
+        "room": "Classroom A 1st floor",
+        "raw": "MERN - 2029\nGrp A\n(Mrinal)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Monday-2-16",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 750,
+        "endMin": 810,
+        "startLabel": "12:30 PM",
+        "endLabel": "1:30 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Monday-2-20",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 810,
+        "endMin": 900,
+        "startLabel": "1:30 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": true,
+        "faculty": "Mrinal",
+        "room": "Class A 2nd floor",
+        "raw": "MERN - 2029\nGrp A LAB\n(Mrinal)\nClass A 2nd floor"
+      },
+      {
+        "id": "Monday-2-32",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 990,
+        "endMin": 1080,
+        "startLabel": "4:30 PM",
+        "endLabel": "6:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": false,
+        "faculty": "Utkarsh",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat\n(Utkarsh)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Monday-2-38",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 1080,
+        "endMin": 1185,
+        "startLabel": "6:00 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 105,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Tuesday-3-6",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 600,
+        "endMin": 720,
+        "startLabel": "10:00 AM",
+        "endLabel": "12:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": false,
+        "faculty": "Mrinal",
+        "room": "Classroom B 1st floor",
+        "raw": "MERN - 2029\nGrp A\n(Mrinal)\nClassroom B 1st floor"
+      },
+      {
+        "id": "Tuesday-3-16",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 750,
+        "endMin": 810,
+        "startLabel": "12:30 PM",
+        "endLabel": "1:30 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Tuesday-3-34",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 1020,
+        "endMin": 1110,
+        "startLabel": "5:00 PM",
+        "endLabel": "6:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": true,
+        "faculty": "Deepanshi",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat LAB\n(Deepanshi)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Wednesday-4-18",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 780,
+        "endMin": 840,
+        "startLabel": "1:00 PM",
+        "endLabel": "2:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Wednesday-4-22",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 840,
+        "endMin": 960,
+        "startLabel": "2:00 PM",
+        "endLabel": "4:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cn",
+        "courseName": "Computer Networks",
+        "code": "CN",
+        "color": "amber",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Classroom C Ground Floor",
+        "raw": "CN - 2029\nGrp A\n(Ayush)\nClassroom C Ground Floor"
+      },
+      {
+        "id": "Wednesday-4-34",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 1020,
+        "endMin": 1110,
+        "startLabel": "5:00 PM",
+        "endLabel": "6:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": false,
+        "faculty": "Utkarsh",
+        "room": "Classroom B 1st floor",
+        "raw": "FDSA Repeat\n(Utkarsh)\nClassroom B 1st floor"
+      },
+      {
+        "id": "Thursday-5-4",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 570,
+        "endMin": 690,
+        "startLabel": "9:30 AM",
+        "endLabel": "11:30 AM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cml",
+        "courseName": "Classical Machine Learning",
+        "code": "CML",
+        "color": "violet",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Classroom 1st floor",
+        "raw": "CML - 2029\nGrp A\n(Ayush)\nClassroom 1st floor"
+      },
+      {
+        "id": "Thursday-5-20",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 810,
+        "endMin": 870,
+        "startLabel": "1:30 PM",
+        "endLabel": "2:30 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Thursday-5-32",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 990,
+        "endMin": 1080,
+        "startLabel": "4:30 PM",
+        "endLabel": "6:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": true,
+        "faculty": "Utkarsh",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat LAB\n(Utkarsh)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Thursday-5-38",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 1080,
+        "endMin": 1185,
+        "startLabel": "6:00 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 105,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Friday-6-14",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 720,
+        "endMin": 780,
+        "startLabel": "12:00 PM",
+        "endLabel": "1:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Friday-6-18",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 780,
+        "endMin": 900,
+        "startLabel": "1:00 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cn",
+        "courseName": "Computer Networks",
+        "code": "CN",
+        "color": "amber",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Classroom C Ground Floor",
+        "raw": "CN - 2029\nGrp A\n(Ayush)\nClassroom C Ground Floor"
+      },
+      {
+        "id": "Friday-6-28",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 930,
+        "endMin": 1020,
+        "startLabel": "3:30 PM",
+        "endLabel": "5:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": true,
+        "faculty": "Mrinal",
+        "room": "Classroom A 1st floor",
+        "raw": "MERN - 2029\nGrp A LAB\n(Mrinal)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Friday-6-36",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 1050,
+        "endMin": 1185,
+        "startLabel": "5:30 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 135,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Saturday-7-22",
+        "day": "Saturday",
+        "dayIndex": 5,
+        "startMin": 840,
+        "endMin": 960,
+        "startLabel": "2:00 PM",
+        "endLabel": "4:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cml",
+        "courseName": "Classical Machine Learning",
+        "code": "CML",
+        "color": "violet",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Classroom 1st floor",
+        "raw": "CML - 2029\nGrp A\n(Ayush)\nClassroom 1st floor"
+      }
+    ],
+    "B": [
+      {
+        "id": "Monday-9-14",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 720,
+        "endMin": 780,
+        "startLabel": "12:00 PM",
+        "endLabel": "1:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Monday-9-18",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 780,
+        "endMin": 900,
+        "startLabel": "1:00 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cn",
+        "courseName": "Computer Networks",
+        "code": "CN",
+        "color": "amber",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Classroom A 1st floor",
+        "raw": "CN - 2029\nGrp B\n(Ayush)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Monday-9-32",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 990,
+        "endMin": 1080,
+        "startLabel": "4:30 PM",
+        "endLabel": "6:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": false,
+        "faculty": "Utkarsh",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat\n(Utkarsh)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Monday-9-38",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 1080,
+        "endMin": 1185,
+        "startLabel": "6:00 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 105,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Tuesday-10-14",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 720,
+        "endMin": 780,
+        "startLabel": "12:00 PM",
+        "endLabel": "1:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Tuesday-10-18",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 780,
+        "endMin": 900,
+        "startLabel": "1:00 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": false,
+        "faculty": "Mrinal",
+        "room": "Classroom A 1st floor",
+        "raw": "MERN - 2029\nGrp B\n(Mrinal)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Tuesday-10-34",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 1020,
+        "endMin": 1110,
+        "startLabel": "5:00 PM",
+        "endLabel": "6:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": true,
+        "faculty": "Deepanshi",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat LAB\n(Deepanshi)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Wednesday-11-14",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 720,
+        "endMin": 780,
+        "startLabel": "12:00 PM",
+        "endLabel": "1:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Wednesday-11-18",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 780,
+        "endMin": 900,
+        "startLabel": "1:00 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": false,
+        "faculty": "Mrinal",
+        "room": "Classroom A 1st floor",
+        "raw": "MERN - 2029\nGrp B\n(Mrinal)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Wednesday-11-28",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 930,
+        "endMin": 1020,
+        "startLabel": "3:30 PM",
+        "endLabel": "5:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": true,
+        "faculty": "Mrinal",
+        "room": "Class A 1st floor",
+        "raw": "MERN - 2029\nGrp B LAB\n(Mrinal)\nClass A 1st floor"
+      },
+      {
+        "id": "Wednesday-11-34",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 1020,
+        "endMin": 1110,
+        "startLabel": "5:00 PM",
+        "endLabel": "6:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": false,
+        "faculty": "Utkarsh",
+        "room": "Classroom B 1st floor",
+        "raw": "FDSA Repeat\n(Utkarsh)\nClassroom B 1st floor"
+      },
+      {
+        "id": "Thursday-12-14",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 720,
+        "endMin": 780,
+        "startLabel": "12:00 PM",
+        "endLabel": "1:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Thursday-12-18",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 780,
+        "endMin": 900,
+        "startLabel": "1:00 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cn",
+        "courseName": "Computer Networks",
+        "code": "CN",
+        "color": "amber",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Classroom A 1st floor",
+        "raw": "CN - 2029\nGrp B\n(Ayush)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Thursday-12-32",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 990,
+        "endMin": 1080,
+        "startLabel": "4:30 PM",
+        "endLabel": "6:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": true,
+        "faculty": "Utkarsh",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat LAB\n(Utkarsh)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Thursday-12-38",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 1080,
+        "endMin": 1185,
+        "startLabel": "6:00 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 105,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Friday-13-6",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 600,
+        "endMin": 720,
+        "startLabel": "10:00 AM",
+        "endLabel": "12:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cml",
+        "courseName": "Classical Machine Learning",
+        "code": "CML",
+        "color": "violet",
+        "isLab": false,
+        "faculty": "Chitwan",
+        "room": "Class C 2nd floor",
+        "raw": "CML - 2029\nGrp B\n(Chitwan)\nClass C 2nd floor"
+      },
+      {
+        "id": "Friday-13-18",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 780,
+        "endMin": 840,
+        "startLabel": "1:00 PM",
+        "endLabel": "2:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Friday-13-36",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 1050,
+        "endMin": 1185,
+        "startLabel": "5:30 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 135,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Saturday-14-14",
+        "day": "Saturday",
+        "dayIndex": 5,
+        "startMin": 720,
+        "endMin": 810,
+        "startLabel": "12:00 PM",
+        "endLabel": "1:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": true,
+        "faculty": "Mrinal",
+        "room": "Class A 1st floor",
+        "raw": "MERN - 2029\nGrp B LAB\n(Mrinal)\nClass A 1st floor"
+      },
+      {
+        "id": "Saturday-14-22",
+        "day": "Saturday",
+        "dayIndex": 5,
+        "startMin": 840,
+        "endMin": 960,
+        "startLabel": "2:00 PM",
+        "endLabel": "4:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cml",
+        "courseName": "Classical Machine Learning",
+        "code": "CML",
+        "color": "violet",
+        "isLab": false,
+        "faculty": "Chitwan",
+        "room": "Class C 2nd floor",
+        "raw": "CML - 2029\nGrp B\n(Chitwan)\nClass C 2nd floor"
+      }
+    ],
+    "C": [
+      {
+        "id": "Monday-16-22",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 840,
+        "endMin": 900,
+        "startLabel": "2:00 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Monday-16-32",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 990,
+        "endMin": 1080,
+        "startLabel": "4:30 PM",
+        "endLabel": "6:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": false,
+        "faculty": "Utkarsh",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat\n(Utkarsh)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Monday-16-38",
+        "day": "Monday",
+        "dayIndex": 0,
+        "startMin": 1080,
+        "endMin": 1185,
+        "startLabel": "6:00 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 105,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Tuesday-17-4",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 570,
+        "endMin": 690,
+        "startLabel": "9:30 AM",
+        "endLabel": "11:30 AM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cml",
+        "courseName": "Classical Machine Learning",
+        "code": "CML",
+        "color": "violet",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Class A 1st floor",
+        "raw": "CML - 2029\nGrp C\n(Ayush)\nClass A 1st floor"
+      },
+      {
+        "id": "Tuesday-17-16",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 750,
+        "endMin": 810,
+        "startLabel": "12:30 PM",
+        "endLabel": "1:30 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Tuesday-17-20",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 810,
+        "endMin": 930,
+        "startLabel": "1:30 PM",
+        "endLabel": "3:30 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cn",
+        "courseName": "Computer Networks",
+        "code": "CN",
+        "color": "amber",
+        "isLab": false,
+        "faculty": "Kshitij",
+        "room": "Class c ground floor",
+        "raw": "CN - 2029\nGrp C\n(Kshitij)\nClass c ground floor"
+      },
+      {
+        "id": "Tuesday-17-34",
+        "day": "Tuesday",
+        "dayIndex": 1,
+        "startMin": 1020,
+        "endMin": 1110,
+        "startLabel": "5:00 PM",
+        "endLabel": "6:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": true,
+        "faculty": "Deepanshi",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat LAB\n(Deepanshi)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Wednesday-18-6",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 600,
+        "endMin": 720,
+        "startLabel": "10:00 AM",
+        "endLabel": "12:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": false,
+        "faculty": "Mrinal",
+        "room": "Classroom A ist floor",
+        "raw": "MERN - 2029\nGrp C\n(Mrinal)\nClassroom A ist floor"
+      },
+      {
+        "id": "Wednesday-18-14",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 720,
+        "endMin": 780,
+        "startLabel": "12:00 PM",
+        "endLabel": "1:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Wednesday-18-34",
+        "day": "Wednesday",
+        "dayIndex": 2,
+        "startMin": 1020,
+        "endMin": 1110,
+        "startLabel": "5:00 PM",
+        "endLabel": "6:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": false,
+        "faculty": "Utkarsh",
+        "room": "Classroom B 1st floor",
+        "raw": "FDSA Repeat\n(Utkarsh)\nClassroom B 1st floor"
+      },
+      {
+        "id": "Thursday-19-18",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 780,
+        "endMin": 840,
+        "startLabel": "1:00 PM",
+        "endLabel": "2:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Thursday-19-22",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 840,
+        "endMin": 930,
+        "startLabel": "2:00 PM",
+        "endLabel": "3:30 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": true,
+        "faculty": "Mrinal",
+        "room": "Class B 1st floor",
+        "raw": "MERN - 2029\nGrp C LAB \n(Mrinal)\nClass B 1st floor"
+      },
+      {
+        "id": "Thursday-19-32",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 990,
+        "endMin": 1080,
+        "startLabel": "4:30 PM",
+        "endLabel": "6:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "fdsa",
+        "courseName": "FDSA Repeat",
+        "code": "FDSA",
+        "color": "rose",
+        "isLab": true,
+        "faculty": "Utkarsh",
+        "room": "Classroom A 1st floor",
+        "raw": "FDSA Repeat LAB\n(Utkarsh)\nClassroom A 1st floor"
+      },
+      {
+        "id": "Thursday-19-38",
+        "day": "Thursday",
+        "dayIndex": 3,
+        "startMin": 1080,
+        "endMin": 1185,
+        "startLabel": "6:00 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 105,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Friday-20-6",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 600,
+        "endMin": 720,
+        "startLabel": "10:00 AM",
+        "endLabel": "12:00 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": false,
+        "faculty": "Mrinal",
+        "room": "Classroom A ist floor",
+        "raw": "MERN - 2029\nGrp C\n(Mrinal)\nClassroom A ist floor"
+      },
+      {
+        "id": "Friday-20-16",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 750,
+        "endMin": 840,
+        "startLabel": "12:30 PM",
+        "endLabel": "2:00 PM",
+        "durationMin": 90,
+        "type": "class",
+        "courseId": "mern",
+        "courseName": "Building Web Applications",
+        "code": "MERN",
+        "color": "emerald",
+        "isLab": true,
+        "faculty": "Mrinal",
+        "room": "Class B 1st floor",
+        "raw": "MERN - 2029\nGrp C LAB \n(Mrinal)\nClass B 1st floor"
+      },
+      {
+        "id": "Friday-20-22",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 840,
+        "endMin": 900,
+        "startLabel": "2:00 PM",
+        "endLabel": "3:00 PM",
+        "durationMin": 60,
+        "type": "break",
+        "title": "Lunch"
+      },
+      {
+        "id": "Friday-20-36",
+        "day": "Friday",
+        "dayIndex": 4,
+        "startMin": 1050,
+        "endMin": 1185,
+        "startLabel": "5:30 PM",
+        "endLabel": "7:45 PM",
+        "durationMin": 135,
+        "type": "class",
+        "courseId": "clubs",
+        "courseName": "Academic Clubs",
+        "code": "Clubs",
+        "color": "sky",
+        "isLab": false,
+        "faculty": "",
+        "room": "C groundfloor",
+        "raw": "Academic Clubs\n[5:30 - 8 PM]\nC groundfloor"
+      },
+      {
+        "id": "Saturday-21-4",
+        "day": "Saturday",
+        "dayIndex": 5,
+        "startMin": 570,
+        "endMin": 690,
+        "startLabel": "9:30 AM",
+        "endLabel": "11:30 AM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cml",
+        "courseName": "Classical Machine Learning",
+        "code": "CML",
+        "color": "violet",
+        "isLab": false,
+        "faculty": "Ayush",
+        "room": "Class A 1st floor",
+        "raw": "CML - 2029\nGrp C\n(Ayush)\nClass A 1st floor"
+      },
+      {
+        "id": "Saturday-21-20",
+        "day": "Saturday",
+        "dayIndex": 5,
+        "startMin": 810,
+        "endMin": 930,
+        "startLabel": "1:30 PM",
+        "endLabel": "3:30 PM",
+        "durationMin": 120,
+        "type": "class",
+        "courseId": "cn",
+        "courseName": "Computer Networks",
+        "code": "CN",
+        "color": "amber",
+        "isLab": false,
+        "faculty": "Kshitij",
+        "room": "Class c ground floor",
+        "raw": "CN - 2029\nGrp C\n(Kshitij)\nClass c ground floor"
+      }
+    ]
+  }
+}
