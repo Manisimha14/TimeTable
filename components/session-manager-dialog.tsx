@@ -484,12 +484,12 @@ function SessionCard({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 w-full sm:w-auto">
+      <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:items-center sm:gap-2">
         <button
           type="button"
           onClick={onMarkPresent}
           className={cn(
-            'inline-flex min-h-[38px] flex-1 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95 sm:flex-none',
+            'inline-flex min-h-[38px] items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95 sm:flex-none w-full sm:w-auto',
             status === 'present'
               ? 'bg-emerald-600 text-white shadow-xs'
               : 'border border-border bg-background text-muted-foreground hover:text-foreground',
@@ -502,7 +502,7 @@ function SessionCard({
           type="button"
           onClick={onMarkMissed}
           className={cn(
-            'inline-flex min-h-[38px] flex-1 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95 sm:flex-none',
+            'inline-flex min-h-[38px] items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95 sm:flex-none w-full sm:w-auto',
             status === 'missed'
               ? 'bg-destructive text-destructive-foreground shadow-xs'
               : 'border border-border bg-background text-muted-foreground hover:text-foreground',
@@ -516,9 +516,9 @@ function SessionCard({
             type="button"
             onClick={onClear}
             title="Reset to unlogged"
-            className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-95"
+            className="col-span-2 inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-95 sm:col-span-1 sm:flex-none"
           >
-            <RotateCcw className="size-3.5" />
+            <RotateCcw className="size-3.5" /> Reset to unlogged
           </button>
         )}
       </div>
