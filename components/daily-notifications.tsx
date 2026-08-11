@@ -6,28 +6,30 @@ import {
   AlertTriangle,
   Bell,
   BellRing,
+  BellOff,
   CalendarDays,
   CheckCircle2,
   Clock,
   ExternalLink,
   FileText,
   Flame,
-  ListTodo,
   Sparkles,
+  Volume2,
+  VolumeX,
   X,
+  XCircle,
+  Lock,
 } from 'lucide-react'
 import {
   allCourseOccurrences,
   ATTENDANCE_CHANGED_EVENT,
-  COURSE_ORDER,
   EXCLUDED_COURSES_CHANGED_EVENT,
-  fullDateLabel,
   getAttendanceLog,
   getAttendanceMetrics,
   getExcludedCourses,
   getLockedGroup,
   LOCKED_GROUP_CHANGED_EVENT,
-  timetable,
+  setAttendanceStatus,
   type AttendanceStatus,
   type CourseId,
   type GroupKey,
@@ -39,12 +41,15 @@ import {
 } from '@/lib/schedule-overrides'
 import { upcomingEvents } from '@/lib/academic-calendar'
 import { cn } from '@/lib/utils'
-import { Lock } from 'lucide-react'
 
 interface DailyNotificationsProps {
   group: GroupKey
   onOpenSessionManager?: () => void
 }
+
+const SOUND_PREF_KEY = 'sst-notif-sound'
+const SNOOZE_KEY_PREFIX = 'sst-notif-snooze-'
+const DISMISSED_CARDS_KEY = 'sst-notif-dismissed'
 
 export function DailyNotifications({
   group,
@@ -59,6 +64,9 @@ export function DailyNotifications({
   const [pushPermission, setPushPermission] = useState<
     NotificationPermission | 'unsupported'
   >('unsupported')
+  const [soundOn, setSoundOn] = useState(true)
+  const [dismissedToday, setDismissedToday] = useState<Set<string>>(new Set())
+  const [justLogged, setJustLogged] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     setNow(new Date())
@@ -68,6 +76,16 @@ export function DailyNotifications({
 
   useEffect(() => {
     if ('Notification' in window) setPushPermission(Notification.permission)
+    try {
+      const savedSound = localStorage.getItem(SOUND_PREF_KEY)
+      if (savedSound !== null) setSoundOn(savedSound === '1')
+      const todayKey = new Date().toDateString()
+      const savedDismissed = localStorage.getItem(
+        `${DISMISSED_CARDS_KEY}-${todayKey}`,
+      )
+      if (savedDismissed) setDismissedToday(new Set(JSON.parse(savedDismissed)))
+    } catch {}
+
     const updateLog = () => setLog(getAttendanceLog())
     const updateOverrides = () => setOverrides(getScheduleOverrides())
     const updateEx = () => setExcluded(getExcludedCourses())
@@ -89,6 +107,61 @@ export function DailyNotifications({
     }
   }, [])
 
+  const toggleSound = () => {
+    setSoundOn((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem(SOUND_PREF_KEY, next ? '1' : '0')
+      } catch {}
+      return next
+    })
+  }
+
+  const dismissCard = (id: string) => {
+    setDismissedToday((prev) => {
+      const next = new Set(prev)
+      next.add(id)
+      try {
+        const todayKey = new Date().toDateString()
+        localStorage.setItem(
+          `${DISMISSED_CARDS_KEY}-${todayKey}`,
+          JSON.stringify(Array.from(next)),
+        )
+      } catch {}
+      return next
+    })
+  }
+
+  const snoozeReminder = (key: string, minutes: number) => {
+    try {
+      localStorage.setItem(
+        `${SNOOZE_KEY_PREFIX}${key}`,
+        String(Date.now() + minutes * 60_000),
+      )
+    } catch {}
+  }
+
+  const isSnoozed = (key: string) => {
+    try {
+      const until = localStorage.getItem(`${SNOOZE_KEY_PREFIX}${key}`)
+      return until ? Date.now() < Number(until) : false
+    } catch {
+      return false
+    }
+  }
+
+  const quickLog = (key: string, status: AttendanceStatus) => {
+    setAttendanceStatus(key, status)
+    setJustLogged((prev) => new Set(prev).add(key))
+    setTimeout(() => {
+      setJustLogged((prev) => {
+        const next = new Set(prev)
+        next.delete(key)
+        return next
+      })
+    }, 1500)
+  }
+
   const todayMsVal = now ? Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) : 0
   const nowMin = now ? now.getHours() * 60 + now.getMinutes() : 0
 
@@ -97,13 +170,19 @@ export function DailyNotifications({
     [group, overrides, excluded],
   )
 
-  // Run background checks for system push notifications (starting / ending)
+  // Background checks for system push notifications (starting / ending)
   useEffect(() => {
-    if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return
+    if (
+      typeof window === 'undefined' ||
+      !('Notification' in window) ||
+      Notification.permission !== 'granted'
+    )
+      return
 
     const sentNotifications = new Set<string>()
 
     const playChime = () => {
+      if (!soundOn) return
       try {
         const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
         const osc = ctx.createOscillator()
@@ -117,7 +196,7 @@ export function DailyNotifications({
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
         osc.start()
         osc.stop(ctx.currentTime + 0.4)
-      } catch (e) {}
+      } catch {}
     }
 
     const checkAndNotify = () => {
@@ -125,75 +204,75 @@ export function DailyNotifications({
       const tMs = Date.UTC(nowObj.getFullYear(), nowObj.getMonth(), nowObj.getDate())
       const minToday = nowObj.getHours() * 60 + nowObj.getMinutes()
 
-      // 1. Session Starting soon notification (1 hour before class)
       const upcoming = occurrences.find(
-        (o) => o.ms === tMs && o.startMin > minToday && o.startMin - minToday <= 60
+        (o) => o.ms === tMs && o.startMin > minToday && o.startMin - minToday <= 60,
       )
-      if (upcoming) {
+      if (upcoming && !isSnoozed(`start-${upcoming.key}`)) {
         const notifyKey = `start-${upcoming.key}`
         if (!sentNotifications.has(notifyKey)) {
           sentNotifications.add(notifyKey)
           const startMemes = [
-            "Inka 1 hour lo class undhi ra bujji! Fast ga ready aipooo 🏃‍♂️",
-            "Class time aithondhi guru! Tiffin tini room nundi jaldi bayaludey ⏰",
-            "Instructor active aipoyaru! Inka nidra chalu, class ki veldham padhaa ⚡",
-            "Attendance meedha aasa unte, inka 1 hour lo class ki vellu masteru 🎒",
-            "Sir already slides open chesaru anta! Late aithe door daggare ninchovalsochidhi 🚪",
-            "Enni rojulu bunk kodthav? Eeroju aina class ki vellu bro 😴",
-            "Class 1 hour lo start avvabothondhi! Tiffins tinesi laptop charging pettuko 💻",
-            "Orey badhakam aapu! Inka ganta lo session undhi, fast ga tayar koo ⏱️",
-            "Proxy lu nadavavu ikkada! Direct ga physically present avvalsindhe 🔥",
-            "Instructor attendance list pattukoni tayar ga unnaru! Parigethu raa 🏃",
-            "Class ki 1 hour undhi! Coffee taagi brain refresh chesko ☕",
-            "Eeroju class chala important antunnaru! Bunk kotti regret avvaku 📚",
-            "Lab session 1 hour lo undhi! Code syntax gurtu techuko bhayya 💻",
-            "Gate daggara security strict gaa undhi! Card techuko, class ki ready aipo 🪪",
-            "Professor eeroju surprise test pedutharemo! Jaldi class ki vellu 📝",
-            "Nee seat vere vaallu kabbja cheyakundaa 1 hour lo pahunchipo 🪑",
-            "Inka bed meedhe unnava? Alarm moguthondi bhayya, le le! 🔔",
-            "Class miss aithe tarvatha recordings choosthu edavalsosthadi 📼",
-            "Arey entraa inka bed digaledhu? Class inka 1 hour lo start ⏰",
-            "Good morning hero! Class starting in 1 hour, be ready! ⚡"
+            'Inka 1 hour lo class undhi ra bujji! Fast ga ready aipooo 🏃‍♂️',
+            'Class time aithondhi guru! Tiffin tini room nundi jaldi bayaludey ⏰',
+            'Instructor active aipoyaru! Inka nidra chalu, class ki veldham padhaa ⚡',
+            'Attendance meedha aasa unte, inka 1 hour lo class ki vellu masteru 🎒',
+            'Sir already slides open chesaru anta! Late aithe door daggare ninchovalsochidhi 🚪',
+            'Enni rojulu bunk kodthav? Eeroju aina class ki vellu bro 😴',
+            'Class 1 hour lo start avvabothondhi! Tiffins tinesi laptop charging pettuko 💻',
+            'Orey badhakam aapu! Inka ganta lo session undhi, fast ga tayar koo ⏱️',
+            'Proxy lu nadavavu ikkada! Direct ga physically present avvalsindhe 🔥',
+            'Instructor attendance list pattukoni tayar ga unnaru! Parigethu raa 🏃',
+            'Class ki 1 hour undhi! Coffee taagi brain refresh chesko ☕',
+            'Eeroju class chala important antunnaru! Bunk kotti regret avvaku 📚',
+            'Lab session 1 hour lo undhi! Code syntax gurtu techuko bhayya 💻',
+            'Gate daggara security strict gaa undhi! Card techuko, class ki ready aipo 🪪',
+            'Professor eeroju surprise test pedutharemo! Jaldi class ki vellu 📝',
+            'Nee seat vere vaallu kabbja cheyakundaa 1 hour lo pahunchipo 🪑',
+            'Inka bed meedhe unnava? Alarm moguthondi bhayya, le le! 🔔',
+            'Class miss aithe tarvatha recordings choosthu edavalsosthadi 📼',
+            'Arey entraa inka bed digaledhu? Class inka 1 hour lo start ⏰',
+            'Good morning hero! Class starting in 1 hour, be ready! ⚡',
           ]
           const meme = startMemes[Math.floor(Math.random() * startMemes.length)]
           playChime()
           new Notification(`SST Term 5: ${upcoming.code} Starting in 1 Hour!`, {
-            body: `${upcoming.code} starts at ${Math.floor(upcoming.startMin/60)}:${(upcoming.startMin%60).toString().padStart(2, '0')} (in 1 hour). ${meme}`,
-            icon: '/favicon.png'
+            body: `${upcoming.code} starts at ${Math.floor(upcoming.startMin / 60)}:${(upcoming.startMin % 60)
+              .toString()
+              .padStart(2, '0')} (in 1 hour). ${meme}`,
+            icon: '/favicon.png',
           })
         }
       }
 
-      // 2. Session Ended (log attendance alert)
       const ended = occurrences.find(
-        (o) => o.ms === tMs && minToday >= o.endMin && minToday - o.endMin <= 15
+        (o) => o.ms === tMs && minToday >= o.endMin && minToday - o.endMin <= 15,
       )
-      if (ended && !log[ended.key]) {
+      if (ended && !log[ended.key] && !isSnoozed(`end-${ended.key}`)) {
         const notifyKey = `end-${ended.key}`
         if (!sentNotifications.has(notifyKey)) {
           sentNotifications.add(notifyKey)
           const endMemes = [
-            "Class aipoyindhi ra bujji! Present aa Missed aa ventane log chesei 📝",
-            "Attend ayyava leda? Log cheyaka pothe direct ga 0% eh bhayya 🔥",
-            "Log chesava leda? Emundhi le attendance poyaka edavachu 😴",
-            "Professor roll call complete chesaru! Ni status ento ikkada submit cheyi ⚡",
-            "Proxy vesi intlo kurchunnav ah? Correct status mark cheyi raa 👀",
-            "Session mugisindhi! Timetable lo present ani ticks pettukovayya 🎯",
-            "Sarey class aithe aindi, billu nillu avvakunda dashboard lo log cheyi 💸",
-            "Attendance log cheyadam marchipothe 80% lechi poddi 📉",
-            "Eeroju session lo em ardham aindho notes rasuko, log submit cheyi ✍️",
-            "Instructor sign-off ichesaru! Nee attendance status mark chesi relax avvu ☕",
-            "Pakkana vaallu present rasukuntunnaru, nuvvu log marchipoyava? 🤦‍♂️",
-            "Late cheyakunda single tap tho attendance update chesei 👋",
-            "End of class! Time for logging attendance before you grab lunch 🍲",
-            "Missed aithe genuine ga Missed kottu, cutoff munde telusthadi ⚠️",
-            "Log status saved! Keep tracking your progress daily 🚀"
+            'Class aipoyindhi ra bujji! Present aa Missed aa ventane log chesei 📝',
+            'Attend ayyava leda? Log cheyaka pothe direct ga 0% eh bhayya 🔥',
+            'Log chesava leda? Emundhi le attendance poyaka edavachu 😴',
+            'Professor roll call complete chesaru! Ni status ento ikkada submit cheyi ⚡',
+            'Proxy vesi intlo kurchunnav ah? Correct status mark cheyi raa 👀',
+            'Session mugisindhi! Timetable lo present ani ticks pettukovayya 🎯',
+            'Sarey class aithe aindi, billu nillu avvakunda dashboard lo log cheyi 💸',
+            'Attendance log cheyadam marchipothe 80% lechi poddi 📉',
+            'Eeroju session lo em ardham aindho notes rasuko, log submit cheyi ✍️',
+            'Instructor sign-off ichesaru! Nee attendance status mark chesi relax avvu ☕',
+            'Pakkana vaallu present rasukuntunnaru, nuvvu log marchipoyava? 🤦‍♂️',
+            'Late cheyakunda single tap tho attendance update chesei 👋',
+            'End of class! Time for logging attendance before you grab lunch 🍲',
+            'Missed aithe genuine ga Missed kottu, cutoff munde telusthadi ⚠️',
+            'Log status saved! Keep tracking your progress daily 🚀',
           ]
           const meme = endMemes[Math.floor(Math.random() * endMemes.length)]
           playChime()
           new Notification(`SST Term 5: ${ended.code} Ended!`, {
             body: `Log attendance now: ${meme}`,
-            icon: '/favicon.png'
+            icon: '/favicon.png',
           })
         }
       }
@@ -202,7 +281,7 @@ export function DailyNotifications({
     const interval = setInterval(checkAndNotify, 20000)
     checkAndNotify()
     return () => clearInterval(interval)
-  }, [occurrences, log])
+  }, [occurrences, log, soundOn])
 
   const todayOccurrences = useMemo(
     () => occurrences.filter((o) => o.ms === todayMsVal),
@@ -210,14 +289,12 @@ export function DailyNotifications({
   )
 
   const liveSession = useMemo(
-    () =>
-      todayOccurrences.find((o) => o.startMin <= nowMin && o.endMin > nowMin),
+    () => todayOccurrences.find((o) => o.startMin <= nowMin && o.endMin > nowMin),
     [todayOccurrences, nowMin],
   )
 
   const nextSession = useMemo(
-    () =>
-      todayOccurrences.find((o) => o.startMin > nowMin),
+    () => todayOccurrences.find((o) => o.startMin > nowMin),
     [todayOccurrences, nowMin],
   )
 
@@ -225,9 +302,10 @@ export function DailyNotifications({
     return occurrences.filter(
       (o) =>
         (o.ms < todayMsVal || (o.ms === todayMsVal && o.endMin <= nowMin)) &&
-        !log[o.key],
+        !log[o.key] &&
+        !justLogged.has(o.key),
     )
-  }, [occurrences, todayMsVal, nowMin, log])
+  }, [occurrences, todayMsVal, nowMin, log, justLogged])
 
   const upcomingCalEvents = useMemo(() => upcomingEvents(2, now ?? new Date()), [now])
 
@@ -236,41 +314,50 @@ export function DailyNotifications({
     [group, log, overrides, now, excluded],
   )
 
+  // Today's logging streak: how many of today's already-ended sessions are logged
+  const todayLoggedCount = useMemo(() => {
+    const eligible = todayOccurrences.filter((o) => o.endMin <= nowMin)
+    if (eligible.length === 0) return null
+    const loggedCount = eligible.filter((o) => log[o.key] || justLogged.has(o.key)).length
+    return { loggedCount, total: eligible.length }
+  }, [todayOccurrences, nowMin, log, justLogged])
+
+  const liveSessionMinsLeft = liveSession ? liveSession.endMin - nowMin : 0
+
   const urgentCount =
     (liveSession ? 1 : 0) +
-    (unloggedSessions.length > 0 ? 1 : 0) +
-    (allAssessedMetrics.isBelow80 ? 1 : 0)
+    (unloggedSessions.length > 0 && !dismissedToday.has('unlogged') ? 1 : 0) +
+    (allAssessedMetrics.isBelow80 && !dismissedToday.has('lowattendance') ? 1 : 0)
 
   const requestPush = async () => {
     if (!('Notification' in window)) return
     const permission = await Notification.requestPermission()
     setPushPermission(permission)
     if (permission === 'granted') {
-      new Notification("Notifications Enabled!", {
-        body: "Telugu memes and attendance alerts will be sent here contextually! ⚡",
-        icon: '/favicon.png'
+      new Notification('Notifications Enabled!', {
+        body: 'Telugu memes and attendance alerts will be sent here contextually! ⚡',
+        icon: '/favicon.png',
       })
     }
   }
 
-  // Pick a random Telugu meme for low attendance from 15 diverse memes
   const lowAttendanceMeme = useMemo(() => {
     const memes = [
-      "Sare paduko emundhi le inka... 80% maintain cheyadam mana valla kadu le 😴",
-      "Attendance poyindi masteru! Immediate ga exemption form fill cheyi 📑",
-      "80% ledu babu! Intlo chepthe devudaa... Intiki chepala ninnu detention chestharu 💀",
-      "Danger zone lo unnav bhayya! Next all classes compulsory attend avvu 🚨",
-      "Proxy vesthe dorikipothav! Immediate ga backlog lekunda attendance penchu 🔥",
-      "Dean cabin nundi call osthadhemo choosko! Attendance 80% kante thaggindi 📞",
-      "Em chesthunnav raa life lo? Minimum 80% lekapothe hall ticket ivvaru 🎫",
-      "Bunking masterclass complete chesinattunnav! Attendance red alert lo undhi 🔴",
-      "Ippudu cover cheyakapothe end sem lo edavaalsosthadhi 😭",
-      "Assessed classes ani skip chesthe safe range zero aipoddi ⚠️",
-      "Rey chal, inka bunks aapesey! Attendance floor drop aipoyindi 📉",
-      "Calculators and Bunk forecast tool vadu, jaldi recovery plan vesko 🧮",
-      "Professor list ready chesthunnaru, nee name top lo undhi lower attendance valla 📋",
-      "Emundhi le inka 75% thakkuva unte condonation fee kattuko 💳",
-      "Warning bell rang! Clear all unlogged classes and attend next session! 🔔"
+      'Sare paduko emundhi le inka... 80% maintain cheyadam mana valla kadu le 😴',
+      'Attendance poyindi masteru! Immediate ga exemption form fill cheyi 📑',
+      '80% ledu babu! Intlo chepthe devudaa... Intiki chepala ninnu detention chestharu 💀',
+      'Danger zone lo unnav bhayya! Next all classes compulsory attend avvu 🚨',
+      'Proxy vesthe dorikipothav! Immediate ga backlog lekunda attendance penchu 🔥',
+      'Dean cabin nundi call osthadhemo choosko! Attendance 80% kante thaggindi 📞',
+      'Em chesthunnav raa life lo? Minimum 80% lekapothe hall ticket ivvaru 🎫',
+      'Bunking masterclass complete chesinattunnav! Attendance red alert lo undhi 🔴',
+      'Ippudu cover cheyakapothe end sem lo edavaalsosthadhi 😭',
+      'Assessed classes ani skip chesthe safe range zero aipoddi ⚠️',
+      'Rey chal, inka bunks aapesey! Attendance floor drop aipoyindi 📉',
+      'Calculators and Bunk forecast tool vadu, jaldi recovery plan vesko 🧮',
+      'Professor list ready chesthunnaru, nee name top lo undhi lower attendance valla 📋',
+      'Emundhi le inka 75% thakkuva unte condonation fee kattuko 💳',
+      'Warning bell rang! Clear all unlogged classes and attend next session! 🔔',
     ]
     return memes[Math.floor((now?.getTime() ?? 0) % memes.length)]
   }, [now])
@@ -294,13 +381,11 @@ export function DailyNotifications({
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
             <div
               className="fixed inset-0 z-40 bg-black/20 backdrop-blur-xs"
               onClick={() => setOpen(false)}
             />
 
-            {/* Notification Card Popover */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -314,37 +399,52 @@ export function DailyNotifications({
                     Daily Context Assistant
                   </h3>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <X className="size-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={toggleSound}
+                    aria-label={soundOn ? 'Mute chimes' : 'Unmute chimes'}
+                    className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    {soundOn ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="max-h-[70vh] overflow-y-auto p-4 space-y-3">
-                {/* 1. Live Session Notification */}
+                {/* 1. Live Session */}
                 {liveSession && (
                   <div className="rounded-xl border border-primary/40 bg-primary/10 p-3 text-xs space-y-2">
-                    <div className="flex items-center gap-1.5 font-bold text-primary">
-                      <Flame className="size-4 animate-bounce" /> Live Session Now
+                    <div className="flex items-center justify-between font-bold text-primary">
+                      <span className="flex items-center gap-1.5">
+                        <Flame className="size-4 animate-bounce" /> Live Session Now
+                      </span>
+                      <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold text-primary">
+                        {liveSessionMinsLeft}m left
+                      </span>
                     </div>
                     <p className="font-semibold text-foreground">
                       {liveSession.code}: {liveSession.courseName}
                     </p>
-                    <p className="text-muted-foreground">
-                      Ends at {liveSession.endMin ? `${Math.floor(liveSession.endMin / 60)}:${(liveSession.endMin % 60).toString().padStart(2, '0')}` : ''}
-                    </p>
-                    <div className="overflow-hidden rounded-xl border border-primary/20 bg-background/80 shadow-xs">
-                      <iframe
-                        src="https://tenor.com/embed/18260424"
-                        width="100%"
-                        height="120"
-                        frameBorder="0"
-                        className="w-full rounded-xl"
-                        allowFullScreen
-                        title="Running to class Meme"
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-primary/15">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{
+                          width: `${Math.max(
+                            4,
+                            100 -
+                              (liveSessionMinsLeft /
+                                Math.max(1, liveSession.endMin - liveSession.startMin)) *
+                                100,
+                          )}%`,
+                        }}
                       />
                     </div>
                     <p className="text-[10px] italic font-semibold text-primary">
@@ -353,7 +453,7 @@ export function DailyNotifications({
                   </div>
                 )}
 
-                {/* 2. Today's Overview */}
+                {/* 2. Today's Overview + streak */}
                 <div className="rounded-xl border border-border bg-muted/30 p-3 text-xs space-y-1">
                   <div className="flex items-center justify-between font-bold text-foreground">
                     <span className="flex items-center gap-1.5">
@@ -373,9 +473,29 @@ export function DailyNotifications({
                       'No classes scheduled for today. Enjoy your day!'
                     )}
                   </p>
+                  {todayLoggedCount && (
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-border">
+                        <div
+                          className={cn(
+                            'h-full rounded-full transition-all',
+                            todayLoggedCount.loggedCount === todayLoggedCount.total
+                              ? 'bg-emerald-500'
+                              : 'bg-amber-500',
+                          )}
+                          style={{
+                            width: `${(todayLoggedCount.loggedCount / todayLoggedCount.total) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-semibold text-muted-foreground">
+                        {todayLoggedCount.loggedCount}/{todayLoggedCount.total} logged
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {/* 3. Next Session Alert */}
+                {/* 3. Next Session */}
                 {nextSession && !liveSession && (
                   <div className="rounded-xl border border-border bg-card p-3 text-xs space-y-1">
                     <div className="flex items-center gap-1.5 font-bold text-foreground">
@@ -384,42 +504,77 @@ export function DailyNotifications({
                     <p className="font-semibold text-foreground">
                       {nextSession.code} · {nextSession.courseName}
                     </p>
+                    <p className="text-muted-foreground">
+                      Starts at {Math.floor(nextSession.startMin / 60)}:
+                      {(nextSession.startMin % 60).toString().padStart(2, '0')}
+                    </p>
                   </div>
                 )}
 
-                {/* 4. Unlogged Sessions Alert with Meme GIF */}
-                {unloggedSessions.length > 0 && (
+                {/* 4. Unlogged Sessions — with quick-log actions */}
+                {unloggedSessions.length > 0 && !dismissedToday.has('unlogged') && (
                   <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5 font-bold text-amber-600 dark:text-amber-400">
                         <AlertTriangle className="size-3.5" /> Pending Attendance Logs
                       </span>
-                      {onOpenSessionManager && (
+                      <button
+                        type="button"
+                        onClick={() => dismissCard('unlogged')}
+                        className="text-amber-600/70 hover:text-amber-700 dark:text-amber-400/70"
+                        aria-label="Dismiss"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-muted-foreground">
+                      {unloggedSessions.length} completed session{unloggedSessions.length === 1 ? '' : 's'} awaiting attendance mark.
+                    </p>
+                    <div className="space-y-1.5">
+                      {unloggedSessions.slice(0, 3).map((s) => (
+                        <div
+                          key={s.key}
+                          className="flex items-center justify-between rounded-lg bg-background/70 px-2 py-1.5"
+                        >
+                          <span className="font-semibold text-foreground">{s.code}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => quickLog(s.key, 'present')}
+                              className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 hover:bg-emerald-500/25 dark:text-emerald-400"
+                            >
+                              <CheckCircle2 className="size-3" /> Present
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => quickLog(s.key, 'missed')}
+                              className="inline-flex items-center gap-1 rounded-md bg-destructive/15 px-1.5 py-0.5 text-[10px] font-bold text-destructive hover:bg-destructive/25"
+                            >
+                              <XCircle className="size-3" /> Missed
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => snoozeReminder(`end-${s.key}`, 30)}
+                              aria-label="Snooze reminder 30 minutes"
+                              className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+                            >
+                              <BellOff className="size-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {unloggedSessions.length > 3 && onOpenSessionManager && (
                         <button
                           type="button"
                           onClick={() => {
                             setOpen(false)
                             onOpenSessionManager()
                           }}
-                          className="font-bold text-amber-700 underline dark:text-amber-300 hover:brightness-110"
+                          className="w-full text-center text-[10px] font-bold text-amber-700 underline dark:text-amber-300"
                         >
-                          Resolve
+                          +{unloggedSessions.length - 3} more — open session manager
                         </button>
                       )}
-                    </div>
-                    <p className="text-muted-foreground">
-                      {unloggedSessions.length} completed session{unloggedSessions.length === 1 ? '' : 's'} awaiting attendance mark.
-                    </p>
-                    <div className="overflow-hidden rounded-xl border border-amber-500/20 bg-background/80 shadow-xs">
-                      <iframe
-                        src="https://tenor.com/embed/26190807"
-                        width="100%"
-                        height="120"
-                        frameBorder="0"
-                        className="w-full rounded-xl"
-                        allowFullScreen
-                        title="Attendance Log Meme"
-                      />
                     </div>
                     <p className="text-[10px] italic font-semibold text-amber-700 dark:text-amber-300">
                       &quot;Class aipoyindi ra bujji! Ventane log chesei 📝&quot;
@@ -427,26 +582,25 @@ export function DailyNotifications({
                   </div>
                 )}
 
-                {/* 5. Attendance Floor Alert (with GIF + Telugu memes) */}
-                {allAssessedMetrics.isBelow80 && (
+                {/* 5. Attendance Floor Alert */}
+                {allAssessedMetrics.isBelow80 && !dismissedToday.has('lowattendance') && (
                   <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive space-y-2.5">
-                    <p className="font-bold flex items-center gap-1.5">
-                      <AlertTriangle className="size-3.5 animate-bounce" /> Low Attendance Warning
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold flex items-center gap-1.5">
+                        <AlertTriangle className="size-3.5 animate-bounce" /> Low Attendance Warning
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => dismissCard('lowattendance')}
+                        className="text-destructive/70 hover:text-destructive"
+                        aria-label="Dismiss"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
                     <p className="opacity-95 text-foreground font-semibold">
                       &quot;{lowAttendanceMeme}&quot;
                     </p>
-                    <div className="overflow-hidden rounded-xl border border-destructive/20 bg-background/80 shadow-xs">
-                      <iframe
-                        src="https://tenor.com/embed/21376410"
-                        width="100%"
-                        height="120"
-                        frameBorder="0"
-                        className="w-full rounded-xl"
-                        allowFullScreen
-                        title="Sare Paduko Meme"
-                      />
-                    </div>
                     <p className="opacity-90">
                       Your overall attendance is currently {allAssessedMetrics.attendancePercentage}%. Missed {allAssessedMetrics.alreadyMissed} of {allAssessedMetrics.maxAllowedMisses} allowed misses.
                     </p>
@@ -477,7 +631,6 @@ export function DailyNotifications({
                 )}
               </div>
 
-              {/* Footer Push Toggle */}
               <div className="border-t border-border bg-muted/40 p-3 text-center">
                 <button
                   type="button"

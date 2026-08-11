@@ -555,6 +555,17 @@ export function saveAttendanceLog(log: Record<string, AttendanceStatus>): void {
   } catch { /* Storage unavailable */ }
 }
 
+export function setAttendanceStatus(key: string, status: AttendanceStatus | null): void {
+  const current = getAttendanceLog()
+  const next = { ...current }
+  if (status === null) {
+    delete next[key]
+  } else {
+    next[key] = status
+  }
+  saveAttendanceLog(next)
+}
+
 import { isoToMs } from './academic-calendar'
 import { getScheduleOverrides, type ScheduleOverride } from './schedule-overrides'
 
