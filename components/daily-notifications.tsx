@@ -125,23 +125,23 @@ export function DailyNotifications({
       const tMs = Date.UTC(nowObj.getFullYear(), nowObj.getMonth(), nowObj.getDate())
       const minToday = nowObj.getHours() * 60 + nowObj.getMinutes()
 
-      // 1. Session Starting soon notification
+      // 1. Session Starting soon notification (1 hour before class)
       const upcoming = occurrences.find(
-        (o) => o.ms === tMs && o.startMin > minToday && o.startMin - minToday <= 15
+        (o) => o.ms === tMs && o.startMin > minToday && o.startMin - minToday <= 60
       )
       if (upcoming) {
         const notifyKey = `start-${upcoming.key}`
         if (!sentNotifications.has(notifyKey)) {
           sentNotifications.add(notifyKey)
           const startMemes = [
-            "Class start aindi guru! Quick ga room ki vellipo 🏃‍♂️",
-            "Late aindi ra bujji! Class modalaindi, instructor already active ⏰",
-            "Late aithe attendance cut! Parigethu masteru campus lo ⚡"
+            "Class start aiddi 1 hr lo! Quick ga ready aipooo 🏃‍♂️",
+            "1 hour lo class vundhi ra bujji! Instructor and lab ready ⏰",
+            "Attendance cut avvakunda 1 hr mundhe alert isthunnam! Parigethu masteru ⚡"
           ]
           const meme = startMemes[Math.floor(Math.random() * startMemes.length)]
           playChime()
-          new Notification(`SST Term 5: ${upcoming.code} Starting Soon!`, {
-            body: `${upcoming.code} starts at ${Math.floor(upcoming.startMin/60)}:${(upcoming.startMin%60).toString().padStart(2, '0')}. ${meme}`,
+          new Notification(`SST Term 5: ${upcoming.code} Starting in 1 Hour!`, {
+            body: `${upcoming.code} starts at ${Math.floor(upcoming.startMin/60)}:${(upcoming.startMin%60).toString().padStart(2, '0')} (in 1 hour). ${meme}`,
             icon: '/favicon.png'
           })
         }
