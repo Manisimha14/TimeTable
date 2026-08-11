@@ -208,9 +208,15 @@ export function TimetableDashboard() {
       <header className="mb-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="flex items-center gap-2 text-sm font-medium text-primary">
-              <CalendarRange className="size-4" />
-              <span>{timetable.meta.batch}</span>
+            <div className="flex flex-wrap items-center gap-2.5 text-sm font-medium text-primary">
+              <span className="flex items-center gap-1">
+                <CalendarRange className="size-4" />
+                {timetable.meta.batch}
+              </span>
+              <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Synced
+              </div>
             </div>
             <h1 className="mt-1 text-balance font-display text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
               {view === 'calendar'
