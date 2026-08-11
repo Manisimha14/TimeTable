@@ -27,6 +27,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon.png',
     apple: '/favicon.png',
   },
+  manifest: '/manifest.json',
 }
 
 export const viewport: Viewport = {
@@ -52,6 +53,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.png?v=2" type="image/png" />
         <link rel="shortcut icon" href="/favicon.png?v=2" type="image/png" />
         <link rel="apple-touch-icon" href="/favicon.png?v=2" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}

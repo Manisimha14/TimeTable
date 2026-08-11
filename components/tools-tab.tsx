@@ -86,6 +86,7 @@ export function ToolsTab({ group }: { group: GroupKey }) {
   const [earned, setEarned] = useState(0)
   const [possible, setPossible] = useState(100)
   const [target, setTarget] = useState(80)
+  const [simulatedBunks, setSimulatedBunks] = useState(0)
 
   const reloadToolsData = () => {
     try {
@@ -254,6 +255,52 @@ export function ToolsTab({ group }: { group: GroupKey }) {
           {metrics.canStillMiss === 1 ? '' : 'es'} of {metrics.maxAllowedMisses} total
           allowed.
         </p>
+
+        {/* What-If Attendance Simulator */}
+        <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
+              <Sparkles className="size-3.5" /> What-If Bunk Simulator
+            </span>
+            <span className="text-[11px] font-semibold text-muted-foreground">
+              Simulate future classes
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-foreground font-medium">
+              If I skip <strong className="text-primary font-bold">{simulatedBunks}</strong> more upcoming class{simulatedBunks === 1 ? '' : 'es'}:
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setSimulatedBunks(Math.max(0, simulatedBunks - 1))}
+                className="size-7 rounded-lg border border-border bg-background text-xs font-bold text-foreground hover:bg-muted active:scale-95 flex items-center justify-center"
+              >
+                -
+              </button>
+              <span className="w-6 text-center text-xs font-bold tabular-nums">
+                {simulatedBunks}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSimulatedBunks(simulatedBunks + 1)}
+                className="size-7 rounded-lg border border-border bg-background text-xs font-bold text-foreground hover:bg-muted active:scale-95 flex items-center justify-center"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg bg-background/80 px-2.5 py-1.5 text-xs">
+            <span className="text-muted-foreground">Projected Misses: <strong className="text-foreground">{metrics.alreadyMissed + simulatedBunks} / {metrics.maxAllowedMisses}</strong></span>
+            <span className={cn('font-bold', (metrics.canStillMiss - simulatedBunks) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive')}>
+              {(metrics.canStillMiss - simulatedBunks) >= 0
+                ? `🟢 Safe (${metrics.canStillMiss - simulatedBunks} left)`
+                : `🔴 Below 80% (${Math.abs(metrics.canStillMiss - simulatedBunks)} over limit)`}
+            </span>
+          </div>
+        </div>
       </ToolCard>
 
       {/* Chrome-Style Shortcuts Menu */}
