@@ -253,7 +253,7 @@ export function TimetableDashboard() {
           </div>
 
           {/* Group switcher, Search & Notifications */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:w-auto w-full">
             <button
               type="button"
               onClick={() => setCommandPaletteOpen(true)}

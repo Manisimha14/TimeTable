@@ -241,7 +241,7 @@ export function ToolsTab({ group }: { group: GroupKey }) {
             />
           </label>
         </div>
-        <div className="mt-4 grid grid-cols-4 gap-2 text-center">
+        <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
           <Metric value={String(metrics.totalClasses)} label="total classes" />
           <Metric value={String(metrics.alreadyMissed)} label="already missed" />
           <Metric value={String(metrics.canStillMiss)} label="can still miss" />
