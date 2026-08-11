@@ -371,6 +371,24 @@ export function TimetableDashboard() {
             </button>
           ))}
         </div>
+
+        {/* Floating iOS-style Mobile Tab Bar */}
+        <nav aria-label="Mobile Navigation" className="fixed bottom-3 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full border border-border/60 bg-background/80 p-1.5 shadow-2xl backdrop-blur-xl supports-backdrop-filter:bg-background/70 sm:hidden">
+          {VIEWS.map(({ id, label, shortLabel, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setView(id)}
+              className={cn(
+                'relative flex items-center justify-center gap-1 rounded-full px-3.5 py-2 text-xs font-bold transition active:scale-90',
+                view === id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Icon className="size-4 shrink-0" />
+              <span className="text-[11px]">{shortLabel || label}</span>
+            </button>
+          ))}
+        </nav>
       </header>
 
       {/* View panels */}

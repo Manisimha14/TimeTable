@@ -77,11 +77,7 @@ export function EventDetailDialog({
         {event && (
           <div className={cn('flex max-h-[90vh] flex-col', courseClass(event.courseId))}>
             {/* Header */}
-            <DialogHeader className="relative space-y-3 border-b border-[color:var(--c-border)] bg-[color:var(--c-soft)] p-5 text-left sm:p-6">
-              <DialogClose className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground/80 hover:bg-black/5 hover:text-foreground transition active:scale-95 focus:outline-none">
-                <X className="size-4" />
-                <span className="sr-only">Close</span>
-              </DialogClose>
+            <DialogHeader className="space-y-3 border-b border-[color:var(--c-border)] bg-[color:var(--c-soft)] p-5 text-left sm:p-6 pr-12">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center rounded-md bg-[color:var(--c-solid)] px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
                   {event.code}

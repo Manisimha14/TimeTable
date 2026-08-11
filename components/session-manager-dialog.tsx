@@ -184,12 +184,8 @@ export function SessionManagerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex h-[88vh] max-h-[88vh] sm:h-auto sm:max-h-[85vh] w-[calc(100vw-1rem)] sm:w-full max-w-2xl flex-col gap-0 overflow-hidden p-0 rounded-2xl border border-border bg-popover shadow-2xl">
         {/* Sticky Compact Header */}
-        <DialogHeader className="relative shrink-0 border-b border-border bg-card p-4 sm:p-5 text-left">
-          <DialogClose className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground/80 hover:bg-black/5 hover:text-foreground transition active:scale-95 focus:outline-none">
-            <X className="size-4" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pr-6">
+        <DialogHeader className="shrink-0 border-b border-border bg-card p-4 sm:p-5 text-left pr-12">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pr-2">
             <div className="flex items-center gap-2">
               <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Clock className="size-4.5" />
