@@ -19,6 +19,7 @@ import {
   X,
   XCircle,
   Lock,
+  Send,
 } from 'lucide-react'
 import {
   allCourseOccurrences,
@@ -150,6 +151,52 @@ export function DailyNotifications({
     }
   }
 
+  const playChime = () => {
+    if (!soundOn) return
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime)
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12)
+      gain.gain.setValueAtTime(0.08, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
+      osc.start()
+      osc.stop(ctx.currentTime + 0.4)
+    } catch {}
+  }
+
+  const triggerTestNotification = async () => {
+    playChime()
+    const testMemes = [
+      '🔔 Push Notification & Audio Chime Working Perfectly! Parigethu masteru ⚡',
+      '⚡ System Push Alert Active! Class reminders will pop 1 hr before class! 🏃‍♂️',
+      '⏰ Test Successful! Notifications and Telugu meme alerts are ready! 🚀',
+    ]
+    const meme = testMemes[Math.floor(Math.random() * testMemes.length)]
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('SST Timetable: Test Alert 🔔', {
+        body: meme,
+        icon: '/favicon.png',
+      })
+    } else if ('Notification' in window && Notification.permission !== 'denied') {
+      const perm = await Notification.requestPermission()
+      setPushPermission(perm)
+      if (perm === 'granted') {
+        new Notification('SST Timetable: Test Alert 🔔', {
+          body: meme,
+          icon: '/favicon.png',
+        })
+      }
+    } else {
+      alert(meme)
+    }
+  }
+
   const quickLog = (key: string, status: AttendanceStatus) => {
     setAttendanceStatus(key, status)
     setJustLogged((prev) => new Set(prev).add(key))
@@ -180,24 +227,6 @@ export function DailyNotifications({
       return
 
     const sentNotifications = new Set<string>()
-
-    const playChime = () => {
-      if (!soundOn) return
-      try {
-        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime)
-        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12)
-        gain.gain.setValueAtTime(0.08, ctx.currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
-        osc.start()
-        osc.stop(ctx.currentTime + 0.4)
-      } catch {}
-    }
 
     const checkAndNotify = () => {
       const nowObj = new Date()
@@ -632,21 +661,32 @@ export function DailyNotifications({
               </div>
 
               <div className="border-t border-border bg-muted/40 p-3 text-center">
-                <button
-                  type="button"
-                  onClick={requestPush}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline active:scale-95"
-                >
-                  {pushPermission === 'granted' ? (
-                    <>
-                      <BellRing className="size-3.5 text-primary animate-pulse" /> Push Alerts Active
-                    </>
-                  ) : (
-                    <>
-                      <Bell className="size-3.5" /> Enable Live Push Alerts & Memes
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={requestPush}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline active:scale-95"
+                  >
+                    {pushPermission === 'granted' ? (
+                      <>
+                        <BellRing className="size-3.5 text-primary animate-pulse" /> Push Alerts Active
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="size-3.5" /> Enable Live Push Alerts & Memes
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={triggerTestNotification}
+                    className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary transition hover:bg-primary/20 active:scale-95"
+                    title="Send a test notification & sound chime to verify browser permissions"
+                  >
+                    <Send className="size-3" /> Test Push Alert
+                  </button>
+                </div>
               </div>
             </motion.div>
           </>

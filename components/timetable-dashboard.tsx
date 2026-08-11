@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarRange, CalendarDays, CalendarClock, GraduationCap, Flag, Wrench, CalendarPlus, Lock, Unlock, Search } from 'lucide-react'
+import { CalendarRange, CalendarDays, CalendarClock, GraduationCap, Flag, Wrench, CalendarPlus, Lock, Unlock, Search, Clock } from 'lucide-react'
 import {
   currentWeekIndex,
   EXCLUDED_COURSES_CHANGED_EVENT,
@@ -229,6 +229,7 @@ export function TimetableDashboard() {
                 <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Synced
               </div>
+              <LiveClockPill />
             </div>
             <h1 className="mt-1 text-balance font-display text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
               {view === 'calendar'
@@ -574,6 +575,31 @@ export function TimetableDashboard() {
           </p>
         </div>
       </footer>
+    </div>
+  )
+}
+
+function LiveClockPill() {
+  const [timeStr, setTimeStr] = useState<string>('')
+
+  useEffect(() => {
+    const updateTime = () => {
+      const d = new Date()
+      setTimeStr(
+        d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      )
+    }
+    updateTime()
+    const timer = setInterval(updateTime, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  if (!timeStr) return null
+
+  return (
+    <div className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/80 px-2.5 py-0.5 text-[11px] font-mono font-bold tracking-tight text-foreground shadow-2xs backdrop-blur-xs">
+      <Clock className="size-3 text-primary animate-pulse" />
+      <span>{timeStr}</span>
     </div>
   )
 }
