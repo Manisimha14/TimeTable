@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   AlertTriangle,
@@ -69,6 +69,55 @@ export function DailyNotifications({
   const [dismissedToday, setDismissedToday] = useState<Set<string>>(new Set())
   const [justLogged, setJustLogged] = useState<Set<string>>(new Set())
   const [testToast, setTestToast] = useState<string | null>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+
+  // Service Worker registration & Mobile AudioContext unlock on first touch/click
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {})
+    }
+
+    const unlockAudio = () => {
+      try {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+        }
+        if (audioCtxRef.current.state === 'suspended') {
+          audioCtxRef.current.resume()
+        }
+      } catch {}
+    }
+
+    window.addEventListener('touchstart', unlockAudio, { passive: true })
+    window.addEventListener('click', unlockAudio, { passive: true })
+    return () => {
+      window.removeEventListener('touchstart', unlockAudio)
+      window.removeEventListener('click', unlockAudio)
+    }
+  }, [])
+
+  const showSystemNotification = async (title: string, body: string) => {
+    if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return
+
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.ready
+        if (reg && reg.showNotification) {
+          await reg.showNotification(title, {
+            body,
+            icon: '/icon.png',
+            badge: '/icon.png',
+            vibrate: [200, 100, 200],
+          } as any)
+          return
+        }
+      } catch {}
+    }
+
+    try {
+      new Notification(title, { body, icon: '/icon.png' })
+    } catch {}
+  }
 
   useEffect(() => {
     setNow(new Date())
@@ -155,7 +204,13 @@ export function DailyNotifications({
   const playChime = () => {
     if (!soundOn) return
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+      }
+      const ctx = audioCtxRef.current
+      if (ctx.state === 'suspended') {
+        ctx.resume()
+      }
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
       osc.connect(gain)
@@ -163,7 +218,7 @@ export function DailyNotifications({
       osc.type = 'sine'
       osc.frequency.setValueAtTime(587.33, ctx.currentTime)
       osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12)
-      gain.gain.setValueAtTime(0.08, ctx.currentTime)
+      gain.gain.setValueAtTime(0.15, ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
       osc.start()
       osc.stop(ctx.currentTime + 0.4)
@@ -183,21 +238,13 @@ export function DailyNotifications({
 
     if ('Notification' in window) {
       if (Notification.permission === 'granted') {
-        try {
-          new Notification('SST Timetable: Test Alert 🔔', {
-            body: meme,
-            icon: '/favicon.png',
-          })
-        } catch {}
+        await showSystemNotification('SST Timetable: Test Alert 🔔', meme)
       } else if (Notification.permission !== 'denied') {
         try {
           const perm = await Notification.requestPermission()
           setPushPermission(perm)
           if (perm === 'granted') {
-            new Notification('SST Timetable: Test Alert 🔔', {
-              body: meme,
-              icon: '/favicon.png',
-            })
+            await showSystemNotification('SST Timetable: Test Alert 🔔', meme)
           }
         } catch {}
       }
@@ -271,12 +318,12 @@ export function DailyNotifications({
           ]
           const meme = startMemes[Math.floor(Math.random() * startMemes.length)]
           playChime()
-          new Notification(`SST Term 5: ${upcoming.code} Starting in 1 Hour!`, {
-            body: `${upcoming.code} starts at ${Math.floor(upcoming.startMin / 60)}:${(upcoming.startMin % 60)
+          showSystemNotification(
+            `SST Term 5: ${upcoming.code} Starting in 1 Hour!`,
+            `${upcoming.code} starts at ${Math.floor(upcoming.startMin / 60)}:${(upcoming.startMin % 60)
               .toString()
               .padStart(2, '0')} (in 1 hour). ${meme}`,
-            icon: '/favicon.png',
-          })
+          )
         }
       }
 
@@ -306,10 +353,7 @@ export function DailyNotifications({
           ]
           const meme = endMemes[Math.floor(Math.random() * endMemes.length)]
           playChime()
-          new Notification(`SST Term 5: ${ended.code} Ended!`, {
-            body: `Log attendance now: ${meme}`,
-            icon: '/favicon.png',
-          })
+          showSystemNotification(`SST Term 5: ${ended.code} Ended!`, `Log attendance now: ${meme}`)
         }
       }
     }
@@ -367,13 +411,14 @@ export function DailyNotifications({
 
   const requestPush = async () => {
     if (!('Notification' in window)) return
+    playChime()
     const permission = await Notification.requestPermission()
     setPushPermission(permission)
     if (permission === 'granted') {
-      new Notification('Notifications Enabled!', {
-        body: 'Telugu memes and attendance alerts will be sent here contextually! ⚡',
-        icon: '/favicon.png',
-      })
+      await showSystemNotification(
+        'Notifications Enabled!',
+        'Telugu memes and attendance alerts will be sent here contextually! ⚡',
+      )
     }
   }
 
