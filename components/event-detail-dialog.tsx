@@ -204,6 +204,12 @@ export function EventDetailDialog({
                   />
                 )}
 
+                {cell && (
+                  <SessionNotesSection
+                    occurrenceKey={`${event.id}|${weekIndex}`}
+                  />
+                )}
+
                 {/* Reschedule or Cancel button */}
                 {onOpenRescheduler && (
                   <motion.div variants={riseItem}>
@@ -403,6 +409,82 @@ function AttendanceSection({
           >
             <CircleX className="size-3.5" /> Missed
           </button>
+        </div>
+      </div>
+    </motion.section>
+  )
+}
+
+function SessionNotesSection({ occurrenceKey }: { occurrenceKey: string }) {
+  const [rating, setRating] = useState<number>(0)
+  const [note, setNote] = useState<string>('')
+
+  useEffect(() => {
+    try {
+      const savedRatings = window.localStorage.getItem('academic-dashboard-session-ratings')
+      if (savedRatings) {
+        const parsed = JSON.parse(savedRatings)
+        if (parsed[occurrenceKey]) setRating(parsed[occurrenceKey])
+      }
+      const savedNotes = window.localStorage.getItem('academic-dashboard-session-notes')
+      if (savedNotes) {
+        const parsed = JSON.parse(savedNotes)
+        if (parsed[occurrenceKey]) setNote(parsed[occurrenceKey])
+      }
+    } catch (e) {}
+  }, [occurrenceKey])
+
+  const saveRating = (val: number) => {
+    setRating(val)
+    try {
+      const saved = window.localStorage.getItem('academic-dashboard-session-ratings')
+      const parsed = saved ? JSON.parse(saved) : {}
+      parsed[occurrenceKey] = val
+      window.localStorage.setItem('academic-dashboard-session-ratings', JSON.stringify(parsed))
+      window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
+    } catch (e) {}
+  }
+
+  const saveNote = (val: string) => {
+    setNote(val)
+    try {
+      const saved = window.localStorage.getItem('academic-dashboard-session-notes')
+      const parsed = saved ? JSON.parse(saved) : {}
+      parsed[occurrenceKey] = val
+      window.localStorage.setItem('academic-dashboard-session-notes', JSON.stringify(parsed))
+      window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
+    } catch (e) {}
+  }
+
+  return (
+    <motion.section variants={riseItem} className="mt-5 space-y-3">
+      <SectionHeading icon={BookOpen}>Session Notes & Rating</SectionHeading>
+      <div className="rounded-2xl border border-[color:var(--c-border)] bg-card p-4 space-y-3">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-muted-foreground">Class Understanding:</span>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => saveRating(star)}
+                className="text-lg transition hover:scale-110 active:scale-95"
+              >
+                {star <= rating ? '⭐' : '☆'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[11px] font-semibold text-muted-foreground">Takeaways / Reminders:</label>
+          <textarea
+            value={note}
+            onChange={(e) => saveNote(e.target.value)}
+            placeholder="Write key takeaways, topics to review, or homework..."
+            rows={2}
+            className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary"
+          />
         </div>
       </div>
     </motion.section>
