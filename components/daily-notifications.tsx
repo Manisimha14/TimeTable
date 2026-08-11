@@ -134,9 +134,26 @@ export function DailyNotifications({
         if (!sentNotifications.has(notifyKey)) {
           sentNotifications.add(notifyKey)
           const startMemes = [
-            "Class start aiddi 1 hr lo! Quick ga ready aipooo 🏃‍♂️",
-            "1 hour lo class vundhi ra bujji! Instructor and lab ready ⏰",
-            "Attendance cut avvakunda 1 hr mundhe alert isthunnam! Parigethu masteru ⚡"
+            "Inka 1 hour lo class undhi ra bujji! Fast ga ready aipooo 🏃‍♂️",
+            "Class time aithondhi guru! Tiffin tini room nundi jaldi bayaludey ⏰",
+            "Instructor active aipoyaru! Inka nidra chalu, class ki veldham padhaa ⚡",
+            "Attendance meedha aasa unte, inka 1 hour lo class ki vellu masteru 🎒",
+            "Sir already slides open chesaru anta! Late aithe door daggare ninchovalsochidhi 🚪",
+            "Enni rojulu bunk kodthav? Eeroju aina class ki vellu bro 😴",
+            "Class 1 hour lo start avvabothondhi! Tiffins tinesi laptop charging pettuko 💻",
+            "Orey badhakam aapu! Inka ganta lo session undhi, fast ga tayar koo ⏱️",
+            "Proxy lu nadavavu ikkada! Direct ga physically present avvalsindhe 🔥",
+            "Instructor attendance list pattukoni tayar ga unnaru! Parigethu raa 🏃",
+            "Class ki 1 hour undhi! Coffee taagi brain refresh chesko ☕",
+            "Eeroju class chala important antunnaru! Bunk kotti regret avvaku 📚",
+            "Lab session 1 hour lo undhi! Code syntax gurtu techuko bhayya 💻",
+            "Gate daggara security strict gaa undhi! Card techuko, class ki ready aipo 🪪",
+            "Professor eeroju surprise test pedutharemo! Jaldi class ki vellu 📝",
+            "Nee seat vere vaallu kabbja cheyakundaa 1 hour lo pahunchipo 🪑",
+            "Inka bed meedhe unnava? Alarm moguthondi bhayya, le le! 🔔",
+            "Class miss aithe tarvatha recordings choosthu edavalsosthadi 📼",
+            "Arey entraa inka bed digaledhu? Class inka 1 hour lo start ⏰",
+            "Good morning hero! Class starting in 1 hour, be ready! ⚡"
           ]
           const meme = startMemes[Math.floor(Math.random() * startMemes.length)]
           playChime()
@@ -156,9 +173,21 @@ export function DailyNotifications({
         if (!sentNotifications.has(notifyKey)) {
           sentNotifications.add(notifyKey)
           const endMemes = [
-            "Class aipoyindi ra bujji! Present aa Missed aa Ventane log chesei 📝",
-            "Log chesava leda? Emundhi le attendance poyaka edavochu 😴",
-            "Attend aiyava? Present log cheyyi, lekapothe direct ga 0% eh! 🔥"
+            "Class aipoyindhi ra bujji! Present aa Missed aa ventane log chesei 📝",
+            "Attend ayyava leda? Log cheyaka pothe direct ga 0% eh bhayya 🔥",
+            "Log chesava leda? Emundhi le attendance poyaka edavachu 😴",
+            "Professor roll call complete chesaru! Ni status ento ikkada submit cheyi ⚡",
+            "Proxy vesi intlo kurchunnav ah? Correct status mark cheyi raa 👀",
+            "Session mugisindhi! Timetable lo present ani ticks pettukovayya 🎯",
+            "Sarey class aithe aindi, billu nillu avvakunda dashboard lo log cheyi 💸",
+            "Attendance log cheyadam marchipothe 80% lechi poddi 📉",
+            "Eeroju session lo em ardham aindho notes rasuko, log submit cheyi ✍️",
+            "Instructor sign-off ichesaru! Nee attendance status mark chesi relax avvu ☕",
+            "Pakkana vaallu present rasukuntunnaru, nuvvu log marchipoyava? 🤦‍♂️",
+            "Late cheyakunda single tap tho attendance update chesei 👋",
+            "End of class! Time for logging attendance before you grab lunch 🍲",
+            "Missed aithe genuine ga Missed kottu, cutoff munde telusthadi ⚠️",
+            "Log status saved! Keep tracking your progress daily 🚀"
           ]
           const meme = endMemes[Math.floor(Math.random() * endMemes.length)]
           playChime()
@@ -224,14 +253,26 @@ export function DailyNotifications({
     }
   }
 
-  // Pick a random Telugu meme for low attendance
+  // Pick a random Telugu meme for low attendance from 15 diverse memes
   const lowAttendanceMeme = useMemo(() => {
     const memes = [
       "Sare paduko emundhi le inka... 80% maintain cheyadam mana valla kadu le 😴",
-      "Attendance poyindi masteru! Proxy lu veyaleru, immediate ga exemption form fill cheyi 📑",
-      "80% ledu babu! Intlo chepthe devudaa... 💀"
+      "Attendance poyindi masteru! Immediate ga exemption form fill cheyi 📑",
+      "80% ledu babu! Intlo chepthe devudaa... Intiki chepala ninnu detention chestharu 💀",
+      "Danger zone lo unnav bhayya! Next all classes compulsory attend avvu 🚨",
+      "Proxy vesthe dorikipothav! Immediate ga backlog lekunda attendance penchu 🔥",
+      "Dean cabin nundi call osthadhemo choosko! Attendance 80% kante thaggindi 📞",
+      "Em chesthunnav raa life lo? Minimum 80% lekapothe hall ticket ivvaru 🎫",
+      "Bunking masterclass complete chesinattunnav! Attendance red alert lo undhi 🔴",
+      "Ippudu cover cheyakapothe end sem lo edavaalsosthadhi 😭",
+      "Assessed classes ani skip chesthe safe range zero aipoddi ⚠️",
+      "Rey chal, inka bunks aapesey! Attendance floor drop aipoyindi 📉",
+      "Calculators and Bunk forecast tool vadu, jaldi recovery plan vesko 🧮",
+      "Professor list ready chesthunnaru, nee name top lo undhi lower attendance valla 📋",
+      "Emundhi le inka 75% thakkuva unte condonation fee kattuko 💳",
+      "Warning bell rang! Clear all unlogged classes and attend next session! 🔔"
     ]
-    return memes[Math.floor((now?.getMinutes() ?? 0) % memes.length)]
+    return memes[Math.floor((now?.getTime() ?? 0) % memes.length)]
   }, [now])
 
   return (

@@ -66,10 +66,23 @@ export function TimetableDashboard() {
   const [selectedEvent, setSelectedEvent] = useState<TimetableEvent | null>(null)
   const [courseFocus, setCourseFocus] = useState<string | null>(null)
   const [nowMinutes, setNowMinutes] = useState<number | null>(null)
-  const [todayIdx, setTodayIdx] = useState<number>(-1)
-  const [selectedDay, setSelectedDay] = useState<number>(0)
-  const [weekIndex, setWeekIndex] = useState<number>(1)
-  const [currentWeek, setCurrentWeek] = useState<number>(1)
+  const [todayIdx, setTodayIdx] = useState<number>(() => {
+    if (typeof window === 'undefined') return -1
+    return todayDayIndex(new Date())
+  })
+  const [selectedDay, setSelectedDay] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0
+    const ti = todayDayIndex(new Date())
+    return ti >= 0 ? ti : 0
+  })
+  const [weekIndex, setWeekIndex] = useState<number>(() => {
+    if (typeof window === 'undefined') return 1
+    return currentWeekIndex()
+  })
+  const [currentWeek, setCurrentWeek] = useState<number>(() => {
+    if (typeof window === 'undefined') return 1
+    return currentWeekIndex()
+  })
   const [direction, setDirection] = useState<number>(0)
   const [reschedulerOpen, setReschedulerOpen] = useState(false)
   const [reschedulerInitialKey, setReschedulerInitialKey] = useState<string | null>(null)
@@ -106,7 +119,6 @@ export function TimetableDashboard() {
       setNowMinutes(now.getHours() * 60 + now.getMinutes())
       const ti = todayDayIndex(now)
       setTodayIdx(ti)
-      setSelectedDay((prev) => (prev === 0 && ti >= 0 ? ti : prev))
     }
     update()
     const cw = currentWeekIndex()
