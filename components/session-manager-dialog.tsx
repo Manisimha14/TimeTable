@@ -180,7 +180,7 @@ export function SessionManagerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[88vh] max-h-[88vh] w-[calc(100vw-1rem)] max-w-2xl flex-col gap-0 overflow-hidden p-0 rounded-2xl border border-border bg-popover shadow-2xl">
+      <DialogContent className="flex h-[88vh] max-h-[88vh] sm:h-auto sm:max-h-[85vh] w-[calc(100vw-1rem)] sm:w-full max-w-2xl flex-col gap-0 overflow-hidden p-0 rounded-2xl border border-border bg-popover shadow-2xl">
         {/* Sticky Compact Header */}
         <DialogHeader className="shrink-0 border-b border-border bg-card p-4 sm:p-5 text-left">
           <div className="flex flex-wrap items-center justify-between gap-2.5 pr-6">

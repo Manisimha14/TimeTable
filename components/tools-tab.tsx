@@ -434,28 +434,11 @@ export function ToolsTab({ group }: { group: GroupKey }) {
         </div>
       </ToolCard>
 
-      {/* Grade Target Card */}
-      <ToolCard
-        icon={Calculator}
-        title="Grade target"
-        subtitle="See the marks still needed to hit your target score."
-      >
-        <div className="grid grid-cols-3 gap-2">
-          <NumberField label="Earned" value={earned} onChange={(v) => updateGradeTarget(v, possible, target)} />
-          <NumberField label="Possible" value={possible} onChange={(v) => updateGradeTarget(earned, v, target)} />
-          <NumberField label="Target %" value={target} onChange={(v) => updateGradeTarget(earned, possible, v)} />
-        </div>
-        <p className="mt-4 rounded-xl bg-primary/10 px-3 py-3 text-sm text-primary">
-          You need <strong>{requiredForTarget}</strong> more marks to reach{' '}
-          <strong>{target}%</strong> of {possible} total marks.
-        </p>
-      </ToolCard>
-
       {/* Cross-Browser Data Backup & Sync Card */}
       <ToolCard
         icon={Database}
         title="Cross-browser sync & data backup"
-        subtitle="Backup your attendance logs, group locks, & settings, or transfer them to another browser/phone."
+        subtitle="Sync or backup your attendance logs, shortcuts, and settings instantly."
       >
         <SyncBackupControls />
       </ToolCard>
@@ -597,7 +580,7 @@ function SyncBackupControls() {
         </div>
 
         <p className="text-[11px] text-muted-foreground">
-          Enter a 4-digit Sync Code (e.g. <code>SST-4821</code>) on both your <strong>Phone (Chrome)</strong> and <strong>Windows (Zen/Chrome)</strong>. Marking attendance on phone will automatically update on web live in real time!
+          Enter a code (e.g. <code>SST-4821</code>) on both devices. Changes sync automatically in real time!
         </p>
 
         <div className="flex flex-col gap-2 sm:flex-row">

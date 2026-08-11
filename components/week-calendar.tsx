@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { FlaskConical } from 'lucide-react'
 import {
@@ -7,6 +8,9 @@ import {
   formatMinutes,
   timetable,
   weekByIndex,
+  getAttendanceLog,
+  ATTENDANCE_CHANGED_EVENT,
+  type AttendanceStatus,
   type TimetableEvent,
 } from '@/lib/timetable'
 import { blockedInfo } from '@/lib/academic-calendar'
@@ -40,6 +44,14 @@ export function WeekCalendar({
   nowMinutes,
   onSelect,
 }: WeekCalendarProps) {
+  const [log, setLog] = useState<Record<string, AttendanceStatus>>({})
+  useEffect(() => {
+    const updateLog = () => setLog(getAttendanceLog())
+    updateLog()
+    window.addEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
+    return () => window.removeEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
+  }, [])
+
   const { days } = timetable.meta
   const startMin = timetable.meta.timeRange.startMin
   const endMin = timetable.meta.timeRange.endMin
@@ -215,32 +227,51 @@ export function WeekCalendar({
                   )
                 }
 
+                const cellKey = `${event.id}|${weekIndex}`
+                const isLogged = log[cellKey] === 'present' || log[cellKey] === 'missed'
+                const isPassed = (() => {
+                  if (dayCell) {
+                    const now = new Date()
+                    const todayMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+                    if (dayCell.ms < todayMs) return true
+                    if (dayCell.ms === todayMs) {
+                      const nowMin = now.getHours() * 60 + now.getMinutes()
+                      if (event.endMin <= nowMin) return true
+                    }
+                  }
+                  return false
+                })()
+                const isCompleted = isLogged || isPassed
+
                 return (
                   <motion.button
                     key={event.id}
                     type="button"
                     initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                    animate={{ opacity: dimmed ? 0.25 : 1, y: 0, scale: 1 }}
+                    animate={{ opacity: dimmed ? 0.25 : (isCompleted ? 0.65 : 1), y: 0, scale: 1 }}
                     transition={{ ...spring, delay: Math.min(i * 0.02 + dayIdx * 0.01, 0.25) }}
                     whileHover={{ scale: 1.015 }}
                     whileTap={{ scale: 0.985 }}
                     onClick={() => onSelect(event)}
                     className={cn(
                       courseClass(event.courseId),
-                      'group absolute inset-x-1 flex flex-col overflow-hidden rounded-lg border border-l-[3px] border-[color:var(--c-border)] border-l-[color:var(--c-bar)] bg-[color:var(--c-soft)] px-2 py-1 text-left',
-                      'hover:z-10 hover:shadow-md focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'group absolute inset-x-1 flex flex-col overflow-hidden rounded-lg border border-l-[3px] border-[color:var(--c-border)] border-l-[color:var(--c-bar)] bg-[color:var(--c-soft)] px-2 py-1 text-left transition-opacity duration-200',
+                      'hover:z-10 hover:opacity-100 hover:shadow-md focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     )}
                     style={{ top, height }}
-                    title={`${event.courseName} · ${event.startLabel}–${event.endLabel}`}
+                    title={`${event.courseName} · ${event.startLabel}–${event.endLabel}${isCompleted ? ' (Completed)' : ''}`}
                   >
-                    <span className="flex items-center gap-1 text-[11px] font-semibold leading-tight text-[color:var(--c-text)]">
-                      <span className="truncate">{event.code}</span>
+                    <span className="flex w-full items-center gap-1 text-[11px] font-semibold leading-tight text-[color:var(--c-text)]">
+                      <span className={cn("truncate", isCompleted && "line-through opacity-70")}>{event.code}</span>
                       {event.isLab && (
                         <FlaskConical className="size-3 shrink-0 opacity-80" />
                       )}
+                      {isCompleted && (
+                        <span className="ml-auto text-[10px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0" title="Completed / Logged">✓</span>
+                      )}
                     </span>
                     {height > 42 && (
-                      <span className="truncate text-[10px] leading-tight text-[color:var(--c-text)]/80">
+                      <span className={cn("truncate text-[10px] leading-tight text-[color:var(--c-text)]/80", isCompleted && "line-through opacity-50")}>
                         {event.faculty}
                       </span>
                     )}

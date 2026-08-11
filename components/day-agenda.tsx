@@ -215,11 +215,12 @@ export function DayAgenda({
                   className={cn(
                     courseClass(event.courseId),
                     'group relative flex w-full items-stretch gap-3 rounded-2xl border-2 border-[color:var(--c-border,var(--border))] bg-card p-3 text-left transition-all hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-4 sm:p-4',
+                    isCompleted && 'opacity-65 hover:opacity-95',
                   )}
                 >
                   {/* Left: Time column */}
                   <div className="flex w-[4.4rem] shrink-0 flex-col items-start justify-center space-y-1 sm:w-20">
-                    <span className="text-sm font-bold tracking-tight text-foreground">
+                    <span className={cn("text-sm font-bold tracking-tight text-foreground", isCompleted && "opacity-60")}>
                       {event.startLabel}
                     </span>
                     <span className="text-xs font-medium text-muted-foreground">
@@ -234,7 +235,7 @@ export function DayAgenda({
                   <div className="min-w-0 flex-1">
                     {/* Badge row */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center rounded-lg bg-[color:var(--c-solid)] px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md">
+                      <span className={cn("inline-flex items-center rounded-lg bg-[color:var(--c-solid)] px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md", isCompleted && "line-through opacity-70")}>
                         {event.code}
                       </span>
                       {event.isLab && (
@@ -259,36 +260,36 @@ export function DayAgenda({
                       )}
                     </div>
 
-                  {/* Title */}
-                  <p className="mt-2 line-clamp-2 text-base font-bold text-foreground">
-                    {event.courseName}
-                  </p>
+                    {/* Title */}
+                    <p className={cn("mt-2 line-clamp-2 text-base font-bold text-foreground", isCompleted && "line-through opacity-60")}>
+                      {event.courseName}
+                    </p>
 
-                  {/* Details */}
-                  <div className="mt-2.5 space-y-1">
-                    {event.faculty && (
-                      <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                        <User className="size-4 flex-shrink-0" /> {event.faculty}
-                      </span>
-                    )}
-                    {event.room && (
-                      <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                        <MapPin className="size-4 flex-shrink-0" /> {event.room}
-                      </span>
-                    )}
+                    {/* Details */}
+                    <div className="mt-2.5 space-y-1">
+                      {event.faculty && (
+                        <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                          <User className="size-4 flex-shrink-0" /> {event.faculty}
+                        </span>
+                      )}
+                      {event.room && (
+                        <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                          <MapPin className="size-4 flex-shrink-0" /> {event.room}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Right accent bar */}
-                <span
-                  className={cn(
-                    courseClass(event.courseId),
-                    'absolute right-0 top-0 h-full w-1.5 rounded-r-2xl bg-[color:var(--c-bar)]',
-                  )}
-                  aria-hidden
-                />
-              </motion.button>
-            )
+                  {/* Right accent bar */}
+                  <span
+                    className={cn(
+                      courseClass(event.courseId),
+                      'absolute right-0 top-0 h-full w-1.5 rounded-r-2xl bg-[color:var(--c-bar)]',
+                    )}
+                    aria-hidden
+                  />
+                </motion.button>
+              )
           })
         )}
       </motion.div>

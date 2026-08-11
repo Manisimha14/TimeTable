@@ -97,6 +97,65 @@ export function DailyNotifications({
     [group, overrides, excluded],
   )
 
+  // Run background checks for system push notifications (starting / ending)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return
+
+    const sentNotifications = new Set<string>()
+
+    const checkAndNotify = () => {
+      const nowObj = new Date()
+      const tMs = Date.UTC(nowObj.getFullYear(), nowObj.getMonth(), nowObj.getDate())
+      const minToday = nowObj.getHours() * 60 + nowObj.getMinutes()
+
+      // 1. Session Starting soon notification
+      const upcoming = occurrences.find(
+        (o) => o.ms === tMs && o.startMin > minToday && o.startMin - minToday <= 15
+      )
+      if (upcoming) {
+        const notifyKey = `start-${upcoming.key}`
+        if (!sentNotifications.has(notifyKey)) {
+          sentNotifications.add(notifyKey)
+          const startMemes = [
+            "Class start aindi guru! Quick ga room ki vellipo 🏃‍♂️",
+            "Late aindi ra bujji! Class modalaindi, instructor already active ⏰",
+            "Late aithe attendance cut! Parigethu masteru campus lo ⚡"
+          ]
+          const meme = startMemes[Math.floor(Math.random() * startMemes.length)]
+          new Notification(`SST Term 5: ${upcoming.code} Starting Soon!`, {
+            body: `${upcoming.code} starts at ${Math.floor(upcoming.startMin/60)}:${(upcoming.startMin%60).toString().padStart(2, '0')}. ${meme}`,
+            icon: '/favicon.png'
+          })
+        }
+      }
+
+      // 2. Session Ended (log attendance alert)
+      const ended = occurrences.find(
+        (o) => o.ms === tMs && minToday >= o.endMin && minToday - o.endMin <= 15
+      )
+      if (ended && !log[ended.key]) {
+        const notifyKey = `end-${ended.key}`
+        if (!sentNotifications.has(notifyKey)) {
+          sentNotifications.add(notifyKey)
+          const endMemes = [
+            "Class aipoyindi ra bujji! Present aa Missed aa Ventane log chesei 📝",
+            "Log chesava leda? Emundhi le attendance poyaka edavochu 😴",
+            "Attend aiyava? Present log cheyyi, lekapothe direct ga 0% eh! 🔥"
+          ]
+          const meme = endMemes[Math.floor(Math.random() * endMemes.length)]
+          new Notification(`SST Term 5: ${ended.code} Ended!`, {
+            body: `Log attendance now: ${meme}`,
+            icon: '/favicon.png'
+          })
+        }
+      }
+    }
+
+    const interval = setInterval(checkAndNotify, 20000)
+    checkAndNotify()
+    return () => clearInterval(interval)
+  }, [occurrences, log])
+
   const todayOccurrences = useMemo(
     () => occurrences.filter((o) => o.ms === todayMsVal),
     [occurrences, todayMsVal],
@@ -136,8 +195,25 @@ export function DailyNotifications({
 
   const requestPush = async () => {
     if (!('Notification' in window)) return
-    setPushPermission(await Notification.requestPermission())
+    const permission = await Notification.requestPermission()
+    setPushPermission(permission)
+    if (permission === 'granted') {
+      new Notification("Notifications Enabled!", {
+        body: "Telugu memes and attendance alerts will be sent here contextually! ⚡",
+        icon: '/favicon.png'
+      })
+    }
   }
+
+  // Pick a random Telugu meme for low attendance
+  const lowAttendanceMeme = useMemo(() => {
+    const memes = [
+      "Sare paduko emundhi le inka... 80% maintain cheyadam mana valla kadu le 😴",
+      "Attendance poyindi masteru! Proxy lu veyaleru, immediate ga exemption form fill cheyi 📑",
+      "80% ledu babu! Intlo chepthe devudaa... 💀"
+    ]
+    return memes[Math.floor((now?.getMinutes() ?? 0) % memes.length)]
+  }, [now])
 
   return (
     <div className="relative">
@@ -200,6 +276,9 @@ export function DailyNotifications({
                     <p className="mt-0.5 text-muted-foreground">
                       Ends at {liveSession.endMin ? `${Math.floor(liveSession.endMin / 60)}:${(liveSession.endMin % 60).toString().padStart(2, '0')}` : ''}
                     </p>
+                    <p className="mt-1.5 text-[10px] italic text-primary/80">
+                      &quot;Class live nadustondi masteru! Proxy lu work avvav ikkada 🤫&quot;
+                    </p>
                   </div>
                 )}
 
@@ -260,14 +339,20 @@ export function DailyNotifications({
                     <p className="mt-1 text-muted-foreground">
                       {unloggedSessions.length} completed session{unloggedSessions.length === 1 ? '' : 's'} awaiting attendance mark.
                     </p>
+                    <p className="mt-1.5 text-[10px] italic text-amber-700 dark:text-amber-300">
+                      &quot;Class aipoyindi ra bujji! Ventane log chesei 📝&quot;
+                    </p>
                   </div>
                 )}
 
-                {/* 5. Attendance Floor Alert */}
+                {/* 5. Attendance Floor Alert (with Telugu memes) */}
                 {allAssessedMetrics.isBelow80 && (
-                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive space-y-2">
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive space-y-2.5">
                     <p className="font-bold flex items-center gap-1.5">
-                      <AlertTriangle className="size-3.5" /> Attendance Below 80% · Emundhi Le 😴
+                      <AlertTriangle className="size-3.5 animate-bounce" /> Low Attendance Warning
+                    </p>
+                    <p className="opacity-95 text-foreground font-semibold">
+                      &quot;{lowAttendanceMeme}&quot;
                     </p>
                     <p className="opacity-90">
                       Your overall attendance is currently {allAssessedMetrics.attendancePercentage}%. Missed {allAssessedMetrics.alreadyMissed} of {allAssessedMetrics.maxAllowedMisses} allowed misses.
@@ -276,7 +361,7 @@ export function DailyNotifications({
                       href="https://docs.google.com/forms/d/e/1FAIpQLSehkGVzY57bYg4gFMU912d1pRlajHUJtnsuy9gPLHP0UDZh4Q/viewform"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-destructive px-2.5 py-1.5 text-[11px] font-bold text-destructive-foreground transition hover:brightness-110"
+                      className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-destructive px-2.5 py-1.5 text-[11px] font-bold text-destructive-foreground transition hover:brightness-115 active:scale-95"
                     >
                       <FileText className="size-3.5" />
                       Attendance Appeal / Exemption Form
@@ -304,15 +389,15 @@ export function DailyNotifications({
                 <button
                   type="button"
                   onClick={requestPush}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline active:scale-95"
                 >
                   {pushPermission === 'granted' ? (
                     <>
-                      <BellRing className="size-3.5 text-primary" /> Push Alerts Active
+                      <BellRing className="size-3.5 text-primary animate-pulse" /> Push Alerts Active
                     </>
                   ) : (
                     <>
-                      <Bell className="size-3.5" /> Enable Desktop Push Alerts
+                      <Bell className="size-3.5" /> Enable Live Push Alerts & Memes
                     </>
                   )}
                 </button>
