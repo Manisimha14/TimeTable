@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarRange, CalendarDays, CalendarClock, GraduationCap, Flag, Wrench, CalendarPlus, Lock, Unlock } from 'lucide-react'
+import { CalendarRange, CalendarDays, CalendarClock, GraduationCap, Flag, Wrench, CalendarPlus, Lock, Unlock, Search } from 'lucide-react'
 import {
   currentWeekIndex,
   EXCLUDED_COURSES_CHANGED_EVENT,
@@ -30,6 +30,7 @@ import { EventDetailDialog } from '@/components/event-detail-dialog'
 import { ClassReschedulerDialog } from '@/components/class-rescheduler-dialog'
 import { SessionManagerDialog } from '@/components/session-manager-dialog'
 import { DailyNotifications } from '@/components/daily-notifications'
+import { CommandPalette } from '@/components/command-palette'
 import { CoursesTab } from '@/components/courses-tab'
 import { AcademicCalendarView } from '@/components/academic-calendar-view'
 import { KeyDates } from '@/components/key-dates'
@@ -73,6 +74,7 @@ export function TimetableDashboard() {
   const [reschedulerOpen, setReschedulerOpen] = useState(false)
   const [reschedulerInitialKey, setReschedulerInitialKey] = useState<string | null>(null)
   const [sessionManagerOpen, setSessionManagerOpen] = useState(false)
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
 
   // Client-only clock & locked group / excluded courses / overrides loader
   useEffect(() => {
@@ -232,8 +234,21 @@ export function TimetableDashboard() {
             </p>
           </div>
 
-          {/* Group switcher & Notifications */}
+          {/* Group switcher, Search & Notifications */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCommandPaletteOpen(true)}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-xs transition hover:bg-muted active:scale-95"
+              title="Search commands (⌘K or Ctrl+K)"
+            >
+              <Search className="size-4 text-primary" />
+              <span className="hidden sm:inline">Search</span>
+              <kbd className="hidden rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground border border-border sm:inline">
+                ⌘K
+              </kbd>
+            </button>
+
             <DailyNotifications
               group={lockedGroup ?? group}
               onOpenSessionManager={() => setSessionManagerOpen(true)}
@@ -514,6 +529,19 @@ export function TimetableDashboard() {
         open={sessionManagerOpen}
         onOpenChange={setSessionManagerOpen}
         group={group}
+      />
+
+      <CommandPalette
+        open={commandPaletteOpen}
+        onOpenChange={setCommandPaletteOpen}
+        view={view}
+        onSelectView={setView}
+        group={group}
+        onSelectGroup={(g) => {
+          setGroup(g)
+          saveLockedGroup(g)
+        }}
+        onOpenSessionManager={() => setSessionManagerOpen(true)}
       />
 
       {/* Footer */}

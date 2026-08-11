@@ -917,3 +917,61 @@ export function eventMatches(
     (v ?? '').toLowerCase().includes(q),
   )
 }
+
+/** Generate and trigger download of an .ics iCalendar file for the selected Group timetable */
+export function exportCalendarIcal(group: GroupKey): void {
+  if (typeof window === 'undefined') return
+  const events = eventsForGroup(group)
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Scaler SST//Term 5 Timetable//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:SST 2029 Group ${group} Timetable`,
+  ]
+
+  const daysMap: Record<number, string> = { 0: 'MO', 1: 'TU', 2: 'WE', 3: 'TH', 4: 'FR', 5: 'SA' }
+  const refStartDate = new Date(Date.UTC(2026, 7, 10))
+
+  events.filter((e) => e.type === 'class').forEach((e, idx) => {
+    const dayOffset = e.dayIndex
+    const startHour = Math.floor(e.startMin / 60)
+    const startMin = e.startMin % 60
+    const endHour = Math.floor(e.endMin / 60)
+    const endMin = e.endMin % 60
+
+    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
+
+    const eventDate = new Date(refStartDate.getTime() + dayOffset * 86400000)
+    const yyyy = eventDate.getUTCFullYear()
+    const mm = pad(eventDate.getUTCMonth() + 1)
+    const dd = pad(eventDate.getUTCDate())
+
+    const dtStart = `${yyyy}${mm}${dd}T${pad(startHour)}${pad(startMin)}00`
+    const dtEnd = `${yyyy}${mm}${dd}T${pad(endHour)}${pad(endMin)}00`
+
+    ics.push(
+      'BEGIN:VEVENT',
+      `UID:sst-2029-g${group}-${e.courseId}-${e.dayIndex}-${idx}@scalersst.edu`,
+      `DTSTAMP:${yyyy}${mm}${dd}T000000Z`,
+      `DTSTART:${dtStart}`,
+      `DTEND:${dtEnd}`,
+      `RRULE:FREQ=WEEKLY;UNTIL=20261031T235959Z;BYDAY=${daysMap[e.dayIndex] || 'MO'}`,
+      `SUMMARY:${e.code} - ${e.courseName}${e.isLab ? ' (Lab)' : ''}`,
+      `LOCATION:${e.room || 'SST Campus'}`,
+      `DESCRIPTION:Faculty: ${e.faculty || 'SST Instructor'} | Group: ${group}`,
+      'END:VEVENT',
+    )
+  })
+
+  ics.push('END:VCALENDAR')
+  const blob = new Blob([ics.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `SST_2029_Term_5_Group_${group}_Timetable.ics`)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}

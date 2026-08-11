@@ -27,6 +27,7 @@ import {
   COURSE_ORDER,
   courseOccurrences,
   EXCLUDED_COURSES_CHANGED_EVENT,
+  exportCalendarIcal,
   exportDashboardData,
   generateSyncUrl,
   getAttendanceLog,
@@ -410,6 +411,27 @@ export function ToolsTab({ group }: { group: GroupKey }) {
         subtitle="Backup your attendance logs, group locks, & settings, or transfer them to another browser/phone."
       >
         <SyncBackupControls />
+      </ToolCard>
+
+      {/* iCal / Google Calendar Export Card */}
+      <ToolCard
+        icon={Download}
+        title="Sync to Phone / Google Calendar"
+        subtitle={`Export Group ${group} weekly schedule as a standard .ics iCalendar file.`}
+      >
+        <div className="flex flex-col gap-3">
+          <p className="text-xs text-muted-foreground">
+            Download your Group {group} weekly timetable into Google Calendar, Apple Calendar, or Outlook to get automated reminders on your phone before every class.
+          </p>
+          <button
+            type="button"
+            onClick={() => exportCalendarIcal(group)}
+            className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:brightness-95 active:scale-95"
+          >
+            <Download className="size-4" />
+            Download Group {group} iCal (.ics) Calendar
+          </button>
+        </div>
       </ToolCard>
 
       {/* Semester Snapshot */}
