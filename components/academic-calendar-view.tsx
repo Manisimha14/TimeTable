@@ -20,10 +20,16 @@ import { HolidayIcon } from '@/components/holiday-icon'
 import { loadPersonalDeadlines, savePersonalDeadlines } from '@/lib/personal-deadlines'
 
 export function AcademicCalendarView() {
-  const [monthIdx, setMonthIdx] = useState<number>(0)
+  const [today, setToday] = useState<Date | null>(() => {
+    if (typeof window === 'undefined') return null
+    return new Date()
+  })
+  const [monthIdx, setMonthIdx] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0
+    return monthIndexFor(new Date())
+  })
   const [direction, setDirection] = useState<number>(0)
   const [selectedIso, setSelectedIso] = useState<string | null>(null)
-  const [today, setToday] = useState<Date | null>(null)
 
   // Client-only clock so "today" highlighting matches the user's real date.
   useEffect(() => {
@@ -58,7 +64,23 @@ export function AcademicCalendarView() {
     savePersonalDeadlines([...current, { id: crypto.randomUUID(), date: selectedIso, title: 'Personal deadline', note: 'Added from the academic calendar.' }])
   }
 
-  if (!month) return null
+  if (!today || !month) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+        <div className="relative flex size-12 items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+          <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+          <span className="text-base font-bold text-primary">⏳</span>
+        </div>
+        <p className="font-display text-base font-bold text-foreground animate-pulse">
+          Aagu Bro... 🛑 Loading Calendar Data!
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Academic schedule and key dates loading fast for you ⚡
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-5">
