@@ -68,6 +68,7 @@ export function DailyNotifications({
   const [soundOn, setSoundOn] = useState(true)
   const [dismissedToday, setDismissedToday] = useState<Set<string>>(new Set())
   const [justLogged, setJustLogged] = useState<Set<string>>(new Set())
+  const [testToast, setTestToast] = useState<string | null>(null)
 
   useEffect(() => {
     setNow(new Date())
@@ -177,23 +178,29 @@ export function DailyNotifications({
       '⏰ Test Successful! Notifications and Telugu meme alerts are ready! 🚀',
     ]
     const meme = testMemes[Math.floor(Math.random() * testMemes.length)]
+    setTestToast(meme)
+    setTimeout(() => setTestToast(null), 5000)
 
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('SST Timetable: Test Alert 🔔', {
-        body: meme,
-        icon: '/favicon.png',
-      })
-    } else if ('Notification' in window && Notification.permission !== 'denied') {
-      const perm = await Notification.requestPermission()
-      setPushPermission(perm)
-      if (perm === 'granted') {
-        new Notification('SST Timetable: Test Alert 🔔', {
-          body: meme,
-          icon: '/favicon.png',
-        })
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification('SST Timetable: Test Alert 🔔', {
+            body: meme,
+            icon: '/favicon.png',
+          })
+        } catch {}
+      } else if (Notification.permission !== 'denied') {
+        try {
+          const perm = await Notification.requestPermission()
+          setPushPermission(perm)
+          if (perm === 'granted') {
+            new Notification('SST Timetable: Test Alert 🔔', {
+              body: meme,
+              icon: '/favicon.png',
+            })
+          }
+        } catch {}
       }
-    } else {
-      alert(meme)
     }
   }
 
@@ -690,6 +697,33 @@ export function DailyNotifications({
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Floating In-App Test Notification Toast */}
+      <AnimatePresence>
+        {testToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-4 right-4 z-50 flex max-w-sm items-center gap-3 rounded-2xl border border-primary/40 bg-card p-3.5 shadow-2xl backdrop-blur-xl"
+          >
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <BellRing className="size-5 animate-bounce" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-foreground">Notification Test Active</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{testToast}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setTestToast(null)}
+              className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

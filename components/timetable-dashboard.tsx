@@ -586,7 +586,7 @@ function LiveClockPill() {
     const updateTime = () => {
       const d = new Date()
       setTimeStr(
-        d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })
       )
     }
     updateTime()
