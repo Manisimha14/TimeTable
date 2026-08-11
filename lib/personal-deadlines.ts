@@ -22,7 +22,7 @@ export function loadPersonalDeadlines(): PersonalDeadline[] {
   if (typeof window === 'undefined') return defaultPersonalDeadlines
   try {
     const saved = window.localStorage.getItem(PERSONAL_DEADLINES_STORE_KEY)
-    return saved ? (JSON.parse(saved) as PersonalDeadline[]) : defaultPersonalDeadlines
+    return saved !== null ? (JSON.parse(saved) as PersonalDeadline[]) : defaultPersonalDeadlines
   } catch { return defaultPersonalDeadlines }
 }
 

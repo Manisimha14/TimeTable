@@ -9,6 +9,7 @@ import {
   facultiesFor,
   getCourseAutoCompletion,
   getStudiedLog,
+  pushRealtimeSync,
   setStudiedCount,
   STUDIED_LOG_CHANGED_EVENT,
   type Course,
@@ -41,6 +42,7 @@ export function CourseDetail({ course }: { course: Course }) {
     } catch (e) {}
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
+      pushRealtimeSync()
     }
   }
 

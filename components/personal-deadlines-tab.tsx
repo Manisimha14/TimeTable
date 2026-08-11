@@ -3,11 +3,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CheckCircle2, CirclePlus, Flag, Trash2 } from 'lucide-react'
 import { motion } from 'motion/react'
-import { defaultPersonalDeadlines, deadlineDateLabel, PERSONAL_DEADLINES_CHANGED, PERSONAL_DEADLINES_STORE_KEY, type PersonalDeadline } from '@/lib/personal-deadlines'
+import {
+  deadlineDateLabel,
+  loadPersonalDeadlines,
+  savePersonalDeadlines,
+  PERSONAL_DEADLINES_CHANGED,
+  type PersonalDeadline,
+} from '@/lib/personal-deadlines'
 import { riseItem, staggerContainer } from '@/lib/motion'
 
 export function PersonalDeadlinesTab() {
-  const [deadlines, setDeadlines] = useState<PersonalDeadline[]>(defaultPersonalDeadlines)
+  const [deadlines, setDeadlines] = useState<PersonalDeadline[]>(loadPersonalDeadlines)
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
   const [note, setNote] = useState('')
@@ -25,19 +31,14 @@ export function PersonalDeadlinesTab() {
     setNote('')
   }
 
-  // Personal data stays on this device, including after switching dashboard tabs.
   const saveDeadlines = (next: PersonalDeadline[]) => {
     setDeadlines(next)
-    window.localStorage.setItem(PERSONAL_DEADLINES_STORE_KEY, JSON.stringify(next))
-    window.dispatchEvent(new Event(PERSONAL_DEADLINES_CHANGED))
+    savePersonalDeadlines(next)
   }
 
   useEffect(() => {
     const update = () => {
-      try {
-        const saved = window.localStorage.getItem(PERSONAL_DEADLINES_STORE_KEY)
-        if (saved) setDeadlines(JSON.parse(saved) as PersonalDeadline[])
-      } catch { /* Keep default */ }
+      setDeadlines(loadPersonalDeadlines())
     }
     update()
     window.addEventListener(PERSONAL_DEADLINES_CHANGED, update)

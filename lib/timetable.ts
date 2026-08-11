@@ -190,6 +190,8 @@ export interface DashboardBackupData {
   excludedCourses: Exclude<CourseId, 'clubs'>[]
   scheduleOverrides: any[]
   personalDeadlines?: any[]
+  studiedLog?: Record<string, number>
+  syllabusCompleted?: Record<string, boolean>
   shortcuts?: any[]
   pdfs?: any[]
   gradeTarget?: { earned: number; possible: number; target: number }
@@ -214,6 +216,8 @@ export function exportDashboardData(): DashboardBackupData {
     excludedCourses: getExcludedCourses(),
     scheduleOverrides: getScheduleOverrides(),
     personalDeadlines: getItem('academic-dashboard-personal-deadlines') ?? [],
+    studiedLog: getItem('academic-dashboard-studied-by-course') ?? {},
+    syllabusCompleted: getItem('academic-dashboard-syllabus-completed') ?? {},
     shortcuts: getItem('academic-dashboard-important-links') ?? [],
     pdfs: getItem('academic-dashboard-pinned-pdfs') ?? [],
     gradeTarget: getItem('academic-dashboard-grade-target') ?? { earned: 0, possible: 100, target: 80 },
@@ -246,6 +250,14 @@ export function importDashboardData(data: DashboardBackupData): boolean {
     if (data.personalDeadlines !== undefined) {
       window.localStorage.setItem('academic-dashboard-personal-deadlines', JSON.stringify(data.personalDeadlines))
       window.dispatchEvent(new Event('academic-dashboard-personal-deadlines-changed'))
+    }
+    if (data.studiedLog !== undefined) {
+      window.localStorage.setItem('academic-dashboard-studied-by-course', JSON.stringify(data.studiedLog))
+      window.dispatchEvent(new Event('academic-dashboard-studied-log-changed'))
+    }
+    if (data.syllabusCompleted !== undefined) {
+      window.localStorage.setItem('academic-dashboard-syllabus-completed', JSON.stringify(data.syllabusCompleted))
+      window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
     }
     if (data.shortcuts !== undefined) {
       window.localStorage.setItem('academic-dashboard-important-links', JSON.stringify(data.shortcuts))
