@@ -81,7 +81,7 @@ export function TimetableDashboard() {
     loadSyncFromUrl()
     const autoSync = () => pullRealtimeSync()
     autoSync()
-    const syncInterval = setInterval(autoSync, 2000)
+    const syncInterval = setInterval(autoSync, 8000)
 
     const lg = getLockedGroup()
     setLockedGroup(lg)

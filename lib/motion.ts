@@ -43,11 +43,18 @@ export const popItem: Variants = {
   show: { opacity: 1, scale: 1, y: 0, transition: spring },
 }
 
-/** Directional slide used when switching weeks. dir: 1 = next, -1 = prev. */
+/** Directional slide used when switching weeks. dir: 1 = next, -1 = prev. Optimized for mobile. */
 export const weekSlide = {
-  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 28 : -28 }),
+  enter: (dir: number) => ({
+    opacity: 0,
+    x: typeof window !== 'undefined' && window.innerWidth < 640 ? 0 : (dir > 0 ? 28 : -28)
+  }),
   center: { opacity: 1, x: 0, transition: spring },
-  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -28 : 28, transition: ease }),
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: typeof window !== 'undefined' && window.innerWidth < 640 ? 0 : (dir > 0 ? -28 : 28),
+    transition: ease
+  }),
 }
 
 /** Crossfade with a slight lift, used for top-level tab panels. */
