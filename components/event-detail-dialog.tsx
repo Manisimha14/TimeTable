@@ -109,13 +109,13 @@ export function EventDetailDialog({
             </DialogHeader>
 
             {/* Body */}
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-y-auto min-h-0 touch-pan-y p-5 sm:p-6">
               <motion.div
                 key={`${event.id}-${weekIndex}`}
                 variants={staggerContainer}
                 initial="hidden"
                 animate="show"
-                className="space-y-5 p-5 sm:p-6"
+                className="space-y-5"
               >
                 {/* Lab: no syllabus session is mapped */}
                 {event.isLab ? (
@@ -206,11 +206,9 @@ export function EventDetailDialog({
                   />
                 )}
 
-                {cell && (
-                  <SessionNotesSection
-                    occurrenceKey={`${event.id}|${weekIndex}`}
-                  />
-                )}
+                <SessionNotesSection
+                  occurrenceKey={`${event.id}|${weekIndex}`}
+                />
 
                 {/* Reschedule or Cancel button */}
                 {onOpenRescheduler && (
@@ -252,7 +250,7 @@ export function EventDetailDialog({
                   </motion.div>
                 )}
               </motion.div>
-            </ScrollArea>
+            </div>
           </div>
         )}
       </DialogContent>
