@@ -191,9 +191,21 @@ export interface DashboardBackupData {
   scheduleOverrides: any[]
   personalDeadlines?: any[]
   shortcuts?: any[]
+  pdfs?: any[]
+  gradeTarget?: { earned: number; possible: number; target: number }
 }
 
 export function exportDashboardData(): DashboardBackupData {
+  const getItem = (key: string) => {
+    if (typeof window === 'undefined') return null
+    try {
+      const raw = window.localStorage.getItem(key)
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  }
+
   return {
     version: 1,
     exportedAt: new Date().toISOString(),
@@ -201,8 +213,10 @@ export function exportDashboardData(): DashboardBackupData {
     lockedGroup: getLockedGroup(),
     excludedCourses: getExcludedCourses(),
     scheduleOverrides: getScheduleOverrides(),
-    personalDeadlines: typeof window !== 'undefined' ? JSON.parse(window.localStorage.getItem('academic-dashboard-personal-deadlines') || '[]') : [],
-    shortcuts: typeof window !== 'undefined' ? JSON.parse(window.localStorage.getItem('academic-dashboard-important-links') || '[]') : [],
+    personalDeadlines: getItem('academic-dashboard-personal-deadlines') ?? [],
+    shortcuts: getItem('academic-dashboard-important-links') ?? [],
+    pdfs: getItem('academic-dashboard-pinned-pdfs') ?? [],
+    gradeTarget: getItem('academic-dashboard-grade-target') ?? { earned: 0, possible: 100, target: 80 },
   }
 }
 
@@ -235,6 +249,15 @@ export function importDashboardData(data: DashboardBackupData): boolean {
     }
     if (data.shortcuts) {
       window.localStorage.setItem('academic-dashboard-important-links', JSON.stringify(data.shortcuts))
+      window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
+    }
+    if (data.pdfs) {
+      window.localStorage.setItem('academic-dashboard-pinned-pdfs', JSON.stringify(data.pdfs))
+      window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
+    }
+    if (data.gradeTarget) {
+      window.localStorage.setItem('academic-dashboard-grade-target', JSON.stringify(data.gradeTarget))
+      window.dispatchEvent(new Event('academic-dashboard-tools-changed'))
     }
     return true
   } catch {

@@ -69,6 +69,8 @@ const DEFAULT_SHORTCUTS: SavedLink[] = [
   { id: '4', title: 'ChatGPT', url: 'https://chatgpt.com' },
 ]
 
+const GRADE_TARGET_STORE_KEY = 'academic-dashboard-grade-target'
+
 export function ToolsTab({ group }: { group: GroupKey }) {
   const [courseId, setCourseId] = useState<CourseId | 'all'>('all')
   const [attended, setAttended] = useState<number | null>(null)
@@ -84,7 +86,7 @@ export function ToolsTab({ group }: { group: GroupKey }) {
   const [possible, setPossible] = useState(100)
   const [target, setTarget] = useState(80)
 
-  useEffect(() => {
+  const reloadToolsData = () => {
     try {
       const saved = window.localStorage.getItem(LINK_STORE_KEY)
       if (saved) {
@@ -95,15 +97,27 @@ export function ToolsTab({ group }: { group: GroupKey }) {
       }
       const savedPdfs = window.localStorage.getItem(PDF_STORE_KEY)
       if (savedPdfs) setPdfs(JSON.parse(savedPdfs) as PinnedPdf[])
+      const savedGrade = window.localStorage.getItem(GRADE_TARGET_STORE_KEY)
+      if (savedGrade) {
+        const parsed = JSON.parse(savedGrade)
+        if (parsed.earned !== undefined) setEarned(parsed.earned)
+        if (parsed.possible !== undefined) setPossible(parsed.possible)
+        if (parsed.target !== undefined) setTarget(parsed.target)
+      }
     } catch {
       /* Local storage may be unavailable */
     }
+  }
+
+  useEffect(() => {
+    reloadToolsData()
   }, [])
 
   useEffect(() => {
     const updateLog = () => setLog(getAttendanceLog())
     const updateOverrides = () => setOverrides(getScheduleOverrides())
     const updateEx = () => setExcluded(getExcludedCourses())
+    const updateTools = () => reloadToolsData()
     updateLog()
     updateOverrides()
     updateEx()
@@ -111,10 +125,12 @@ export function ToolsTab({ group }: { group: GroupKey }) {
     window.addEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
     window.addEventListener(SCHEDULE_OVERRIDES_CHANGED, updateOverrides)
     window.addEventListener(EXCLUDED_COURSES_CHANGED_EVENT, updateEx)
+    window.addEventListener('academic-dashboard-tools-changed', updateTools)
     return () => {
       window.removeEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
       window.removeEventListener(SCHEDULE_OVERRIDES_CHANGED, updateOverrides)
       window.removeEventListener(EXCLUDED_COURSES_CHANGED_EVENT, updateEx)
+      window.removeEventListener('academic-dashboard-tools-changed', updateTools)
     }
   }, [])
 
@@ -133,6 +149,18 @@ export function ToolsTab({ group }: { group: GroupKey }) {
   const persistLinks = (next: SavedLink[]) => {
     setLinks(next)
     window.localStorage.setItem(LINK_STORE_KEY, JSON.stringify(next))
+    pushRealtimeSync()
+  }
+
+  const updateGradeTarget = (newEarned: number, newPossible: number, newTarget: number) => {
+    setEarned(newEarned)
+    setPossible(newPossible)
+    setTarget(newTarget)
+    window.localStorage.setItem(
+      GRADE_TARGET_STORE_KEY,
+      JSON.stringify({ earned: newEarned, possible: newPossible, target: newTarget }),
+    )
+    pushRealtimeSync()
   }
 
   const addLink = (event: React.FormEvent<HTMLFormElement>) => {
@@ -158,6 +186,7 @@ export function ToolsTab({ group }: { group: GroupKey }) {
       ]
       setPdfs(next)
       window.localStorage.setItem(PDF_STORE_KEY, JSON.stringify(next))
+      pushRealtimeSync()
     }
     reader.readAsDataURL(file)
   }
@@ -362,9 +391,9 @@ export function ToolsTab({ group }: { group: GroupKey }) {
         subtitle="See the marks still needed to hit your target score."
       >
         <div className="grid grid-cols-3 gap-2">
-          <NumberField label="Earned" value={earned} onChange={setEarned} />
-          <NumberField label="Possible" value={possible} onChange={setPossible} />
-          <NumberField label="Target %" value={target} onChange={setTarget} />
+          <NumberField label="Earned" value={earned} onChange={(v) => updateGradeTarget(v, possible, target)} />
+          <NumberField label="Possible" value={possible} onChange={(v) => updateGradeTarget(earned, v, target)} />
+          <NumberField label="Target %" value={target} onChange={(v) => updateGradeTarget(earned, possible, v)} />
         </div>
         <p className="mt-4 rounded-xl bg-primary/10 px-3 py-3 text-sm text-primary">
           You need <strong>{requiredForTarget}</strong> more marks to reach{' '}
@@ -500,28 +529,30 @@ function SyncBackupControls() {
           Enter a 4-digit Sync Code (e.g. <code>SST-4821</code>) on both your <strong>Phone (Chrome)</strong> and <strong>Windows (Zen/Chrome)</strong>. Marking attendance on phone will automatically update on web live in real time!
         </p>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             value={syncCodeInput}
             onChange={(e) => setSyncCodeInput(e.target.value.toUpperCase())}
             placeholder="e.g. SST-4821 or 7777"
-            className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-xs font-bold uppercase tracking-wider outline-none focus:border-primary"
+            className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-xs font-bold uppercase tracking-wider outline-none focus:border-primary"
           />
-          <button
-            type="button"
-            onClick={() => handleSetSyncCode(syncCodeInput.trim() || null)}
-            className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground shadow-xs transition hover:brightness-95"
-          >
-            {activeCode === syncCodeInput.trim().toUpperCase() && activeCode ? 'Update Code' : 'Connect Code'}
-          </button>
-          <button
-            type="button"
-            onClick={generateRandomCode}
-            className="inline-flex h-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background px-2.5 text-xs font-semibold text-foreground hover:border-primary/50 transition"
-            title="Generate random 4-digit code"
-          >
-            Generate Code
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => handleSetSyncCode(syncCodeInput.trim() || null)}
+              className="inline-flex h-10 flex-1 shrink-0 items-center justify-center gap-1 rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground shadow-xs transition hover:brightness-95 active:scale-95 sm:flex-none"
+            >
+              {activeCode === syncCodeInput.trim().toUpperCase() && activeCode ? 'Update Code' : 'Connect Code'}
+            </button>
+            <button
+              type="button"
+              onClick={generateRandomCode}
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground hover:border-primary/50 transition active:scale-95"
+              title="Generate random 4-digit code"
+            >
+              Generate Code
+            </button>
+          </div>
         </div>
 
         {activeCode && (
@@ -628,7 +659,7 @@ function ChromeShortcutTile({
           e.stopPropagation()
           onDelete()
         }}
-        className="absolute top-2 right-2 rounded-lg p-1 text-muted-foreground opacity-0 transition hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+        className="absolute top-2 right-2 rounded-lg p-1 text-muted-foreground opacity-100 transition hover:bg-destructive/10 hover:text-destructive sm:opacity-0 sm:group-hover:opacity-100"
         title="Remove shortcut"
       >
         <Trash2 className="size-3.5" />

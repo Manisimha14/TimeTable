@@ -215,7 +215,7 @@ export function SessionManagerDialog({
           </div>
 
           {/* Stats Bar */}
-          <div className="mt-4 grid grid-cols-4 gap-2 text-center rounded-xl border border-border/80 bg-muted/30 p-2.5">
+          <div className="mt-4 grid grid-cols-2 gap-2 text-center rounded-xl border border-border/80 bg-muted/30 p-2.5 sm:grid-cols-4">
             <div>
               <p className="text-sm font-bold text-foreground tabular-nums">
                 {totalAttendedCount}
@@ -280,7 +280,7 @@ export function SessionManagerDialog({
                 href="https://docs.google.com/forms/d/e/1FAIpQLSehkGVzY57bYg4gFMU912d1pRlajHUJtnsuy9gPLHP0UDZh4Q/viewform"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-destructive px-3 py-2 text-xs font-bold text-destructive-foreground shadow-sm transition hover:brightness-110"
+                className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-destructive px-3 py-2 text-xs font-bold text-destructive-foreground shadow-sm transition hover:brightness-110 active:scale-95"
               >
                 <FileText className="size-4" />
                 Submit Attendance Exemption / Appeal Form
@@ -294,7 +294,7 @@ export function SessionManagerDialog({
             {/* Filter Tabs */}
             <div
               role="tablist"
-              className="scrollbar-none flex gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1"
+              className="scrollbar-none flex gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1 touch-pan-x"
             >
               {[
                 { id: 'unlogged', label: 'Unlogged', count: totalUnloggedCount },
@@ -309,7 +309,7 @@ export function SessionManagerDialog({
                   aria-selected={filterTab === id}
                   onClick={() => setFilterTab(id as TabFilter)}
                   className={cn(
-                    'relative rounded-lg px-2.5 py-1.5 text-xs font-semibold transition whitespace-nowrap',
+                    'relative rounded-lg px-2.5 py-1.5 text-xs font-semibold transition whitespace-nowrap active:scale-95',
                     filterTab === id
                       ? 'text-foreground'
                       : 'text-muted-foreground hover:text-foreground',
@@ -364,7 +364,7 @@ export function SessionManagerDialog({
 
         {/* Action Header for Bulk Logging */}
         {filterTab === 'unlogged' && displayedOccurrences.length > 0 && (
-          <div className="flex items-center justify-between border-b border-border bg-muted/30 px-5 py-2.5 sm:px-6">
+          <div className="flex flex-col gap-2 border-b border-border bg-muted/30 px-5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <span className="text-xs font-semibold text-muted-foreground">
               {displayedOccurrences.length} session{displayedOccurrences.length === 1 ? '' : 's'} awaiting log
             </span>
@@ -372,14 +372,14 @@ export function SessionManagerDialog({
               <button
                 type="button"
                 onClick={() => markAllDisplayed('present')}
-                className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition"
+                className="inline-flex min-h-[36px] flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition active:scale-95 sm:flex-none"
               >
                 <Check className="size-3.5" /> Mark all present
               </button>
               <button
                 type="button"
                 onClick={() => markAllDisplayed('missed')}
-                className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground hover:border-destructive/50 hover:text-destructive transition"
+                className="inline-flex min-h-[36px] flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground hover:border-destructive/50 hover:text-destructive transition active:scale-95 sm:flex-none"
               >
                 <CircleX className="size-3.5 text-destructive" /> Mark all missed
               </button>
@@ -481,7 +481,7 @@ function SessionCard({
           type="button"
           onClick={onMarkPresent}
           className={cn(
-            'inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition',
+            'inline-flex min-h-[38px] flex-1 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95 sm:flex-none',
             status === 'present'
               ? 'bg-emerald-600 text-white shadow-xs'
               : 'border border-border bg-background text-muted-foreground hover:text-foreground',
@@ -494,7 +494,7 @@ function SessionCard({
           type="button"
           onClick={onMarkMissed}
           className={cn(
-            'inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition',
+            'inline-flex min-h-[38px] flex-1 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95 sm:flex-none',
             status === 'missed'
               ? 'bg-destructive text-destructive-foreground shadow-xs'
               : 'border border-border bg-background text-muted-foreground hover:text-foreground',
@@ -508,7 +508,7 @@ function SessionCard({
             type="button"
             onClick={onClear}
             title="Reset to unlogged"
-            className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-95"
           >
             <RotateCcw className="size-3.5" />
           </button>
