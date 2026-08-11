@@ -146,6 +146,15 @@ export function ToolsTab({ group }: { group: GroupKey }) {
   const percentage = metrics.totalClasses
     ? Math.round((safeAttended / metrics.totalClasses) * 100)
     : 0
+
+  const safeConsecutiveBunks = useMemo(() => {
+    if (metrics.alreadyMissed >= metrics.maxAllowedMisses) return 0
+    const totalLogged = safeAttended + metrics.alreadyMissed
+    if (!totalLogged) return 0
+    const N = Math.floor(safeAttended / 0.8 - totalLogged)
+    return Math.max(0, N)
+  }, [metrics, safeAttended])
+
   const requiredForTarget = Math.max(0, Math.ceil((possible * target) / 100) - earned)
 
   const persistLinks = (next: SavedLink[]) => {
@@ -298,6 +307,13 @@ export function ToolsTab({ group }: { group: GroupKey }) {
               {(metrics.canStillMiss - simulatedBunks) >= 0
                 ? `🟢 Safe (${metrics.canStillMiss - simulatedBunks} left)`
                 : `🔴 Below 80% (${Math.abs(metrics.canStillMiss - simulatedBunks)} over limit)`}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg bg-background/80 px-2.5 py-1.5 text-xs mt-1">
+            <span className="text-muted-foreground">Safe consecutive skips starting now:</span>
+            <span className="font-bold text-primary">
+              {safeConsecutiveBunks} class{safeConsecutiveBunks === 1 ? '' : 'es'}
             </span>
           </div>
         </div>

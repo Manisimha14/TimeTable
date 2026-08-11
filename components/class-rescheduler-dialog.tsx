@@ -109,6 +109,44 @@ export function ClassReschedulerDialog({
     return (h ?? 14) * 60 + (m ?? 0)
   }
 
+  const getDayIndexFromIso = (dateStr: string): number => {
+    const d = new Date(dateStr)
+    const day = d.getDay()
+    if (day === 0) return -1
+    return day - 1
+  }
+
+  const conflictClass = useMemo(() => {
+    if (!targetDateIso || !startTimeStr || !endTimeStr) return null
+    const dayIdx = getDayIndexFromIso(targetDateIso)
+    if (dayIdx === -1) return null
+
+    const startMin = parseMinutes(startTimeStr)
+    const endMin = parseMinutes(endTimeStr)
+
+    const dayEvents = (timetable.eventsByGroup[group] ?? []).filter(
+      (e) => e.type === 'class' && e.dayIndex === dayIdx
+    )
+
+    const dateOverrides = overrides.filter(
+      (ov) => ov.dateIso === targetDateIso && (ov.type === 'reschedule' || ov.type === 'extra')
+    )
+
+    const normalConflict = dayEvents.find(
+      (e) => (startMin < e.endMin && endMin > e.startMin)
+    )
+    if (normalConflict) return { name: `${normalConflict.code} (${normalConflict.courseName})`, time: `${normalConflict.startLabel}–${normalConflict.endLabel}` }
+
+    const overrideConflict = dateOverrides.find(
+      (ov) => (startMin < ov.endMin && endMin > ov.startMin)
+    )
+    if (overrideConflict) {
+      return { name: `${overrideConflict.courseId.toUpperCase()} (Override)`, time: `${formatMinutes(overrideConflict.startMin)}–${formatMinutes(overrideConflict.endMin)}` }
+    }
+
+    return null
+  }, [targetDateIso, startTimeStr, endTimeStr, group, overrides])
+
   const handleModifySubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedOccurrence) return
@@ -419,6 +457,12 @@ export function ClassReschedulerDialog({
                 />
               </label>
 
+              {actionType === 'reschedule' && conflictClass && (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300 font-semibold">
+                  ⚠️ Slot Conflict: Overlaps with {conflictClass.name} at {conflictClass.time}
+                </div>
+              )}
+
               <button
                 type="submit"
                 className={cn(
@@ -543,6 +587,12 @@ export function ClassReschedulerDialog({
                   className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-xs text-foreground outline-none focus:border-primary"
                 />
               </label>
+
+              {conflictClass && (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300 font-semibold">
+                  ⚠️ Slot Conflict: Overlaps with {conflictClass.name} at {conflictClass.time}
+                </div>
+              )}
 
               <button
                 type="submit"
