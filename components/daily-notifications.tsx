@@ -326,18 +326,29 @@ export function DailyNotifications({
               <div className="max-h-[70vh] overflow-y-auto p-4 space-y-3">
                 {/* 1. Live Session Notification */}
                 {liveSession && (
-                  <div className="rounded-xl border border-primary/40 bg-primary/10 p-3 text-xs">
+                  <div className="rounded-xl border border-primary/40 bg-primary/10 p-3 text-xs space-y-2">
                     <div className="flex items-center gap-1.5 font-bold text-primary">
                       <Flame className="size-4 animate-bounce" /> Live Session Now
                     </div>
-                    <p className="mt-1 font-semibold text-foreground">
+                    <p className="font-semibold text-foreground">
                       {liveSession.code}: {liveSession.courseName}
                     </p>
-                    <p className="mt-0.5 text-muted-foreground">
+                    <p className="text-muted-foreground">
                       Ends at {liveSession.endMin ? `${Math.floor(liveSession.endMin / 60)}:${(liveSession.endMin % 60).toString().padStart(2, '0')}` : ''}
                     </p>
-                    <p className="mt-1.5 text-[10px] italic text-primary/80">
-                      &quot;Class live nadustondi masteru! Proxy lu work avvav ikkada 🤫&quot;
+                    <div className="overflow-hidden rounded-xl border border-primary/20 bg-background/80 shadow-xs">
+                      <iframe
+                        src="https://tenor.com/embed/18260424"
+                        width="100%"
+                        height="120"
+                        frameBorder="0"
+                        className="w-full rounded-xl"
+                        allowFullScreen
+                        title="Running to class Meme"
+                      />
+                    </div>
+                    <p className="text-[10px] italic font-semibold text-primary">
+                      &quot;Class live nadustondi masteru! Parigethu, proxy lu work avvav ikkada 🏃‍♂️&quot;
                     </p>
                   </div>
                 )}
@@ -376,9 +387,9 @@ export function DailyNotifications({
                   </div>
                 )}
 
-                {/* 4. Unlogged Sessions Alert */}
+                {/* 4. Unlogged Sessions Alert with Meme GIF */}
                 {unloggedSessions.length > 0 && (
-                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5 font-bold text-amber-600 dark:text-amber-400">
                         <AlertTriangle className="size-3.5" /> Pending Attendance Logs
@@ -396,16 +407,27 @@ export function DailyNotifications({
                         </button>
                       )}
                     </div>
-                    <p className="mt-1 text-muted-foreground">
+                    <p className="text-muted-foreground">
                       {unloggedSessions.length} completed session{unloggedSessions.length === 1 ? '' : 's'} awaiting attendance mark.
                     </p>
-                    <p className="mt-1.5 text-[10px] italic text-amber-700 dark:text-amber-300">
+                    <div className="overflow-hidden rounded-xl border border-amber-500/20 bg-background/80 shadow-xs">
+                      <iframe
+                        src="https://tenor.com/embed/26190807"
+                        width="100%"
+                        height="120"
+                        frameBorder="0"
+                        className="w-full rounded-xl"
+                        allowFullScreen
+                        title="Attendance Log Meme"
+                      />
+                    </div>
+                    <p className="text-[10px] italic font-semibold text-amber-700 dark:text-amber-300">
                       &quot;Class aipoyindi ra bujji! Ventane log chesei 📝&quot;
                     </p>
                   </div>
                 )}
 
-                {/* 5. Attendance Floor Alert (with Telugu memes) */}
+                {/* 5. Attendance Floor Alert (with GIF + Telugu memes) */}
                 {allAssessedMetrics.isBelow80 && (
                   <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive space-y-2.5">
                     <p className="font-bold flex items-center gap-1.5">
@@ -414,6 +436,17 @@ export function DailyNotifications({
                     <p className="opacity-95 text-foreground font-semibold">
                       &quot;{lowAttendanceMeme}&quot;
                     </p>
+                    <div className="overflow-hidden rounded-xl border border-destructive/20 bg-background/80 shadow-xs">
+                      <iframe
+                        src="https://tenor.com/embed/21376410"
+                        width="100%"
+                        height="120"
+                        frameBorder="0"
+                        className="w-full rounded-xl"
+                        allowFullScreen
+                        title="Sare Paduko Meme"
+                      />
+                    </div>
                     <p className="opacity-90">
                       Your overall attendance is currently {allAssessedMetrics.attendancePercentage}%. Missed {allAssessedMetrics.alreadyMissed} of {allAssessedMetrics.maxAllowedMisses} allowed misses.
                     </p>
