@@ -95,14 +95,21 @@ export function DailyNotifications({
     }
 
     window.addEventListener('touchstart', unlockAudio, { passive: true })
+    window.addEventListener('touchend', unlockAudio, { passive: true })
+    window.addEventListener('pointerdown', unlockAudio, { passive: true })
     window.addEventListener('click', unlockAudio, { passive: true })
     return () => {
       window.removeEventListener('touchstart', unlockAudio)
+      window.removeEventListener('touchend', unlockAudio)
+      window.removeEventListener('pointerdown', unlockAudio)
       window.removeEventListener('click', unlockAudio)
     }
   }, [])
 
   const showSystemNotification = async (title: string, body: string) => {
+    setTestToast(`${title}: ${body}`)
+    setTimeout(() => setTestToast(null), 6000)
+
     if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return
 
     const iconUrl = `${window.location.origin}/icon.png`
@@ -115,7 +122,9 @@ export function DailyNotifications({
             body,
             icon: iconUrl,
             badge: iconUrl,
-            vibrate: [200, 100, 200],
+            vibrate: [200, 100, 200, 100, 200],
+            tag: 'sst-timetable-alert',
+            renotify: true,
           } as any)
           return
         }
@@ -219,17 +228,27 @@ export function DailyNotifications({
       if (ctx.state === 'suspended') {
         ctx.resume()
       }
-      const osc = ctx.createOscillator()
+      const osc1 = ctx.createOscillator()
+      const osc2 = ctx.createOscillator()
       const gain = ctx.createGain()
-      osc.connect(gain)
+      osc1.connect(gain)
+      osc2.connect(gain)
       gain.connect(ctx.destination)
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime)
-      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12)
-      gain.gain.setValueAtTime(0.15, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
-      osc.start()
-      osc.stop(ctx.currentTime + 0.4)
+
+      osc1.type = 'sine'
+      osc2.type = 'triangle'
+      osc1.frequency.setValueAtTime(587.33, ctx.currentTime)
+      osc1.frequency.setValueAtTime(880, ctx.currentTime + 0.1)
+      osc2.frequency.setValueAtTime(1174.66, ctx.currentTime)
+      osc2.frequency.setValueAtTime(1760, ctx.currentTime + 0.1)
+
+      gain.gain.setValueAtTime(0.2, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+
+      osc1.start()
+      osc2.start()
+      osc1.stop(ctx.currentTime + 0.5)
+      osc2.stop(ctx.currentTime + 0.5)
     } catch {}
   }
 

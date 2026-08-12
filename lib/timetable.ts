@@ -310,6 +310,20 @@ export const REALTIME_SYNC_CODE_STORE_KEY = 'academic-dashboard-sync-code'
 export const REALTIME_SYNC_TIMESTAMP_KEY = 'academic-dashboard-sync-last-timestamp'
 export const REALTIME_SYNC_CHANGED_EVENT = 'academic-dashboard-sync-changed'
 
+let broadcastChannel: BroadcastChannel | null = null
+if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+  try {
+    broadcastChannel = new BroadcastChannel('sst_realtime_sync_channel')
+    broadcastChannel.onmessage = (event) => {
+      if (event.data?.type === 'SST_SYNC_UPDATE' && event.data?.data) {
+        isSyncing = true
+        importDashboardData(event.data.data)
+        isSyncing = false
+      }
+    }
+  } catch {}
+}
+
 export function getSyncCode(): string | null {
   if (typeof window === 'undefined') return null
   try {
@@ -337,10 +351,19 @@ let isSyncing = false
 
 export async function pushRealtimeSync(): Promise<boolean> {
   const code = getSyncCode()
-  if (!code || isSyncing || typeof window === 'undefined') return false
+  if (typeof window === 'undefined') return false
+  const data = exportDashboardData()
+
+  // 0ms instant local tab broadcast
+  if (broadcastChannel) {
+    try {
+      broadcastChannel.postMessage({ type: 'SST_SYNC_UPDATE', data })
+    } catch {}
+  }
+
+  if (!code || isSyncing) return false
   try {
     isSyncing = true
-    const data = exportDashboardData()
     const res = await fetch('/api/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

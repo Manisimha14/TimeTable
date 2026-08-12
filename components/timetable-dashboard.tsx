@@ -110,7 +110,7 @@ export function TimetableDashboard() {
     loadSyncFromUrl()
     const autoSync = () => pullRealtimeSync()
     autoSync()
-    const syncInterval = setInterval(autoSync, 8000)
+    const syncInterval = setInterval(autoSync, 2500)
 
     const updateLg = () => setLockedGroup(getLockedGroup())
     const updateEx = () => setExcluded(getExcludedCourses())
