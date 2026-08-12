@@ -3,6 +3,8 @@ import { blockedDayMs } from './academic-calendar'
 
 export type CourseId = 'cml' | 'mern' | 'cn' | 'fdsa' | 'clubs' | 'other'
 
+export type ViewId = 'timetable' | 'calendar' | 'courses' | 'personal' | 'tools'
+
 export interface SyllabusSession {
   number: string
   title: string
@@ -929,8 +931,8 @@ function buildOccurrences(group: GroupKey): Map<string, OccInfo> {
 
     // Include extra / rescheduled replacement occurrences for this course
     for (const o of overrides) {
-      if ((o.type === 'extra' || o.type === 'reschedule') && o.courseId === courseId && o.date) {
-        const ms = isoToMs(o.date)
+      if ((o.type === 'extra' || o.type === 'reschedule') && o.courseId === courseId && o.dateIso) {
+        const ms = isoToMs(o.dateIso)
         if (ms) {
           occ.push({ key: o.id, sortKey: ms + o.startMin })
         }
@@ -1065,7 +1067,7 @@ export function eventMatches(
 /** Generate and trigger download of an .ics iCalendar file for the selected Group timetable */
 export function exportCalendarIcal(group: GroupKey): void {
   if (typeof window === 'undefined') return
-  const events = eventsForGroup(group)
+  const events = timetable.eventsByGroup[group] ?? []
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -1078,7 +1080,7 @@ export function exportCalendarIcal(group: GroupKey): void {
   const daysMap: Record<number, string> = { 0: 'MO', 1: 'TU', 2: 'WE', 3: 'TH', 4: 'FR', 5: 'SA' }
   const refStartDate = new Date(Date.UTC(2026, 7, 10))
 
-  events.filter((e) => e.type === 'class').forEach((e, idx) => {
+  events.filter((e: TimetableEvent) => e.type === 'class').forEach((e: TimetableEvent, idx: number) => {
     const dayOffset = e.dayIndex
     const startHour = Math.floor(e.startMin / 60)
     const startMin = e.startMin % 60
