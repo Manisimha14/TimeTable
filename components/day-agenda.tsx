@@ -47,11 +47,15 @@ export function DayAgenda({
     ? blockedInfo(selectedCell.ms)
     : { blocked: false, type: null, label: null }
 
-  const [log, setLog] = useState<Record<string, AttendanceStatus>>({})
-  const [now, setNow] = useState<Date | null>(null)
+  const [log, setLog] = useState<Record<string, AttendanceStatus>>(() => {
+    if (typeof window === 'undefined') return {}
+    return getAttendanceLog()
+  })
+  const [now, setNow] = useState<Date>(() => new Date())
 
   useEffect(() => {
-    setNow(new Date())
+    const timer = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(timer)
   }, [])
 
   useEffect(() => {
@@ -61,8 +65,8 @@ export function DayAgenda({
     return () => window.removeEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
   }, [])
 
-  const todayMs = now ? Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) : null
-  const nowMinutes = now ? now.getHours() * 60 + now.getMinutes() : 0
+  const todayMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
 
   // Holidays / breaks suppress all class cards so the agenda mirrors the calendar.
   const dayEvents = selectedBlocked.blocked
@@ -75,7 +79,7 @@ export function DayAgenda({
   return (
     <div className="space-y-4">
       {/* Day selector - iOS Segmented Style */}
-      <div className="scrollbar-none flex gap-1.5 overflow-x-auto rounded-2xl border border-border/60 bg-muted/40 p-1.5 shadow-xs backdrop-blur-xs touch-pan-x">
+      <div className="scrollbar-none flex gap-1.5 overflow-x-auto rounded-2xl border border-border/60 bg-muted/40 p-1.5 shadow-xs backdrop-blur-xs">
         {days.map((day, i) => {
           const cell = week?.days[i]
           const isSelected = i === selectedDay
@@ -139,10 +143,10 @@ export function DayAgenda({
       {/* Events List */}
       <motion.div
         key={`${weekIndex}-${selectedDay}`}
-        initial={{ opacity: 0.6, y: 4 }}
+        initial={{ opacity: 0.8, y: 2 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15, ease: 'easeOut' }}
-        className="space-y-3 touch-pan-y"
+        transition={{ duration: 0.1 }}
+        className="space-y-3"
       >
           {selectedBlocked.blocked ? (
             <motion.div
@@ -198,22 +202,19 @@ export function DayAgenda({
               const occKey = `${event.id}|${weekIndex}`
               const isCompleted =
                 selectedCell &&
-                todayMs !== null &&
                 (selectedCell.ms < todayMs ||
                   (selectedCell.ms === todayMs && event.endMin <= nowMinutes))
               const status = isCompleted ? (log[occKey] ?? null) : null
 
               return (
-                <motion.button
+                <button
                   key={event.id}
-                  variants={riseItem}
-                  whileTap={{ scale: 0.985 }}
                   type="button"
                   onClick={() => onSelect(event)}
                   className={cn(
                     courseClass(event.courseId),
-                    'group relative flex w-full items-stretch gap-3.5 rounded-2xl border border-border/80 bg-card p-3.5 text-left shadow-xs transition-all hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-4',
-                    isCompleted && 'opacity-70 hover:opacity-100',
+                    'group relative flex w-full items-stretch gap-3.5 rounded-2xl border border-border/80 bg-card p-3.5 text-left shadow-xs transition-colors hover:border-primary/40 active:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-4',
+                    isCompleted && 'opacity-75 hover:opacity-100',
                   )}
                 >
                   {/* Course Left Brand Indicator */}
@@ -283,7 +284,7 @@ export function DayAgenda({
                       )}
                     </div>
                   </div>
-                </motion.button>
+                </button>
               )
             })
           )}

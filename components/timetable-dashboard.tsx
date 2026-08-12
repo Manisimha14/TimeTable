@@ -58,14 +58,30 @@ const VIEWS: { id: View; label: string; shortLabel?: string; icon: React.Element
 
 export function TimetableDashboard() {
   const [view, setView] = useState<View>('timetable')
-  const [group, setGroup] = useState<GroupKey>('A')
-  const [lockedGroup, setLockedGroup] = useState<GroupKey | null>(null)
-  const [excluded, setExcluded] = useState<Exclude<CourseId, 'clubs'>[]>([])
-  const [overrides, setOverrides] = useState<ScheduleOverride[]>([])
+  const [lockedGroup, setLockedGroup] = useState<GroupKey | null>(() => {
+    if (typeof window === 'undefined') return null
+    return getLockedGroup()
+  })
+  const [group, setGroup] = useState<GroupKey>(() => {
+    if (typeof window === 'undefined') return 'A'
+    return getLockedGroup() ?? 'A'
+  })
+  const [excluded, setExcluded] = useState<Exclude<CourseId, 'clubs'>[]>(() => {
+    if (typeof window === 'undefined') return []
+    return getExcludedCourses()
+  })
+  const [overrides, setOverrides] = useState<ScheduleOverride[]>(() => {
+    if (typeof window === 'undefined') return []
+    return getScheduleOverrides()
+  })
   const [activeCourse, setActiveCourse] = useState<string | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<TimetableEvent | null>(null)
   const [courseFocus, setCourseFocus] = useState<string | null>(null)
-  const [nowMinutes, setNowMinutes] = useState<number | null>(null)
+  const [nowMinutes, setNowMinutes] = useState<number | null>(() => {
+    if (typeof window === 'undefined') return null
+    const now = new Date()
+    return now.getHours() * 60 + now.getMinutes()
+  })
   const [todayIdx, setTodayIdx] = useState<number>(() => {
     if (typeof window === 'undefined') return -1
     return todayDayIndex(new Date())
@@ -95,12 +111,6 @@ export function TimetableDashboard() {
     const autoSync = () => pullRealtimeSync()
     autoSync()
     const syncInterval = setInterval(autoSync, 8000)
-
-    const lg = getLockedGroup()
-    setLockedGroup(lg)
-    if (lg) setGroup(lg)
-    setExcluded(getExcludedCourses())
-    setOverrides(getScheduleOverrides())
 
     const updateLg = () => setLockedGroup(getLockedGroup())
     const updateEx = () => setExcluded(getExcludedCourses())
