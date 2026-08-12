@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, CirclePlus, Flag, Trash2 } from 'lucide-react'
+import { CheckCircle2, CirclePlus, Flag, Sparkles, Trash2 } from 'lucide-react'
 import { motion } from 'motion/react'
 import {
   deadlineDateLabel,
@@ -29,6 +29,46 @@ export function PersonalDeadlinesTab() {
     setTitle('')
     setDate('')
     setNote('')
+  }
+
+  const [quickInput, setQuickInput] = useState('')
+
+  const parseQuickAdd = (text: string) => {
+    if (!text.trim()) return
+    const lower = text.toLowerCase()
+    const now = new Date()
+    let targetDate = new Date(now)
+
+    if (lower.includes('tomorrow')) {
+      targetDate.setDate(now.getDate() + 1)
+    } else if (lower.includes('friday')) {
+      const day = now.getDay()
+      const diff = (5 - day + 7) % 7 || 7
+      targetDate.setDate(now.getDate() + diff)
+    } else if (lower.includes('tuesday')) {
+      const day = now.getDay()
+      const diff = (2 - day + 7) % 7 || 7
+      targetDate.setDate(now.getDate() + diff)
+    } else if (lower.includes('monday')) {
+      const day = now.getDay()
+      const diff = (1 - day + 7) % 7 || 7
+      targetDate.setDate(now.getDate() + diff)
+    } else {
+      targetDate.setDate(now.getDate() + 3) // Default to 3 days out
+    }
+
+    const y = targetDate.getFullYear()
+    const m = String(targetDate.getMonth() + 1).padStart(2, '0')
+    const d = String(targetDate.getDate()).padStart(2, '0')
+    const dateStr = `${y}-${m}-${d}`
+
+    const cleanTitle = text.replace(/tomorrow|today|friday|tuesday|monday|next week|due|at|pm|am/gi, '').trim() || text.trim()
+
+    saveDeadlines([
+      ...deadlines,
+      { id: `${dateStr}-${cleanTitle}`, title: cleanTitle, date: dateStr, note: 'Added via Quick-Add' },
+    ])
+    setQuickInput('')
   }
 
   const saveDeadlines = (next: PersonalDeadline[]) => {
@@ -79,15 +119,40 @@ export function PersonalDeadlinesTab() {
         </motion.ul>
       </section>
 
-      <form onSubmit={addDeadline} className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground"><CirclePlus className="size-4 text-primary" /> Add a deadline</h2>
-        <div className="mt-4 space-y-3">
-          <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Finish FDSA assignment" className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20" />
-          <input value={date} onChange={(event) => setDate(event.target.value)} type="date" className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
-          <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional note" rows={3} className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20" />
-          <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-95"><CirclePlus className="size-4" /> Add deadline</button>
+      <div className="space-y-4">
+        {/* Quick Add box */}
+        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 shadow-xs space-y-2">
+          <div className="flex items-center gap-1.5 font-bold text-xs text-primary uppercase tracking-wider">
+            <Sparkles className="size-3.5" /> ⚡ AI Natural Language Quick-Add
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={quickInput}
+              onChange={(e) => setQuickInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), parseQuickAdd(quickInput))}
+              placeholder="e.g. CN quiz next Tuesday 2pm or MERN due Friday"
+              className="h-10 flex-1 rounded-lg border border-border bg-background px-3 text-xs outline-none focus:border-primary"
+            />
+            <button
+              type="button"
+              onClick={() => parseQuickAdd(quickInput)}
+              className="h-10 rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground hover:brightness-110 active:scale-95"
+            >
+              Quick Add
+            </button>
+          </div>
         </div>
-      </form>
+
+        <form onSubmit={addDeadline} className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground"><CirclePlus className="size-4 text-primary" /> Add a deadline manually</h2>
+          <div className="mt-4 space-y-3">
+            <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Finish FDSA assignment" className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20" />
+            <input value={date} onChange={(event) => setDate(event.target.value)} type="date" className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
+            <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional note" rows={3} className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20" />
+            <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-95"><CirclePlus className="size-4" /> Add deadline</button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

@@ -77,10 +77,18 @@ export function DailyNotifications({
   const [testToast, setTestToast] = useState<string | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
 
-  // Service Worker registration & Mobile AudioContext unlock on first touch/click
+  // Service Worker registration, Periodic Sync & Mobile AudioContext unlock on first touch/click
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {})
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        if ('periodicSync' in reg) {
+          ;(reg.periodicSync as any)
+            .register('sst-periodic-sync', {
+              minInterval: 12 * 60 * 60 * 1000,
+            })
+            .catch(() => {})
+        }
+      }).catch(() => {})
     }
 
     const unlockAudio = () => {
@@ -508,6 +516,17 @@ export function DailyNotifications({
     (allAssessedMetrics.isBelow80 && !dismissedToday.has('lowattendance') ? 1 : 0) +
     (upcoming7DayExams.length > 0 && !dismissedToday.has('examalert') ? 1 : 0) +
     (totalBacklogSessions >= 3 && !dismissedToday.has('backlogalert') ? 1 : 0)
+
+  // Web App Badging API: sync unread badge count to PWA app icon on OS home screen
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && 'setAppBadge' in navigator) {
+      if (urgentCount > 0) {
+        navigator.setAppBadge(urgentCount).catch(() => {})
+      } else {
+        navigator.clearAppBadge().catch(() => {})
+      }
+    }
+  }, [urgentCount])
 
   const requestPush = async () => {
     if (!('Notification' in window)) return
