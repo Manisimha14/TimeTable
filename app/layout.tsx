@@ -64,6 +64,19 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.png?v=2" type="image/png" />
         <link rel="apple-touch-icon" href="/favicon.png?v=2" />
         <link rel="manifest" href="/manifest.json" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.log('SW registration failed: ', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
