@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: 'Scaler SST 2029 · Term 5 Timetable & Academic Dashboard',
   description:
     'Interactive weekly timetable and academic calendar dashboard for the Scaler School of Technology (SST 2029 Batch, Term 5). Track attendance, syllabus, and class reschedules.',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'SST Timetable',
+  },
   icons: {
     icon: [
       { url: '/favicon.png', type: 'image/png' },
@@ -31,6 +36,11 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
   colorScheme: 'light dark',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f7f7fb' },

@@ -37,6 +37,8 @@ import { KeyDates } from '@/components/key-dates'
 import { PersonalDeadlinesTab } from '@/components/personal-deadlines-tab'
 import { ToolsTab } from '@/components/tools-tab'
 import { QuickWidgets } from '@/components/quick-widgets'
+import { MobileBottomNav } from '@/components/mobile-nav'
+import { QuickSyncButton } from '@/components/pull-to-refresh'
 
 import { blockedInfo, isoToMs } from '@/lib/academic-calendar'
 import {
@@ -225,7 +227,7 @@ export function TimetableDashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-6 lg:py-10" suppressHydrationWarning>
+    <div className="mx-auto max-w-7xl px-3 py-5 pb-24 sm:px-6 sm:py-6 sm:pb-8 lg:py-10" suppressHydrationWarning>
       {/* Header */}
       <header className="mb-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -250,7 +252,7 @@ export function TimetableDashboard() {
                     ? 'Personal deadlines'
                     : view === 'tools'
                       ? 'Student tools'
-                  : `${timetable.meta.term} Weekly Timetable`}
+                  : `${timetable.meta.period} Weekly Timetable`}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {view === 'calendar'
@@ -265,6 +267,7 @@ export function TimetableDashboard() {
 
           {/* Group switcher, Search & Notifications */}
           <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:w-auto w-full">
+            <QuickSyncButton />
             <button
               type="button"
               onClick={() => setCommandPaletteOpen(true)}
@@ -585,6 +588,12 @@ export function TimetableDashboard() {
           </p>
         </div>
       </footer>
+
+      {/* iOS/Android Native Mobile Bottom Nav Dock */}
+      <MobileBottomNav
+        currentView={view}
+        onSelectView={setView}
+      />
     </div>
   )
 }
