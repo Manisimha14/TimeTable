@@ -162,7 +162,7 @@ export function DayAgenda({
         transition={{ duration: 0.1 }}
         className="space-y-3"
       >
-          {selectedBlocked.blocked ? (
+          {selectedBlocked.blocked || dayEvents.length === 0 ? (
             <motion.div
               variants={riseItem}
               whileTap={{ scale: 0.98 }}
@@ -171,7 +171,7 @@ export function DayAgenda({
             >
               <div className="absolute -right-6 -top-6 size-24 rounded-full bg-amber-500/10 blur-xl group-hover:bg-amber-500/20 transition-all" />
               <HolidayIcon
-                label={selectedBlocked.label}
+                label={selectedBlocked.label ?? (selectedDay === 6 ? 'Sunday Rest Day' : 'No Classes Scheduled')}
                 className="size-10 text-amber-600 dark:text-amber-400 transition-transform group-hover:scale-110"
               />
               <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 border border-amber-500/30">
@@ -179,11 +179,13 @@ export function DayAgenda({
                   ? 'End Term Exam Day 📚'
                   : selectedBlocked.type === 'break'
                     ? 'Official Break 🏖️'
-                    : 'Holiday 🥳'}
+                    : selectedDay === 6
+                      ? 'Sunday Rest Day ☀️'
+                      : 'Holiday / No Classes 🥳'}
               </span>
               <div className="space-y-1">
                 <h3 className="text-lg sm:text-xl font-extrabold text-foreground">
-                  {selectedBlocked.label ?? 'Holiday / Exam Day'}
+                  {selectedBlocked.label ?? (selectedDay === 6 ? 'Sunday — Rest & Self Study' : `Free Day on ${days[selectedDay]}`)}
                 </h3>
                 <p className="text-xs sm:text-sm font-semibold text-amber-700 dark:text-amber-300">
                   {getHolidayMeme(selectedBlocked.label, selectedBlocked.type)}
@@ -192,16 +194,8 @@ export function DayAgenda({
               <p className="text-xs text-muted-foreground max-w-sm">
                 {selectedBlocked.type === 'end-term'
                   ? 'End-term exams scheduled. Regular lectures and lab sessions are suspended.'
-                  : `No classes scheduled on ${days[selectedDay]}. Sit back and relax!`}
+                  : `No classes scheduled on ${days[selectedDay]}. Enjoy your free time or catch up on self-study!`}
               </p>
-            </motion.div>
-          ) : dayEvents.length === 0 ? (
-            <motion.div
-              variants={riseItem}
-              className="rounded-2xl border border-dashed border-border bg-card/60 p-8 text-center"
-            >
-              <p className="text-sm font-semibold text-foreground">No classes scheduled for {days[selectedDay]}</p>
-              <p className="mt-1 text-xs text-muted-foreground">Aaj Sunday ka feeling! Free time to catch up on self-study or sleep 😴</p>
             </motion.div>
           ) : (
             dayEvents.map((event) => {

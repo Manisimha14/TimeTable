@@ -363,11 +363,11 @@ export function TimetableDashboard() {
           </div>
         </div>
 
-        {/* Top-level view tabs */}
+        {/* Top-level view tabs (desktop only; mobile uses Bottom Dock) */}
         <div
           role="tablist"
           aria-label="Select view"
-          className="scrollbar-none mt-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1 touch-pan-x sm:inline-flex sm:w-auto"
+          className="hidden sm:inline-flex scrollbar-none mt-5 gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1 sm:w-auto"
         >
           {VIEWS.map(({ id, label, shortLabel, icon: Icon }) => (
             <button
