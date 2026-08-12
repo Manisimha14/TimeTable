@@ -399,16 +399,10 @@ export function TimetableDashboard() {
         </div>
       </header>
 
-      {/* View panels */}
-      <AnimatePresence mode="wait">
+      {/* View panels - Instant 0ms switching */}
+      <div className="min-h-[400px]">
         {view === 'timetable' && (
-          <motion.div
-            key="timetable"
-            variants={tabPanel}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-          >
+          <div key="timetable" className="animate-in fade-in-50 duration-100">
             {/* Key dates — quick glance at the next academic-calendar events */}
             <div className="mb-5">
               <KeyDates onOpenCalendar={() => setView('calendar')} />
@@ -455,26 +449,15 @@ export function TimetableDashboard() {
 
             {/* Calendar (desktop) */}
             <div className="hidden lg:block">
-              <AnimatePresence mode="popLayout" custom={direction} initial={false}>
-                <motion.div
-                  key={`${group}-${weekIndex}`}
-                  custom={direction}
-                  variants={weekSlide}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                >
-                  <WeekCalendar
-                    events={events}
-                    activeCourse={activeCourse}
-                    weekIndex={weekIndex}
-                    isCurrentWeek={isCurrentWeek}
-                    todayIndex={todayIdx}
-                    nowMinutes={nowMinutes}
-                    onSelect={setSelectedEvent}
-                  />
-                </motion.div>
-              </AnimatePresence>
+              <WeekCalendar
+                events={events}
+                activeCourse={activeCourse}
+                weekIndex={weekIndex}
+                isCurrentWeek={isCurrentWeek}
+                todayIndex={todayIdx}
+                nowMinutes={nowMinutes}
+                onSelect={setSelectedEvent}
+              />
             </div>
 
             {/* Agenda (mobile / tablet) */}
@@ -494,47 +477,33 @@ export function TimetableDashboard() {
             <p className="mt-6 text-center text-xs text-muted-foreground">
               Showing {week?.label}. Tap any class to see the exact session taught that week.
             </p>
-          </motion.div>
+          </div>
         )}
 
         {view === 'calendar' && (
-          <motion.div
-            key="calendar"
-            variants={tabPanel}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className="border-t border-border pt-6"
-          >
+          <div key="calendar" className="animate-in fade-in-50 duration-100 border-t border-border pt-6">
             <AcademicCalendarView />
-          </motion.div>
+          </div>
         )}
 
         {view === 'courses' && (
-          <motion.div
-            key="courses"
-            variants={tabPanel}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className="border-t border-border pt-6"
-          >
+          <div key="courses" className="animate-in fade-in-50 duration-100 border-t border-border pt-6">
             <CoursesTab key={courseFocus ?? 'default'} initialCourse={courseFocus} />
-          </motion.div>
+          </div>
         )}
 
         {view === 'personal' && (
-          <motion.div key="personal" variants={tabPanel} initial="hidden" animate="show" exit="exit" className="border-t border-border pt-6">
+          <div key="personal" className="animate-in fade-in-50 duration-100 border-t border-border pt-6">
             <PersonalDeadlinesTab />
-          </motion.div>
+          </div>
         )}
 
         {view === 'tools' && (
-          <motion.div key="tools" variants={tabPanel} initial="hidden" animate="show" exit="exit" className="border-t border-border pt-6">
+          <div key="tools" className="animate-in fade-in-50 duration-100 border-t border-border pt-6">
             <ToolsTab group={group} />
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
 
       <EventDetailDialog
         event={selectedEvent}
