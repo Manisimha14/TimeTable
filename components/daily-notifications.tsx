@@ -334,20 +334,33 @@ export function DailyNotifications({
     )
       return
 
-    const sentNotifications = new Set<string>()
-
     const checkAndNotify = () => {
       const nowObj = new Date()
+      const todayDateStr = nowObj.toDateString()
       const tMs = Date.UTC(nowObj.getFullYear(), nowObj.getMonth(), nowObj.getDate())
       const minToday = nowObj.getHours() * 60 + nowObj.getMinutes()
+
+      const hasSent = (key: string) => {
+        try {
+          return localStorage.getItem(`sst_sent_notif_${key}`) === '1'
+        } catch {
+          return false
+        }
+      }
+
+      const markSent = (key: string) => {
+        try {
+          localStorage.setItem(`sst_sent_notif_${key}`, '1')
+        } catch {}
+      }
 
       const upcoming = occurrences.find(
         (o) => o.ms === tMs && o.startMin > minToday && o.startMin - minToday <= 60,
       )
       if (upcoming && !isSnoozed(`start-${upcoming.key}`)) {
         const notifyKey = `start-${upcoming.key}`
-        if (!sentNotifications.has(notifyKey)) {
-          sentNotifications.add(notifyKey)
+        if (!hasSent(notifyKey)) {
+          markSent(notifyKey)
           const startMemes = [
             'Inka 1 hour lo class undhi ra bujji! Fast ga ready aipooo 🏃‍♂️',
             'Class time aithondhi guru! Tiffin tini room nundi jaldi bayaludey ⏰',
@@ -386,8 +399,8 @@ export function DailyNotifications({
       )
       if (ended && !log[ended.key] && !isSnoozed(`end-${ended.key}`)) {
         const notifyKey = `end-${ended.key}`
-        if (!sentNotifications.has(notifyKey)) {
-          sentNotifications.add(notifyKey)
+        if (!hasSent(notifyKey)) {
+          markSent(notifyKey)
           const endMemes = [
             'Class aipoyindhi ra bujji! Present aa Missed aa ventane log chesei 📝',
             'Attend ayyava leda? Log cheyaka pothe direct ga 0% eh bhayya 🔥',
@@ -411,15 +424,15 @@ export function DailyNotifications({
         }
       }
 
-      // 3. 7-Day Exam Alert Push Notification
+      // 3. 7-Day Exam Alert Push Notification (once per day)
       const upcomingExams = upcomingEvents(10, nowObj).filter(
         (ev) => ev.daysUntil <= 7 && (ev.type === 'end-term' || ev.label.toLowerCase().includes('exam') || ev.label.toLowerCase().includes('eval')),
       )
       if (upcomingExams.length > 0) {
         const exam = upcomingExams[0]
-        const notifyKey = `exam-${exam.date}`
-        if (!sentNotifications.has(notifyKey) && !isSnoozed(notifyKey)) {
-          sentNotifications.add(notifyKey)
+        const notifyKey = `exam-${exam.date}-${todayDateStr}`
+        if (!hasSent(notifyKey) && !isSnoozed(`exam-${exam.date}`)) {
+          markSent(notifyKey)
           const examMemes = [
             `Inka ${exam.daysUntil === 0 ? 'eeroju' : exam.daysUntil + ' days lo'} ${exam.label} start! Book open cheyyi raa bujji 📚`,
             `Exam week osthondhi (${exam.label})! All nighterlu and revision start cheyalsina time ⚡`,
@@ -431,9 +444,10 @@ export function DailyNotifications({
         }
       }
 
-      // 4. Backlog Alert Push Notification
-      if (totalBacklogSessions >= 3 && !sentNotifications.has('backlog-alert')) {
-        sentNotifications.add('backlog-alert')
+      // 4. Backlog Alert Push Notification (once per day)
+      const backlogKey = `backlog-alert-${todayDateStr}`
+      if (totalBacklogSessions >= 3 && !hasSent(backlogKey)) {
+        markSent(backlogKey)
         playChime()
         showSystemNotification(
           'Self-Study Backlog Warning 📚',

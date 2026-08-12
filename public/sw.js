@@ -81,13 +81,16 @@ self.addEventListener('notificationclick', (event) => {
 
 self.addEventListener('push', (event) => {
   if (!event.data) return
+  const absoluteIcon = new URL('/icon.png', self.location.origin).href
+  const absoluteBadge = new URL('/favicon.png', self.location.origin).href
+
   try {
     const payload = event.data.json()
     const title = payload.title || 'SST Timetable Alert 🔔'
     const options = {
       body: payload.body || '',
-      icon: payload.icon || '/icon.png',
-      badge: payload.badge || '/icon.png',
+      icon: payload.icon ? new URL(payload.icon, self.location.origin).href : absoluteIcon,
+      badge: payload.badge ? new URL(payload.badge, self.location.origin).href : absoluteBadge,
       vibrate: [200, 100, 200, 100, 200],
       tag: payload.tag || 'sst-notif',
       renotify: true,
@@ -99,8 +102,8 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
       self.registration.showNotification('SST Timetable Alert 🔔', {
         body: text,
-        icon: '/icon.png',
-        badge: '/icon.png',
+        icon: absoluteIcon,
+        badge: absoluteBadge,
         vibrate: [200, 100, 200],
         tag: 'sst-notif',
         renotify: true,
