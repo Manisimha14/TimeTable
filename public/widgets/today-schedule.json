@@ -1,0 +1,12 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Today's Schedule",
+      "weight": "Bolder",
+      "size": "Medium"
+    }
+  ]
+}

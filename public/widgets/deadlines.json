@@ -1,0 +1,12 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Upcoming Deadlines",
+      "weight": "Bolder",
+      "size": "Medium"
+    }
+  ]
+}
