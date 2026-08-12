@@ -5,6 +5,8 @@ import { Calendar, CalendarDays, BookOpen, Flag, Wrench } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { spring } from '@/lib/motion'
 
+import { triggerHaptic } from '@/lib/haptics'
+
 export type NavView = 'timetable' | 'calendar' | 'courses' | 'personal' | 'tools'
 
 interface MobileBottomNavProps {
@@ -51,7 +53,10 @@ export function MobileBottomNav({
             <button
               key={id}
               type="button"
-              onClick={() => onSelectView(id)}
+              onClick={() => {
+                triggerHaptic('medium')
+                onSelectView(id)
+              }}
               className={cn(
                 'relative flex flex-1 flex-col items-center justify-center py-1.5 rounded-xl transition-all active:scale-95 min-h-[48px]',
                 isSelected ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground font-medium',

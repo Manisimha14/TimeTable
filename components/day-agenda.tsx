@@ -18,6 +18,8 @@ import { spring, staggerContainer, riseItem } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { HolidayIcon } from '@/components/holiday-icon'
 
+import { triggerHaptic } from '@/lib/haptics'
+
 interface DayAgendaProps {
   events: TimetableEvent[]
   activeCourse: string | null
@@ -76,9 +78,18 @@ export function DayAgenda({
         .filter((e) => (activeCourse ? e.courseId === activeCourse || e.type === 'break' : true))
         .filter((e) => e.type === 'class')
 
+  const getHolidayMeme = (label: string | null, type: string | null) => {
+    if (type === 'end-term') return 'Inka End Term Exams start! Book open cheyyi raa bujji 📚⚡'
+    if (label?.toLowerCase().includes('independence')) return 'August 15 Independence Day! Desk ni vadilesi biryani thinu masteru 🍗✨'
+    if (label?.toLowerCase().includes('ganesh')) return 'Ganesh Chaturthi festival vibe! No lectures today, laddu thini rest theesuko! 🙏🎊'
+    if (label?.toLowerCase().includes('gandhi')) return 'October 2 Gandhi Jayanti Holiday! Full peaceful day no attendance stress 🕊️✨'
+    if (label?.toLowerCase().includes('dussehra') || label?.toLowerCase().includes('bathukamma')) return 'Dussehra / Bathukamma Break! Festival mood, enjoy with family & friends! 🌺🪔'
+    return 'Aaj Holiday ka feeling! Zero classes today, chill & relax bro! 🥳🎉'
+  }
+
   return (
     <div className="space-y-4">
-      {/* Day selector - iOS Segmented Style */}
+      {/* Day selector - iOS Segmented Style with Haptic touch */}
       <div className="scrollbar-none flex gap-1.5 overflow-x-auto rounded-2xl border border-border/60 bg-muted/40 p-1.5 shadow-xs backdrop-blur-xs">
         {days.map((day, i) => {
           const cell = week?.days[i]
@@ -90,7 +101,10 @@ export function DayAgenda({
             <button
               key={day}
               type="button"
-              onClick={() => onSelectDay(i)}
+              onClick={() => {
+                triggerHaptic('medium')
+                onSelectDay(i)
+              }}
               aria-pressed={isSelected}
               className={cn(
                 'relative flex min-w-[54px] flex-1 flex-col items-center justify-center rounded-xl py-2 text-xs font-semibold transition active:scale-95 sm:min-w-[64px]',
@@ -151,52 +165,44 @@ export function DayAgenda({
           {selectedBlocked.blocked ? (
             <motion.div
               variants={riseItem}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-10 text-center"
-              style={{
-                backgroundColor: `var(--cal-${selectedBlocked.type === 'end-term' ? 'end' : selectedBlocked.type === 'break' ? 'break' : 'holiday'}-soft)`,
-              }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => triggerHaptic('success')}
+              className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-3xl border-2 border-amber-500/40 dark:border-amber-400/30 bg-gradient-to-br from-amber-500/10 via-card to-purple-500/10 p-6 sm:p-8 text-center shadow-lg transition-all hover:shadow-xl active:scale-[0.98] cursor-pointer"
             >
+              <div className="absolute -right-6 -top-6 size-24 rounded-full bg-amber-500/10 blur-xl group-hover:bg-amber-500/20 transition-all" />
               <HolidayIcon
                 label={selectedBlocked.label}
-                className="size-7"
-                style={{
-                  color: `var(--cal-${selectedBlocked.type === 'end-term' ? 'end' : selectedBlocked.type === 'break' ? 'break' : 'holiday'}-text)`,
-                }}
+                className="size-10 text-amber-600 dark:text-amber-400 transition-transform group-hover:scale-110"
               />
-              <span
-                className="rounded-md px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide"
-                style={{
-                  backgroundColor: `var(--cal-${selectedBlocked.type === 'end-term' ? 'end' : selectedBlocked.type === 'break' ? 'break' : 'holiday'})`,
-                  color: 'var(--card)',
-                }}
-              >
+              <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 border border-amber-500/30">
                 {selectedBlocked.type === 'end-term'
-                  ? 'End Term Exam Day'
+                  ? 'End Term Exam Day 📚'
                   : selectedBlocked.type === 'break'
-                    ? 'Break'
-                    : 'Holiday'}
+                    ? 'Official Break 🏖️'
+                    : 'Holiday 🥳'}
               </span>
-              <p
-                className="px-4 text-sm font-semibold"
-                style={{
-                  color: `var(--cal-${selectedBlocked.type === 'end-term' ? 'end' : selectedBlocked.type === 'break' ? 'break' : 'holiday'}-text)`,
-                }}
-              >
-                {selectedBlocked.label ?? 'End Term Exam Day'}
-              </p>
-              <p className="text-xs text-muted-foreground">
+              <div className="space-y-1">
+                <h3 className="text-lg sm:text-xl font-extrabold text-foreground">
+                  {selectedBlocked.label ?? 'Holiday / Exam Day'}
+                </h3>
+                <p className="text-xs sm:text-sm font-semibold text-amber-700 dark:text-amber-300">
+                  {getHolidayMeme(selectedBlocked.label, selectedBlocked.type)}
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-sm">
                 {selectedBlocked.type === 'end-term'
-                  ? 'End-term exams scheduled. Regular classes and labs suspended.'
-                  : `No classes on ${days[selectedDay]}.`}
+                  ? 'End-term exams scheduled. Regular lectures and lab sessions are suspended.'
+                  : `No classes scheduled on ${days[selectedDay]}. Sit back and relax!`}
               </p>
             </motion.div>
           ) : dayEvents.length === 0 ? (
-            <motion.p
+            <motion.div
               variants={riseItem}
-              className="rounded-2xl border border-dashed border-border bg-card py-10 text-center text-sm font-medium text-muted-foreground shadow-xs"
+              className="rounded-2xl border border-dashed border-border bg-card/60 p-8 text-center"
             >
-              No classes scheduled for {days[selectedDay]}.
-            </motion.p>
+              <p className="text-sm font-semibold text-foreground">No classes scheduled for {days[selectedDay]}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Aaj Sunday ka feeling! Free time to catch up on self-study or sleep 😴</p>
+            </motion.div>
           ) : (
             dayEvents.map((event) => {
               const occKey = `${event.id}|${weekIndex}`
@@ -210,10 +216,13 @@ export function DayAgenda({
                 <button
                   key={event.id}
                   type="button"
-                  onClick={() => onSelect(event)}
+                  onClick={() => {
+                    triggerHaptic('light')
+                    onSelect(event)
+                  }}
                   className={cn(
                     courseClass(event.courseId),
-                    'group relative flex w-full items-stretch gap-3.5 rounded-2xl border border-border/80 bg-card p-3.5 text-left shadow-xs transition-colors hover:border-primary/40 active:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-4',
+                    'group relative flex w-full items-stretch gap-3.5 rounded-2xl border border-border/80 bg-card p-3.5 text-left shadow-xs transition-all hover:border-primary/40 active:scale-[0.985] active:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-4',
                     isCompleted && 'opacity-75 hover:opacity-100',
                   )}
                 >
