@@ -901,27 +901,42 @@ const occKey = (eventId: string, weekIndex: number) => `${eventId}|${weekIndex}`
 function buildOccurrences(group: GroupKey): Map<string, OccInfo> {
   const map = new Map<string, OccInfo>()
   const events = timetable.eventsByGroup[group] ?? []
+  const overrides = getScheduleOverrides()
+  const cancelKeys = new Set(
+    overrides.filter((o) => o.type === 'cancel' || o.type === 'reschedule').map((o) => o.originalKey),
+  )
+
   const byCourse: Record<string, TimetableEvent[]> = {}
   for (const e of events) {
-    // Labs are hands-on slots and are NOT mapped to a syllabus session, so
-    // they are excluded here and never consume a theory session number.
     if (e.type !== 'class' || !e.courseId || e.isLab) continue
     ;(byCourse[e.courseId] ||= []).push(e)
   }
+
   for (const [courseId, evs] of Object.entries(byCourse)) {
     const total = timetable.courses[courseId]?.sessions.length ?? 0
     const occ: { key: string; sortKey: number }[] = []
+
+    // Standard schedule occurrences
     for (const w of WEEKS) {
       for (const e of evs) {
         const cell = w.days[e.dayIndex]
-        // A class does not take place during a published holiday or break.
-        // Skipping it here keeps the syllabus-session mapping in lockstep with
-        // the timetable UI, rather than silently consuming a session that was
-        // never taught.
         if (!cell || !cell.inTerm || blockedDayMs.has(cell.ms)) continue
-        occ.push({ key: occKey(e.id, w.index), sortKey: cell.ms + e.startMin })
+        const key = occKey(e.id, w.index)
+        if (cancelKeys.has(key)) continue
+        occ.push({ key, sortKey: cell.ms + e.startMin })
       }
     }
+
+    // Include extra / rescheduled replacement occurrences for this course
+    for (const o of overrides) {
+      if ((o.type === 'extra' || o.type === 'reschedule') && o.courseId === courseId && o.date) {
+        const ms = isoToMs(o.date)
+        if (ms) {
+          occ.push({ key: o.id, sortKey: ms + o.startMin })
+        }
+      }
+    }
+
     occ.sort((a, b) => a.sortKey - b.sortKey)
     occ.forEach((o, i) => map.set(o.key, { index: i, total }))
   }
