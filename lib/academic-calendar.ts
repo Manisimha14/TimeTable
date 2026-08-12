@@ -150,16 +150,31 @@ export interface BlockedInfo {
 
 /** Whether a given UTC-midnight timestamp is a holiday/break/end-term, with its label. */
 export function blockedInfo(ms: number): BlockedInfo {
-  if (!blockedDayMs.has(ms)) return { blocked: false, type: null, label: null }
-  const iso = new Date(ms).toISOString().slice(0, 10)
+  if (!ms) return { blocked: false, type: null, label: null }
+
+  const d = new Date(ms)
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const dateNum = String(d.getUTCDate()).padStart(2, '0')
+  const iso = `${y}-${m}-${dateNum}`
+
   const ev = eventsOn(iso).find(
     (e) => e.type === 'holiday' || e.type === 'break' || e.type === 'end-term',
   )
-  return {
-    blocked: true,
-    type: (ev?.type as 'holiday' | 'break' | 'end-term') ?? 'holiday',
-    label: ev?.type === 'end-term' ? 'End Term Exam Day' : (ev?.label ?? null),
+
+  if (ev) {
+    return {
+      blocked: true,
+      type: (ev.type as 'holiday' | 'break' | 'end-term') ?? 'holiday',
+      label: ev.type === 'end-term' ? 'End Term Exam Day' : (ev.label ?? 'Holiday'),
+    }
   }
+
+  if (blockedDayMs.has(ms)) {
+    return { blocked: true, type: 'holiday', label: 'Holiday' }
+  }
+
+  return { blocked: false, type: null, label: null }
 }
 
 export interface UpcomingEvent extends CalEvent {
