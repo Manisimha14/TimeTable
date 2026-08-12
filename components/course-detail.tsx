@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { ArrowUpRight, ClipboardCheck, Link2, Users, ListChecks, CheckSquare, Square, Plus, Minus, BookOpen, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { ArrowUpRight, ClipboardCheck, Link2, Users, ListChecks, CheckSquare, Square, Plus, Minus, BookOpen, AlertCircle, CheckCircle2, RotateCcw, Sparkles } from 'lucide-react'
 import {
   courseClass,
   evaluationSchemes,
   facultiesFor,
+  getCompletedSessionOverrides,
   getCourseAutoCompletion,
   getStudiedLog,
   pushRealtimeSync,
+  setCompletedSessionOverride,
   setStudiedCount,
+  COMPLETED_SESSION_OVERRIDE_CHANGED,
   STUDIED_LOG_CHANGED_EVENT,
   type Course,
 } from '@/lib/timetable'
@@ -20,6 +23,7 @@ import { cn } from '@/lib/utils'
 export function CourseDetail({ course }: { course: Course }) {
   const [completedSessions, setCompletedSessions] = useState<Record<string, boolean>>({})
   const [studiedLog, setStudiedLog] = useState<Record<string, number>>({})
+  const [completedOverrides, setCompletedOverrides] = useState<Record<string, number>>({})
 
   useEffect(() => {
     try {
@@ -28,9 +32,16 @@ export function CourseDetail({ course }: { course: Course }) {
     } catch (e) {}
 
     const updateStudied = () => setStudiedLog(getStudiedLog())
+    const updateCompleted = () => setCompletedOverrides(getCompletedSessionOverrides())
     updateStudied()
+    updateCompleted()
+
     window.addEventListener(STUDIED_LOG_CHANGED_EVENT, updateStudied)
-    return () => window.removeEventListener(STUDIED_LOG_CHANGED_EVENT, updateStudied)
+    window.addEventListener(COMPLETED_SESSION_OVERRIDE_CHANGED, updateCompleted)
+    return () => {
+      window.removeEventListener(STUDIED_LOG_CHANGED_EVENT, updateStudied)
+      window.removeEventListener(COMPLETED_SESSION_OVERRIDE_CHANGED, updateCompleted)
+    }
   }, [])
 
   const toggleSessionCompleted = (index: number) => {
@@ -50,9 +61,25 @@ export function CourseDetail({ course }: { course: Course }) {
   const autoCompletedCount = autoCompletion.held
   const totalCourseSessions = course.sessions.length || autoCompletion.total
   const autoProgressPercent = totalCourseSessions ? Math.round((autoCompletedCount / totalCourseSessions) * 100) : 0
+  const isManuallyEdited = completedOverrides[course.id] !== undefined
 
   const studiedCount = studiedLog[course.id] ?? 0
   const backlogCount = Math.max(0, autoCompletedCount - studiedCount)
+
+  const handleCompletedChange = (delta: number) => {
+    const next = Math.max(0, autoCompletedCount + delta)
+    setCompletedSessionOverride(course.id, next)
+  }
+
+  const handleResetCompleted = () => {
+    const current = getCompletedSessionOverrides()
+    delete current[course.id]
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('academic-dashboard-completed-sessions-override', JSON.stringify(current))
+      window.dispatchEvent(new Event(COMPLETED_SESSION_OVERRIDE_CHANGED))
+      pushRealtimeSync()
+    }
+  }
 
   const handleStudiedChange = (delta: number) => {
     const next = Math.max(0, studiedCount + delta)
@@ -98,17 +125,63 @@ export function CourseDetail({ course }: { course: Course }) {
           )}
         </div>
 
-        {/* 1. Automatic Session Progress */}
-        <div className="pt-3 border-t border-[color:var(--c-border)]/40 space-y-1.5">
-          <div className="flex items-center justify-between text-xs font-semibold text-[color:var(--c-text)]">
-            <span>⚡ Automatic Session Progress (Sessions Held)</span>
+        {/* 1. Editable Session Progress */}
+        <div className="pt-3 border-t border-[color:var(--c-border)]/40 space-y-2">
+          <div className="flex items-center justify-between gap-2 text-xs font-semibold text-[color:var(--c-text)]">
+            <span className="flex items-center gap-1.5 font-bold">
+              <Sparkles className="size-3.5" /> Sessions Completed
+              {isManuallyEdited && (
+                <span className="rounded bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                  Custom
+                </span>
+              )}
+            </span>
             <span>{autoCompletedCount} / {totalCourseSessions} ({autoProgressPercent}%)</span>
           </div>
-          <div className="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+
+          <div className="h-2.5 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
             <div
               className="h-full rounded-full bg-[color:var(--c-solid)] transition-all duration-300"
               style={{ width: `${autoProgressPercent}%` }}
             />
+          </div>
+
+          <div className="flex items-center justify-between gap-2 rounded-xl bg-background/60 p-2 border border-[color:var(--c-border)]/30 text-xs">
+            <span className="text-muted-foreground font-medium text-[11px]">
+              {isManuallyEdited ? 'User overridden progress' : 'Live schedule auto-tracked'}
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {isManuallyEdited && (
+                <button
+                  type="button"
+                  onClick={handleResetCompleted}
+                  className="mr-1 inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground"
+                  title="Reset to live schedule count"
+                >
+                  <RotateCcw className="size-3" /> Auto
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => handleCompletedChange(-1)}
+                disabled={autoCompletedCount <= 0}
+                className="inline-flex size-6 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs transition hover:bg-muted disabled:opacity-40 active:scale-95"
+                title="Decrease completed session count"
+              >
+                <Minus className="size-3" />
+              </button>
+              <span className="min-w-5 text-center text-xs font-bold tabular-nums text-foreground">
+                {autoCompletedCount}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleCompletedChange(1)}
+                className="inline-flex size-6 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs transition hover:bg-muted active:scale-95"
+                title="Increase completed session count"
+              >
+                <Plus className="size-3" />
+              </button>
+            </div>
           </div>
         </div>
 

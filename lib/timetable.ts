@@ -191,6 +191,7 @@ export interface DashboardBackupData {
   scheduleOverrides: any[]
   personalDeadlines?: any[]
   studiedLog?: Record<string, number>
+  completedSessionOverrides?: Record<string, number>
   syllabusCompleted?: Record<string, boolean>
   shortcuts?: any[]
   pdfs?: any[]
@@ -217,6 +218,7 @@ export function exportDashboardData(): DashboardBackupData {
     scheduleOverrides: getScheduleOverrides(),
     personalDeadlines: getItem('academic-dashboard-personal-deadlines') ?? [],
     studiedLog: getItem('academic-dashboard-studied-by-course') ?? {},
+    completedSessionOverrides: getItem('academic-dashboard-completed-sessions-override') ?? {},
     syllabusCompleted: getItem('academic-dashboard-syllabus-completed') ?? {},
     shortcuts: getItem('academic-dashboard-important-links') ?? [],
     pdfs: getItem('academic-dashboard-pinned-pdfs') ?? [],
@@ -254,6 +256,10 @@ export function importDashboardData(data: DashboardBackupData): boolean {
     if (data.studiedLog !== undefined) {
       window.localStorage.setItem('academic-dashboard-studied-by-course', JSON.stringify(data.studiedLog))
       window.dispatchEvent(new Event('academic-dashboard-studied-log-changed'))
+    }
+    if (data.completedSessionOverrides !== undefined) {
+      window.localStorage.setItem('academic-dashboard-completed-sessions-override', JSON.stringify(data.completedSessionOverrides))
+      window.dispatchEvent(new Event('academic-dashboard-completed-sessions-override-changed'))
     }
     if (data.syllabusCompleted !== undefined) {
       window.localStorage.setItem('academic-dashboard-syllabus-completed', JSON.stringify(data.syllabusCompleted))
@@ -629,6 +635,30 @@ export function setStudiedCount(courseId: string, count: number): void {
   saveStudiedLog(next)
 }
 
+export const COMPLETED_SESSION_OVERRIDE_KEY = 'academic-dashboard-completed-sessions-override'
+export const COMPLETED_SESSION_OVERRIDE_CHANGED = 'academic-dashboard-completed-sessions-override-changed'
+
+export function getCompletedSessionOverrides(): Record<string, number> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const saved = window.localStorage.getItem(COMPLETED_SESSION_OVERRIDE_KEY)
+    return saved ? JSON.parse(saved) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function setCompletedSessionOverride(courseId: string, count: number): void {
+  if (typeof window === 'undefined') return
+  try {
+    const current = getCompletedSessionOverrides()
+    const next = { ...current, [courseId]: Math.max(0, count) }
+    window.localStorage.setItem(COMPLETED_SESSION_OVERRIDE_KEY, JSON.stringify(next))
+    window.dispatchEvent(new Event(COMPLETED_SESSION_OVERRIDE_CHANGED))
+    pushRealtimeSync()
+  } catch {}
+}
+
 export function getCourseAutoCompletion(
   courseId: CourseId,
   group: GroupKey = 'A',
@@ -636,7 +666,7 @@ export function getCourseAutoCompletion(
   now = new Date(),
 ): { total: number; held: number; percent: number } {
   const allOccs = allCourseOccurrences(group, overrides)
-  const courseOccs = allOccs.filter((occ) => occ.courseId === courseId && occ.type === 'class')
+  const courseOccs = allOccs.filter((occ) => occ.courseId === courseId && !occ.isLab)
   const tMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
   const minToday = now.getHours() * 60 + now.getMinutes()
   
@@ -644,8 +674,11 @@ export function getCourseAutoCompletion(
     (occ) => occ.ms < tMs || (occ.ms === tMs && occ.endMin <= minToday),
   )
 
+  const manualOverrides = getCompletedSessionOverrides()
+  const autoHeld = heldOccs.length
+  const held = manualOverrides[courseId] !== undefined ? manualOverrides[courseId] : autoHeld
+
   const total = timetable.courses[courseId]?.sessions.length ?? courseOccs.length
-  const held = heldOccs.length
   const percent = total > 0 ? Math.min(100, Math.round((held / total) * 100)) : 0
 
   return { total, held, percent }
