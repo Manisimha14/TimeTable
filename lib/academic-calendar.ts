@@ -170,6 +170,23 @@ export function blockedInfo(ms: number): BlockedInfo {
     }
   }
 
+  // Fallback check using local date formatting in case ms is local midnight
+  const locY = d.getFullYear()
+  const locM = String(d.getMonth() + 1).padStart(2, '0')
+  const locD = String(d.getDate()).padStart(2, '0')
+  const locIso = `${locY}-${locM}-${locD}`
+  const locEv = eventsOn(locIso).find(
+    (e) => e.type === 'holiday' || e.type === 'break' || e.type === 'end-term',
+  )
+
+  if (locEv) {
+    return {
+      blocked: true,
+      type: (locEv.type as 'holiday' | 'break' | 'end-term') ?? 'holiday',
+      label: locEv.type === 'end-term' ? 'End Term Exam Day' : (locEv.label ?? 'Holiday'),
+    }
+  }
+
   if (blockedDayMs.has(ms)) {
     return { blocked: true, type: 'holiday', label: 'Holiday' }
   }

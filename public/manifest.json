@@ -3,6 +3,8 @@
   "name": "SST 2029 Term 5 Timetable",
   "short_name": "SST Timetable",
   "description": "Scaler School of Technology Term 5 Timetable & Academic Calendar Dashboard",
+  "lang": "en-US",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -12,6 +14,53 @@
   "theme_color": "#161826",
   "categories": ["education", "productivity", "utilities"],
   "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "e84b3b08-3e14-49c0-9a3d-4c330fef6b8c",
+  "scope_extensions": [
+    { "origin": "*.vercel.app" }
+  ],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+sst",
+      "url": "/?sync=%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/pdf": [".pdf"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "note_taking": {
+    "new_note_url": "/?view=personal"
+  },
+  "widgets": [
+    {
+      "name": "Daily Timetable Widget",
+      "short_name": "Schedule",
+      "description": "Scaler SST Daily Schedule",
+      "tag": "sst-daily-widget",
+      "template": "widget-template",
+      "ms_ac_template": "widget.json"
+    }
+  ],
   "icons": [
     {
       "src": "/icon.png",

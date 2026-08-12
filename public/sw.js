@@ -43,6 +43,30 @@ self.addEventListener('fetch', (event) => {
   )
 })
 
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sst-background-sync') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window' }).then((clientList) => {
+        for (const client of clientList) {
+          client.postMessage({ type: 'BACKGROUND_SYNC_TRIGGER' })
+        }
+      }),
+    )
+  }
+})
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'sst-periodic-sync') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window' }).then((clientList) => {
+        for (const client of clientList) {
+          client.postMessage({ type: 'PERIODIC_SYNC_TRIGGER' })
+        }
+      }),
+    )
+  }
+})
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   event.waitUntil(
