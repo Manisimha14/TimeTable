@@ -25,12 +25,49 @@ export interface ScheduleOverride {
 export const SCHEDULE_OVERRIDES_STORE_KEY = 'academic-dashboard-schedule-overrides'
 export const SCHEDULE_OVERRIDES_CHANGED = 'academic-dashboard-schedule-overrides-changed'
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+/** Enforces strict schema validation for overrides before writing to store. */
+function isValidOverride(o: ScheduleOverride): boolean {
+  if (!o.id || !o.type || !o.courseId) return false
+  if (!ISO_DATE_RE.test(o.dateIso)) return false
+  if (
+    typeof o.startMin !== 'number' ||
+    typeof o.endMin !== 'number' ||
+    !Number.isFinite(o.startMin) ||
+    !Number.isFinite(o.endMin) ||
+    o.startMin < 0 ||
+    o.endMin < 0 ||
+    o.endMin <= o.startMin
+  ) {
+    return false
+  }
+
+  // Type-specific validation: cancel and reschedule must specify originalKey
+  if ((o.type === 'cancel' || o.type === 'reschedule') && !o.originalKey) {
+    return false
+  }
+
+  return true
+}
+
+/** Debounces pushRealtimeSync calls so rapid saves collapse into a single sync call. */
+let syncTimer: ReturnType<typeof setTimeout> | null = null
+function scheduleSync(delayMs = 300): void {
+  if (syncTimer) clearTimeout(syncTimer)
+  syncTimer = setTimeout(() => {
+    syncTimer = null
+    pushRealtimeSync()
+  }, delayMs)
+}
+
 export function getScheduleOverrides(): ScheduleOverride[] {
   if (typeof window === 'undefined') return []
   try {
     const saved = window.localStorage.getItem(SCHEDULE_OVERRIDES_STORE_KEY)
     return saved ? (JSON.parse(saved) as ScheduleOverride[]) : []
-  } catch {
+  } catch (err) {
+    console.warn('[schedule-overrides] failed to read/parse overrides from localStorage:', err)
     return []
   }
 }
@@ -40,17 +77,29 @@ export function saveScheduleOverrides(overrides: ScheduleOverride[]): void {
   try {
     window.localStorage.setItem(SCHEDULE_OVERRIDES_STORE_KEY, JSON.stringify(overrides))
     window.dispatchEvent(new Event(SCHEDULE_OVERRIDES_CHANGED))
-    pushRealtimeSync()
-  } catch {
-    /* LocalStorage unavailable */
+    scheduleSync()
+  } catch (err) {
+    console.warn('[schedule-overrides] failed to save overrides to localStorage:', err)
   }
 }
 
+/**
+ * Builds a stable identity key for an override so we can dedupe 'extra' entries
+ * (which have no originalKey) the same way we dedupe cancel/reschedule entries.
+ */
+function overrideIdentityKey(o: ScheduleOverride): string {
+  if (o.originalKey) return `orig:${o.originalKey}`
+  return `slot:${o.courseId}|${o.dateIso}|${o.startMin}|${o.endMin}`
+}
+
 export function addScheduleOverride(override: ScheduleOverride): void {
+  if (!isValidOverride(override)) {
+    console.warn('[schedule-overrides] rejected invalid override:', override)
+    return
+  }
   const current = getScheduleOverrides()
-  const next = override.originalKey
-    ? [...current.filter((o) => o.originalKey !== override.originalKey), override]
-    : [...current, override]
+  const key = overrideIdentityKey(override)
+  const next = [...current.filter((o) => overrideIdentityKey(o) !== key), override]
   saveScheduleOverrides(next)
 }
 
