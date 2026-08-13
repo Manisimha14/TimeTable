@@ -24,6 +24,8 @@ import { cn } from '@/lib/utils'
 import { HolidayIcon } from '@/components/holiday-icon'
 import { triggerHaptic } from '@/lib/haptics'
 
+import { getScheduleOverrides, SCHEDULE_OVERRIDES_CHANGED } from '@/lib/schedule-overrides'
+
 interface DayAgendaProps {
   events: TimetableEvent[]
   activeCourse: string | null
@@ -60,6 +62,7 @@ export function DayAgenda({
   const [modalCourseId, setModalCourseId] = useState<CourseId | 'general'>('general')
   const [modalDateIso, setModalDateIso] = useState<string>(() => new Date().toISOString().slice(0, 10))
 
+  const [overridesVersion, setOverridesVersion] = useState(0)
   const [log, setLog] = useState<Record<string, AttendanceStatus>>(() => {
     if (typeof window === 'undefined') return {}
     return getAttendanceLog()
@@ -73,10 +76,20 @@ export function DayAgenda({
 
   useEffect(() => {
     const updateLog = () => setLog(getAttendanceLog())
+    const updateOverrides = () => setOverridesVersion((v) => v + 1)
     updateLog()
     window.addEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
-    return () => window.removeEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
+    window.addEventListener(SCHEDULE_OVERRIDES_CHANGED, updateOverrides)
+    return () => {
+      window.removeEventListener(ATTENDANCE_CHANGED_EVENT, updateLog)
+      window.removeEventListener(SCHEDULE_OVERRIDES_CHANGED, updateOverrides)
+    }
   }, [])
+
+  const overrides = getScheduleOverrides()
+  const cancelKeys = new Set(
+    overrides.filter((o) => o.type === 'cancel' || o.type === 'reschedule').map((o) => o.originalKey),
+  )
 
   const todayMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
   const nowMinutes = now.getHours() * 60 + now.getMinutes()
@@ -217,6 +230,8 @@ export function DayAgenda({
                   (selectedCell.ms === todayMs && event.endMin <= nowMinutes))
               const status = isCompleted ? (log[occKey] ?? null) : null
 
+              const isRescheduled = cancelKeys.has(occKey)
+
               return (
                 <button
                   key={event.id}
@@ -228,7 +243,7 @@ export function DayAgenda({
                   className={cn(
                     courseClass(event.courseId),
                     'group relative flex w-full items-stretch gap-3.5 rounded-2xl border border-border/80 bg-card p-3.5 text-left shadow-xs transition-all hover:border-primary/40 active:scale-[0.985] active:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-4',
-                    isCompleted && 'opacity-75 hover:opacity-100',
+                    (isCompleted || isRescheduled) && 'opacity-75 hover:opacity-100',
                   )}
                 >
                   {/* Course Left Brand Indicator */}
@@ -239,7 +254,7 @@ export function DayAgenda({
 
                   {/* Left: Time column */}
                   <div className="flex w-16 shrink-0 flex-col items-start justify-center space-y-1 sm:w-20">
-                    <span className={cn("text-sm font-bold tracking-tight text-foreground", isCompleted && "opacity-70")}>
+                    <span className={cn("text-sm font-bold tracking-tight text-foreground", (isCompleted || isRescheduled) && "opacity-70")}>
                       {event.startLabel}
                     </span>
                     <span className="text-[11px] font-medium text-muted-foreground">
@@ -254,7 +269,7 @@ export function DayAgenda({
                   <div className="min-w-0 flex-1 py-0.5">
                     {/* Badge row */}
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className={cn("inline-flex items-center rounded-lg bg-[color:var(--c-solid)] px-2.5 py-0.5 text-xs font-bold text-white shadow-xs", isCompleted && "line-through opacity-80")}>
+                      <span className={cn("inline-flex items-center rounded-lg bg-[color:var(--c-solid)] px-2.5 py-0.5 text-xs font-bold text-white shadow-xs", (isCompleted || isRescheduled) && "line-through opacity-80")}>
                         {event.code}
                       </span>
                       {event.isLab && (
@@ -262,7 +277,11 @@ export function DayAgenda({
                           <FlaskConical className="size-3" /> Lab
                         </span>
                       )}
-                      {isCompleted && (
+                      {isRescheduled ? (
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                          ⏩ Rescheduled to Next Session
+                        </span>
+                      ) : isCompleted ? (
                         status === 'present' ? (
                           <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                             <Check className="size-3" /> Present
@@ -276,7 +295,7 @@ export function DayAgenda({
                             <Clock className="size-3" /> Unlogged
                           </span>
                         )
-                      )}
+                      ) : null}
                     </div>
 
                     {/* Title */}

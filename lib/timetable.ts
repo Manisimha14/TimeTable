@@ -960,8 +960,8 @@ export function sessionFor(
   weekIndex: number,
 ): SessionForResult | null {
   if (event.type !== 'class') return null
-  occCache[group] ||= buildOccurrences(group)
-  const info = occCache[group]!.get(occKey(event.id, weekIndex))
+  const map = buildOccurrences(group)
+  const info = map.get(occKey(event.id, weekIndex))
   if (!info) return null
   const course = event.courseId ? timetable.courses[event.courseId] : undefined
   const session =
