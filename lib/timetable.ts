@@ -792,6 +792,29 @@ export function allCourseOccurrences(
   return result.sort((a, b) => a.ms - b.ms || a.startMin - b.startMin)
 }
 
+/** Base timetable events scheduled for a course on a specific ISO date (before overrides). */
+export function getBaseEventsForDate(
+  group: GroupKey,
+  courseId: Exclude<CourseId, 'clubs'>,
+  dateIso: string,
+): TimetableEvent[] {
+  const ms = isoToMs(dateIso)
+  if (!ms || blockedDayMs.has(ms)) return []
+
+  for (const week of WEEKS) {
+    const dayIdx = week.days.findIndex((d) => d.ms === ms)
+    if (dayIdx >= 0) {
+      const cell = week.days[dayIdx]
+      if (!cell || !cell.inTerm) return []
+      const baseEvents = timetable.eventsByGroup[group] ?? []
+      return baseEvents.filter(
+        (e) => e.type === 'class' && e.courseId === courseId && e.dayIndex === dayIdx,
+      )
+    }
+  }
+  return []
+}
+
 /** Finds the next available class slot for a course after a given timestamp (ms). */
 export function getNextClassSlotForCourse(
   group: GroupKey,

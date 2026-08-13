@@ -1,4 +1,4 @@
-import { pushRealtimeSync, type CourseId } from './timetable'
+import { getBaseEventsForDate, pushRealtimeSync, type CourseId, type GroupKey } from './timetable'
 
 export type OverrideType = 'cancel' | 'reschedule' | 'extra'
 
@@ -74,16 +74,35 @@ export function isValidOverride(o: ScheduleOverride): boolean {
   return true
 }
 
-/** Check if an override conflicts (time overlap) with existing active overrides. */
-export function getConflicts(override: ScheduleOverride): ScheduleOverride[] {
-  if (override.type === 'cancel') return []
+/** Check if an override conflicts (time overlap) with existing active overrides or base timetable entries. */
+export function getConflicts(
+  override: ScheduleOverride,
+  group: GroupKey = 'A',
+): { conflicts: ScheduleOverride[]; baseConflicts: boolean } {
+  if (override.type === 'cancel') return { conflicts: [], baseConflicts: false }
   const current = getScheduleOverrides()
-  return current.filter((existing) => {
+
+  // 1. Check active schedule overrides
+  const conflicts = current.filter((existing) => {
     if (existing.id === override.id || existing.type === 'cancel') return false
     if (existing.dateIso !== override.dateIso) return false
-    // Time overlap check: startA < endB && endA > startB
     return override.startMin < existing.endMin && override.endMin > existing.startMin
   })
+
+  // 2. Check native base timetable entries for that course on that date
+  const cancelKeys = new Set(
+    current.filter((o) => o.type === 'cancel' || o.type === 'reschedule').map((o) => o.originalKey),
+  )
+
+  const baseEvents = getBaseEventsForDate(group, override.courseId, override.dateIso)
+  const baseConflicts = baseEvents.some((baseEv) => {
+    const keyPattern = `${baseEv.id}|`
+    const isCanceled = Array.from(cancelKeys).some((k) => k?.startsWith(keyPattern))
+    if (isCanceled) return false
+    return override.startMin < baseEv.endMin && override.endMin > baseEv.startMin
+  })
+
+  return { conflicts, baseConflicts }
 }
 
 /** Debounces pushRealtimeSync calls so rapid saves collapse into a single sync call. */
@@ -161,10 +180,17 @@ function overrideIdentityKey(o: ScheduleOverride): string {
   return `slot:${o.courseId}|${o.dateIso}|${o.startMin}|${o.endMin}`
 }
 
-export function addScheduleOverride(override: ScheduleOverride): void {
+export function addScheduleOverride(override: ScheduleOverride, group: GroupKey = 'A'): void {
   if (!isValidOverride(override)) {
     console.warn('[schedule-overrides] rejected invalid override:', override)
     return
+  }
+  const conflictInfo = getConflicts(override, group)
+  if (conflictInfo.conflicts.length > 0 || conflictInfo.baseConflicts) {
+    console.warn(
+      `[schedule-overrides] warning: time slot overlap detected for ${override.courseId} on ${override.dateIso}`,
+      conflictInfo,
+    )
   }
   const current = getScheduleOverrides()
   const key = overrideIdentityKey(override)
