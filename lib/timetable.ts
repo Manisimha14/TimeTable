@@ -46,6 +46,8 @@ export interface TimetableEvent {
   room?: string
   title?: string
   raw?: string
+  rescheduledToIso?: string
+  rescheduledFromIso?: string
 }
 
 export interface TimetableMeta {
@@ -790,6 +792,27 @@ export function allCourseOccurrences(
   return result.sort((a, b) => a.ms - b.ms || a.startMin - b.startMin)
 }
 
+/** Finds the next available class slot for a course after a given timestamp (ms). */
+export function getNextClassSlotForCourse(
+  group: GroupKey,
+  courseId: Exclude<CourseId, 'clubs'>,
+  afterMs: number,
+): { ms: number; dateIso: string; startMin: number; endMin: number } | null {
+  const occs = courseOccurrences(group, courseId).filter((o) => !o.isLab && o.ms > afterMs)
+  if (!occs.length) return null
+  const next = occs[0]
+  const d = new Date(next.ms)
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const dateNum = String(d.getUTCDate()).padStart(2, '0')
+  return {
+    ms: next.ms,
+    dateIso: `${y}-${m}-${dateNum}`,
+    startMin: next.startMin,
+    endMin: next.endMin,
+  }
+}
+
 /** Effective events for a given week taking schedule overrides (cancels, reschedules, extras) into account. */
 export function effectiveEventsForWeek(
   group: GroupKey,
@@ -801,16 +824,31 @@ export function effectiveEventsForWeek(
   if (!week) return []
 
   const baseEvents = timetable.eventsByGroup[group] ?? []
-  const cancelKeys = new Set(
-    overrides.filter((o) => o.type === 'cancel' || o.type === 'reschedule').map((o) => o.originalKey),
-  )
 
-  // 1. Base events excluding canceled/rescheduled slots and excluded subjects
-  const result: TimetableEvent[] = baseEvents.filter((e) => {
-    if (e.courseId && excluded.includes(e.courseId as Exclude<CourseId, 'clubs'>)) return false
+  // Lookup overrides by originalKey
+  const overrideByOriginal = new Map<string, ScheduleOverride>()
+  for (const o of overrides) {
+    if (o.originalKey && (o.type === 'reschedule' || o.type === 'cancel')) {
+      overrideByOriginal.set(o.originalKey, o)
+    }
+  }
+
+  // 1. Process Base events (keep base card visible with rescheduledToIso badge)
+  const result: TimetableEvent[] = []
+  for (const e of baseEvents) {
+    if (e.courseId && excluded.includes(e.courseId as Exclude<CourseId, 'clubs'>)) continue
     const key = `${e.id}|${weekIndex}`
-    return !cancelKeys.has(key)
-  })
+    const ov = overrideByOriginal.get(key)
+
+    if (ov) {
+      result.push({
+        ...e,
+        rescheduledToIso: ov.dateIso || 'Next Session',
+      })
+    } else {
+      result.push(e)
+    }
+  }
 
   // 2. Add extra or rescheduled replacement slots in this week
   const weekStartMs = week.days[0].ms
@@ -846,6 +884,7 @@ export function effectiveEventsForWeek(
             faculty: 'SST Faculty',
             room: ov.room || 'SST Room',
             title: ov.title || 'Rescheduled Session',
+            rescheduledFromIso: ov.originalDateIso,
           })
         }
       }

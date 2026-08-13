@@ -35,6 +35,7 @@ import {
   formatDuration,
   fullDateLabel,
   getAttendanceLog,
+  getNextClassSlotForCourse,
   saveAttendanceLog,
   sessionFor,
   type AttendanceStatus,
@@ -227,19 +228,24 @@ export function EventDetailDialog({
                         const dateNum = String(d.getUTCDate()).padStart(2, '0')
                         const cellIso = `${y}-${m}-${dateNum}`
 
+                        const nextSlot = getNextClassSlotForCourse(group, event.courseId as any, cell.ms)
+                        const targetIso = nextSlot ? nextSlot.dateIso : cellIso
+                        const targetStart = nextSlot ? nextSlot.startMin : event.startMin
+                        const targetEnd = nextSlot ? nextSlot.endMin : event.endMin
+
                         const nextOverrides: ScheduleOverride[] = [
                           ...currentOverrides.filter((o) => o.originalKey !== originalKey),
                           {
                             id: `resched-${Date.now()}`,
-                            type: 'cancel',
+                            type: 'reschedule',
                             originalKey,
                             originalCode: event.code,
                             originalDateIso: cellIso,
                             courseId: event.courseId as any,
-                            dateIso: cellIso,
-                            startMin: event.startMin,
-                            endMin: event.endMin,
-                            note: 'Rescheduled to next session (Domino Shift applied)',
+                            dateIso: targetIso,
+                            startMin: targetStart,
+                            endMin: targetEnd,
+                            note: `Rescheduled from ${cellIso} to ${targetIso}`,
                           },
                         ]
                         saveScheduleOverrides(nextOverrides)

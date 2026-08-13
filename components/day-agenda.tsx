@@ -277,9 +277,13 @@ export function DayAgenda({
                           <FlaskConical className="size-3" /> Lab
                         </span>
                       )}
-                      {isRescheduled ? (
+                      {event.rescheduledToIso ? (
                         <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-                          ⏩ Rescheduled to Next Session
+                          ⏩ Rescheduled to {deadlineDateLabel(event.rescheduledToIso)}
+                        </span>
+                      ) : event.rescheduledFromIso ? (
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                          🔄 Rescheduled from {deadlineDateLabel(event.rescheduledFromIso)}
                         </span>
                       ) : isCompleted ? (
                         status === 'present' ? (
