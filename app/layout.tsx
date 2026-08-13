@@ -64,6 +64,9 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.png?v=2" type="image/png" />
         <link rel="apple-touch-icon" href="/favicon.png?v=2" />
         <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#161826" />
+        <meta name="msapplication-TileColor" content="#161826" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

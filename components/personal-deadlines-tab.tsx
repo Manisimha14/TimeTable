@@ -1,158 +1,352 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, CirclePlus, Flag, Sparkles, Trash2 } from 'lucide-react'
-import { motion } from 'motion/react'
 import {
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  Circle,
+  CirclePlus,
+  Filter,
+  Flag,
+  Plus,
+  Sparkles,
+  Tag,
+  Trash2,
+} from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import {
+  addPersonalDeadline,
   deadlineDateLabel,
+  deleteDeadline,
   loadPersonalDeadlines,
-  savePersonalDeadlines,
   PERSONAL_DEADLINES_CHANGED,
+  toggleDeadlineCompleted,
   type PersonalDeadline,
 } from '@/lib/personal-deadlines'
+import { type CourseId } from '@/lib/timetable'
 import { riseItem, staggerContainer } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 
 export function PersonalDeadlinesTab() {
   const [deadlines, setDeadlines] = useState<PersonalDeadline[]>(loadPersonalDeadlines)
+  const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'high'>('all')
+
+  // Form states
   const [title, setTitle] = useState('')
-  const [date, setDate] = useState('')
+  const [dateStr, setDateStr] = useState(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 2)
+    return d.toISOString().slice(0, 10)
+  })
   const [note, setNote] = useState('')
-  const ordered = useMemo(() => [...deadlines].sort((a, b) => a.date.localeCompare(b.date)), [deadlines])
-
-  const addDeadline = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (!title.trim() || !date) return
-    saveDeadlines([
-      ...deadlines,
-      { id: `${date}-${title}`, title: title.trim(), date, note: note.trim() },
-    ])
-    setTitle('')
-    setDate('')
-    setNote('')
-  }
-
-  const [quickInput, setQuickInput] = useState('')
-
-  const parseQuickAdd = (text: string) => {
-    if (!text.trim()) return
-    const lower = text.toLowerCase()
-    const now = new Date()
-    let targetDate = new Date(now)
-
-    if (lower.includes('tomorrow')) {
-      targetDate.setDate(now.getDate() + 1)
-    } else if (lower.includes('friday')) {
-      const day = now.getDay()
-      const diff = (5 - day + 7) % 7 || 7
-      targetDate.setDate(now.getDate() + diff)
-    } else if (lower.includes('tuesday')) {
-      const day = now.getDay()
-      const diff = (2 - day + 7) % 7 || 7
-      targetDate.setDate(now.getDate() + diff)
-    } else if (lower.includes('monday')) {
-      const day = now.getDay()
-      const diff = (1 - day + 7) % 7 || 7
-      targetDate.setDate(now.getDate() + diff)
-    } else {
-      targetDate.setDate(now.getDate() + 3) // Default to 3 days out
-    }
-
-    const y = targetDate.getFullYear()
-    const m = String(targetDate.getMonth() + 1).padStart(2, '0')
-    const d = String(targetDate.getDate()).padStart(2, '0')
-    const dateStr = `${y}-${m}-${d}`
-
-    const cleanTitle = text.replace(/tomorrow|today|friday|tuesday|monday|next week|due|at|pm|am/gi, '').trim() || text.trim()
-
-    saveDeadlines([
-      ...deadlines,
-      { id: `${dateStr}-${cleanTitle}`, title: cleanTitle, date: dateStr, note: 'Added via Quick-Add' },
-    ])
-    setQuickInput('')
-  }
-
-  const saveDeadlines = (next: PersonalDeadline[]) => {
-    setDeadlines(next)
-    savePersonalDeadlines(next)
-  }
+  const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium')
+  const [courseId, setCourseId] = useState<CourseId | 'general'>('general')
 
   useEffect(() => {
-    const update = () => {
-      setDeadlines(loadPersonalDeadlines())
-    }
+    const update = () => setDeadlines(loadPersonalDeadlines())
     update()
     window.addEventListener(PERSONAL_DEADLINES_CHANGED, update)
     return () => window.removeEventListener(PERSONAL_DEADLINES_CHANGED, update)
   }, [])
 
+  const filteredDeadlines = useMemo(() => {
+    let list = [...deadlines]
+    if (filter === 'pending') list = list.filter((d) => !d.completed)
+    if (filter === 'completed') list = list.filter((d) => d.completed)
+    if (filter === 'high') list = list.filter((d) => d.priority === 'high')
+    return list.sort((a, b) => {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1
+      return a.date.localeCompare(b.date)
+    })
+  }, [deadlines, filter])
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title.trim() || !dateStr) return
+    addPersonalDeadline({
+      title: title.trim(),
+      date: dateStr,
+      note: note.trim(),
+      priority,
+      courseId,
+    })
+    setTitle('')
+    setNote('')
+  }
+
+  const setPresetDate = (offsetDays: number) => {
+    const d = new Date()
+    d.setDate(d.getDate() + offsetDays)
+    setDateStr(d.toISOString().slice(0, 10))
+  }
+
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-        <div className="mb-4 flex items-start gap-3">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Flag className="size-5" />
-          </span>
-          <div>
-            <h2 className="font-display text-xl font-bold tracking-tight text-foreground">Personal deadlines</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">Keep the work that matters beside your academic calendar.</p>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      {/* Left Column: Deadlines List */}
+      <section className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-border bg-card p-4 shadow-xs sm:p-5">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Flag className="size-5" />
+            </span>
+            <div>
+              <h2 className="font-display text-xl font-bold tracking-tight text-foreground">
+                Personal Deadlines & Tasks
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Track assignments, quizzes, and personal milestones alongside Term 5 schedule.
+              </p>
+            </div>
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border/60 bg-muted/40 p-1">
+            {(
+              [
+                { id: 'all', label: 'All' },
+                { id: 'pending', label: 'Pending' },
+                { id: 'completed', label: 'Done' },
+                { id: 'high', label: '🔴 High' },
+              ] as const
+            ).map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilter(f.id)}
+                className={cn(
+                  'rounded-lg px-2.5 py-1 text-xs font-semibold transition active:scale-95',
+                  filter === f.id
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        <motion.ul variants={staggerContainer} initial="hidden" animate="show" className="space-y-2">
-          {ordered.map((deadline) => (
-            <motion.li key={deadline.id} variants={riseItem} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <CheckCircle2 className="size-4" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-foreground">{deadline.title}</p>
-                {deadline.note && <p className="truncate text-xs text-muted-foreground">{deadline.note}</p>}
-                <span className="mt-1 inline-flex rounded-full bg-card px-2 py-0.5 text-[11px] font-semibold tabular-nums text-muted-foreground">
-                  {deadlineDateLabel(deadline.date)}
-                </span>
-              </div>
-              <button type="button" onClick={() => saveDeadlines(deadlines.filter((item) => item.id !== deadline.id))} aria-label={`Remove ${deadline.title}`} className="shrink-0 rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <Trash2 className="size-4" />
-              </button>
-            </motion.li>
-          ))}
+        {/* Deadlines List */}
+        <motion.ul variants={staggerContainer} initial="hidden" animate="show" className="space-y-2.5">
+          <AnimatePresence mode="popLayout">
+            {filteredDeadlines.map((item) => (
+              <motion.li
+                key={item.id}
+                variants={riseItem}
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className={cn(
+                  'group flex items-start gap-3 rounded-2xl border p-3.5 transition-all shadow-xs',
+                  item.completed
+                    ? 'border-border/40 bg-muted/20 opacity-70'
+                    : item.priority === 'high'
+                      ? 'border-red-500/30 bg-red-500/5 dark:bg-red-500/10'
+                      : 'border-border bg-card hover:border-primary/40',
+                )}
+              >
+                {/* Completion Toggle Checkbox */}
+                <button
+                  type="button"
+                  onClick={() => toggleDeadlineCompleted(item.id)}
+                  className="mt-0.5 shrink-0 rounded-full text-muted-foreground transition hover:text-primary active:scale-90"
+                  aria-label={item.completed ? 'Mark incomplete' : 'Mark complete'}
+                >
+                  {item.completed ? (
+                    <CheckCircle2 className="size-5 text-emerald-500 fill-emerald-500/20" />
+                  ) : (
+                    <Circle className="size-5 hover:text-primary" />
+                  )}
+                </button>
+
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p
+                      className={cn(
+                        'text-sm font-bold text-foreground transition-all',
+                        item.completed && 'line-through text-muted-foreground',
+                      )}
+                    >
+                      {item.title}
+                    </p>
+
+                    {/* Priority Badge */}
+                    {item.priority === 'high' && (
+                      <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase text-red-600 dark:text-red-400 border border-red-500/20">
+                        High Priority
+                      </span>
+                    )}
+                    {item.priority === 'medium' && (
+                      <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                        Medium
+                      </span>
+                    )}
+
+                    {/* Course Tag */}
+                    {item.courseId && item.courseId !== 'general' && (
+                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-extrabold uppercase text-primary border border-primary/20">
+                        {item.courseId.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+
+                  {item.note && <p className="text-xs text-muted-foreground">{item.note}</p>}
+
+                  <div className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground pt-0.5">
+                    <Calendar className="size-3 text-primary" />
+                    <span>Due: {deadlineDateLabel(item.date)}</span>
+                  </div>
+                </div>
+
+                {/* Delete Button */}
+                <button
+                  type="button"
+                  onClick={() => deleteDeadline(item.id)}
+                  aria-label={`Delete ${item.title}`}
+                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition hover:bg-destructive/15 hover:text-destructive active:scale-95"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </motion.li>
+            ))}
+          </AnimatePresence>
+
+          {filteredDeadlines.length === 0 && (
+            <motion.div variants={riseItem} className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+              <p className="text-sm font-semibold text-foreground">No deadlines found in this view</p>
+              <p className="mt-1 text-xs text-muted-foreground">Add a new deadline on the right panel to stay ahead!</p>
+            </motion.div>
+          )}
         </motion.ul>
       </section>
 
-      <div className="space-y-4">
-        {/* Quick Add box */}
-        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 shadow-xs space-y-2">
-          <div className="flex items-center gap-1.5 font-bold text-xs text-primary uppercase tracking-wider">
-            <Sparkles className="size-3.5" /> ⚡ AI Natural Language Quick-Add
+      {/* Right Column: Add Deadline Form with Quick Presets */}
+      <section className="space-y-4">
+        <form onSubmit={handleAdd} className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 font-display text-base font-bold text-foreground border-b border-border/60 pb-3">
+            <CirclePlus className="size-4 text-primary" /> Add New Deadline
           </div>
-          <div className="flex gap-2">
-            <input
-              value={quickInput}
-              onChange={(e) => setQuickInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), parseQuickAdd(quickInput))}
-              placeholder="e.g. CN quiz next Tuesday 2pm or MERN due Friday"
-              className="h-10 flex-1 rounded-lg border border-border bg-background px-3 text-xs outline-none focus:border-primary"
-            />
-            <button
-              type="button"
-              onClick={() => parseQuickAdd(quickInput)}
-              className="h-10 rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground hover:brightness-110 active:scale-95"
-            >
-              Quick Add
-            </button>
-          </div>
-        </div>
 
-        <form onSubmit={addDeadline} className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground"><CirclePlus className="size-4 text-primary" /> Add a deadline manually</h2>
-          <div className="mt-4 space-y-3">
-            <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Finish FDSA assignment" className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <input value={date} onChange={(event) => setDate(event.target.value)} type="date" className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional note" rows={3} className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-95"><CirclePlus className="size-4" /> Add deadline</button>
+          {/* Title */}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-muted-foreground">Deadline Title *</label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. MERN Assignment Submission"
+              required
+              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
           </div>
+
+          {/* Quick Date Presets */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground">Due Date *</label>
+            <div className="flex flex-wrap gap-1.5 pb-1">
+              <button
+                type="button"
+                onClick={() => setPresetDate(0)}
+                className="rounded-lg bg-muted/60 px-2.5 py-1 text-[11px] font-semibold hover:bg-primary/20 hover:text-primary active:scale-95 transition"
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetDate(1)}
+                className="rounded-lg bg-muted/60 px-2.5 py-1 text-[11px] font-semibold hover:bg-primary/20 hover:text-primary active:scale-95 transition"
+              >
+                Tomorrow
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetDate(3)}
+                className="rounded-lg bg-muted/60 px-2.5 py-1 text-[11px] font-semibold hover:bg-primary/20 hover:text-primary active:scale-95 transition"
+              >
+                +3 Days
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetDate(7)}
+                className="rounded-lg bg-muted/60 px-2.5 py-1 text-[11px] font-semibold hover:bg-primary/20 hover:text-primary active:scale-95 transition"
+              >
+                +1 Week
+              </button>
+            </div>
+            <input
+              type="date"
+              value={dateStr}
+              onChange={(e) => setDateStr(e.target.value)}
+              required
+              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+
+          {/* Priority Pills */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground">Priority</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {(
+                [
+                  { id: 'low', label: '🔵 Low' },
+                  { id: 'medium', label: '🟡 Med' },
+                  { id: 'high', label: '🔴 High' },
+                ] as const
+              ).map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setPriority(p.id)}
+                  className={cn(
+                    'rounded-xl border py-1.5 text-xs font-bold transition active:scale-95',
+                    priority === p.id
+                      ? 'border-primary bg-primary/10 text-primary shadow-xs'
+                      : 'border-border bg-background text-muted-foreground hover:bg-muted',
+                  )}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Course Tag */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground">Related Subject</label>
+            <select
+              value={courseId}
+              onChange={(e) => setCourseId(e.target.value as any)}
+              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary"
+            >
+              <option value="general">General / Personal</option>
+              <option value="cml">CML — Machine Learning</option>
+              <option value="mern">MERN — Web Dev</option>
+              <option value="cn">CN — Computer Networks</option>
+              <option value="fdsa">FDSA — Data Structures</option>
+            </select>
+          </div>
+
+          {/* Notes */}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-muted-foreground">Optional Notes</label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="e.g. Bring hard copy and submission link ready"
+              rows={2}
+              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-md transition hover:brightness-110 active:scale-95"
+          >
+            <Plus className="size-4" /> Save Deadline
+          </button>
         </form>
-      </div>
+      </section>
     </div>
   )
 }

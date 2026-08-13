@@ -2,22 +2,26 @@
 
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Check, CircleX, Clock, FlaskConical, MapPin, User } from 'lucide-react'
+import { CalendarPlus, Check, CircleX, Clock, FlaskConical, MapPin, Plus, User } from 'lucide-react'
 import {
   ATTENDANCE_CHANGED_EVENT,
   courseClass,
   formatDuration,
+  fullDateLabel,
   getAttendanceLog,
   timetable,
   weekByIndex,
   type AttendanceStatus,
+  type CourseId,
   type TimetableEvent,
 } from '@/lib/timetable'
 import { blockedInfo, type BlockedInfo } from '@/lib/academic-calendar'
+import { addPersonalDeadline, deadlineDateLabel } from '@/lib/personal-deadlines'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { spring, staggerContainer, riseItem } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { HolidayIcon } from '@/components/holiday-icon'
-
 import { triggerHaptic } from '@/lib/haptics'
 
 interface DayAgendaProps {
@@ -48,6 +52,13 @@ export function DayAgenda({
   const selectedBlocked = selectedCell
     ? blockedInfo(selectedCell.ms)
     : { blocked: false, type: null, label: null }
+
+  const [deadlineModalOpen, setDeadlineModalOpen] = useState(false)
+  const [modalTitle, setModalTitle] = useState('')
+  const [modalNote, setModalNote] = useState('')
+  const [modalPriority, setModalPriority] = useState<'high' | 'medium' | 'low'>('medium')
+  const [modalCourseId, setModalCourseId] = useState<CourseId | 'general'>('general')
+  const [modalDateIso, setModalDateIso] = useState<string>(() => new Date().toISOString().slice(0, 10))
 
   const [log, setLog] = useState<Record<string, AttendanceStatus>>(() => {
     if (typeof window === 'undefined') return {}
@@ -291,7 +302,120 @@ export function DayAgenda({
               )
             })
           )}
+
+          {/* Quick Add Deadline button for selected date */}
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('medium')
+              if (selectedCell) {
+                const d = new Date(selectedCell.ms)
+                const y = d.getUTCFullYear()
+                const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+                const dateNum = String(d.getUTCDate()).padStart(2, '0')
+                setModalDateIso(`${y}-${m}-${dateNum}`)
+              }
+              setDeadlineModalOpen(true)
+            }}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/40 bg-primary/5 py-3 text-xs font-bold text-primary transition hover:bg-primary/10 active:scale-[0.985]"
+          >
+            <Plus className="size-4" /> Add Personal Deadline for {selectedCell ? fullDateLabel(selectedCell.ms) : days[selectedDay]}
+          </button>
         </motion.div>
+
+      {/* Add Deadline Dialog */}
+      <Dialog open={deadlineModalOpen} onOpenChange={setDeadlineModalOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
+              <CalendarPlus className="size-5 text-primary" /> Add Deadline for {deadlineDateLabel(modalDateIso)}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Create a personal task or assignment due on this specific date.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!modalTitle.trim() || !modalDateIso) return
+              addPersonalDeadline({
+                title: modalTitle.trim(),
+                date: modalDateIso,
+                note: modalNote.trim(),
+                priority: modalPriority,
+                courseId: modalCourseId,
+              })
+              triggerHaptic('success')
+              setModalTitle('')
+              setModalNote('')
+              setDeadlineModalOpen(false)
+            }}
+            className="mt-3 space-y-3"
+          >
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Task Title *</label>
+              <input
+                value={modalTitle}
+                onChange={(e) => setModalTitle(e.target.value)}
+                placeholder="e.g. MERN Lab Report / Quiz Prep"
+                required
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground">Priority</label>
+                <select
+                  value={modalPriority}
+                  onChange={(e) => setModalPriority(e.target.value as any)}
+                  className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                >
+                  <option value="high">🔴 High</option>
+                  <option value="medium">🟡 Medium</option>
+                  <option value="low">🔵 Low</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground">Subject</label>
+                <select
+                  value={modalCourseId}
+                  onChange={(e) => setModalCourseId(e.target.value as any)}
+                  className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                >
+                  <option value="general">General</option>
+                  <option value="cml">CML</option>
+                  <option value="mern">MERN</option>
+                  <option value="cn">CN</option>
+                  <option value="fdsa">FDSA</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Optional Notes</label>
+              <textarea
+                value={modalNote}
+                onChange={(e) => setModalNote(e.target.value)}
+                placeholder="Details or submission links"
+                rows={2}
+                className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setDeadlineModalOpen(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button type="submit" className="flex-1 font-bold">
+                Save Deadline
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
