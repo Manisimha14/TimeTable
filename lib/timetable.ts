@@ -825,29 +825,43 @@ export function effectiveEventsForWeek(
 
   const baseEvents = timetable.eventsByGroup[group] ?? []
 
-  // Lookup overrides by originalKey
+  // Lookup overrides by originalKey and target date
   const overrideByOriginal = new Map<string, ScheduleOverride>()
+  const overrideByTarget = new Map<string, ScheduleOverride>()
+
   for (const o of overrides) {
     if (o.originalKey && (o.type === 'reschedule' || o.type === 'cancel')) {
       overrideByOriginal.set(o.originalKey, o)
     }
+    if (o.type === 'reschedule' && o.dateIso && o.courseId) {
+      overrideByTarget.set(`${o.courseId}|${o.dateIso}`, o)
+    }
   }
 
-  // 1. Process Base events (keep base card visible with rescheduledToIso badge)
+  // 1. Process Base events (attach rescheduledToIso or rescheduledFromIso)
   const result: TimetableEvent[] = []
   for (const e of baseEvents) {
     if (e.courseId && excluded.includes(e.courseId as Exclude<CourseId, 'clubs'>)) continue
     const key = `${e.id}|${weekIndex}`
-    const ov = overrideByOriginal.get(key)
+    const cell = week.days[e.dayIndex]
+    const d = cell ? new Date(cell.ms) : null
+    const cellIso = d
+      ? `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
+      : ''
 
-    if (ov) {
-      result.push({
-        ...e,
-        rescheduledToIso: ov.dateIso || 'Next Session',
-      })
-    } else {
-      result.push(e)
+    const ovOriginal = overrideByOriginal.get(key)
+    const ovTarget = cellIso && e.courseId ? overrideByTarget.get(`${e.courseId}|${cellIso}`) : undefined
+
+    let updatedEvent: TimetableEvent = { ...e }
+
+    if (ovOriginal) {
+      updatedEvent.rescheduledToIso = ovOriginal.dateIso
     }
+    if (ovTarget) {
+      updatedEvent.rescheduledFromIso = ovTarget.originalDateIso
+    }
+
+    result.push(updatedEvent)
   }
 
   // 2. Add extra or rescheduled replacement slots in this week
