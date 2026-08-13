@@ -245,6 +245,48 @@ export function QuickWidgets({ group }: { group: GroupKey }) {
       className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
       aria-label="Quick course widgets"
     >
+      {/* Mobile Live Quick Widgets Banner */}
+      <div className="mb-4 sm:hidden space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+            <Sparkles className="size-3.5" /> Mobile Live Widgets
+          </h3>
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+            Auto-Sync
+          </span>
+        </div>
+
+        <div className="scrollbar-none flex gap-2.5 overflow-x-auto pb-1">
+          {/* Widget 1: Next Class */}
+          <div className="w-56 shrink-0 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-background p-3 shadow-xs space-y-1">
+            <div className="flex items-center justify-between text-[10px] font-bold text-primary uppercase">
+              <span>⚡ Next Class</span>
+              <span>{current ? 'LIVE NOW' : 'UPCOMING'}</span>
+            </div>
+            <p className="truncate text-xs font-extrabold text-foreground">
+              {current ? current.code : occurrences.find(o => o.ms === todayMs && o.startMin > nowMinutes)?.code ?? 'No more classes today'}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {current ? `${current.startMin}m - ${current.endMin}m` : 'Check tomorrow\'s schedule'}
+            </p>
+          </div>
+
+          {/* Widget 2: Today's Remaining */}
+          <div className="w-56 shrink-0 rounded-2xl border border-border bg-card p-3 shadow-xs space-y-1">
+            <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase">
+              <span>📅 Today&apos;s Schedule</span>
+              <span>{completed.length}/{occurrences.filter(o => o.ms === todayMs).length} Logged</span>
+            </div>
+            <p className="truncate text-xs font-extrabold text-foreground">
+              {occurrences.filter(o => o.ms === todayMs).length} Classes Scheduled Today
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {unloggedCount > 0 ? `${unloggedCount} pending attendance log` : 'All sessions up to date!'}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarClock, ChevronLeft, ChevronRight, Flag, Plus } from 'lucide-react'
+import { CalendarClock, CalendarPlus, ChevronLeft, ChevronRight, Flag, Plus } from 'lucide-react'
 import {
   buildMonthGrid,
   calendarMonths,
@@ -17,7 +17,11 @@ import { spring, weekSlide, staggerContainer, riseItem } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { CalendarLegend } from '@/components/calendar-legend'
 import { HolidayIcon } from '@/components/holiday-icon'
-import { loadPersonalDeadlines, savePersonalDeadlines } from '@/lib/personal-deadlines'
+import { addPersonalDeadline, deadlineDateLabel } from '@/lib/personal-deadlines'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { triggerHaptic } from '@/lib/haptics'
+import { type CourseId } from '@/lib/timetable'
 
 export function AcademicCalendarView() {
   const [today, setToday] = useState<Date | null>(() => {
@@ -31,7 +35,14 @@ export function AcademicCalendarView() {
   const [direction, setDirection] = useState<number>(0)
   const [selectedIso, setSelectedIso] = useState<string | null>(null)
 
-  // Client-only clock so "today" highlighting matches the user's real date.
+  // Glassmorphic Modal state
+  const [deadlineModalOpen, setDeadlineModalOpen] = useState(false)
+  const [modalTitle, setModalTitle] = useState('')
+  const [modalNote, setModalNote] = useState('')
+  const [modalPriority, setModalPriority] = useState<'high' | 'medium' | 'low'>('medium')
+  const [modalCourseId, setModalCourseId] = useState<CourseId | 'general'>('general')
+  const [modalDateIso, setModalDateIso] = useState<string>(() => new Date().toISOString().slice(0, 10))
+
   useEffect(() => {
     const now = new Date()
     setToday(now)
@@ -57,11 +68,11 @@ export function AcademicCalendarView() {
   }
 
   const selectedEvents = selectedIso ? eventsOn(selectedIso) : []
-  const addDeadline = () => {
-    if (!selectedIso) return
-    const current = loadPersonalDeadlines()
-    if (current.some((deadline) => deadline.date === selectedIso && deadline.title === 'Personal deadline')) return
-    savePersonalDeadlines([...current, { id: crypto.randomUUID(), date: selectedIso, title: 'Personal deadline', note: 'Added from the academic calendar.' }])
+
+  const openDeadlineModal = (iso: string) => {
+    triggerHaptic('medium')
+    setModalDateIso(iso)
+    setDeadlineModalOpen(true)
   }
 
   if (!today || !month) {
@@ -206,10 +217,122 @@ export function AcademicCalendarView() {
                 )
               })}
             </div>
-            <button type="button" onClick={addDeadline} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground transition hover:border-primary/50 hover:text-primary"><Plus className="size-3.5" /><Flag className="size-3.5" /> Add personal deadline</button>
+            <button
+              type="button"
+              onClick={() => selectedIso && openDeadlineModal(selectedIso)}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-3.5 py-2 text-xs font-bold text-primary transition hover:bg-primary/20 active:scale-95"
+            >
+              <Plus className="size-4" />
+              <Flag className="size-3.5" /> Add Personal Deadline for {selectedIso ? deadlineDateLabel(selectedIso) : 'Selected Date'}
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Glassmorphic Mobile-Compatible Deadline Modal */}
+      <Dialog open={deadlineModalOpen} onOpenChange={setDeadlineModalOpen}>
+        <DialogContent className="max-w-md rounded-3xl border-2 border-primary/30 bg-card/90 backdrop-blur-xl p-6 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
+              <CalendarPlus className="size-5 text-primary" /> Add Deadline for {deadlineDateLabel(modalDateIso)}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Create a personal task or assignment due on this specific date.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!modalTitle.trim() || !modalDateIso) return
+              addPersonalDeadline({
+                title: modalTitle.trim(),
+                date: modalDateIso,
+                note: modalNote.trim(),
+                priority: modalPriority,
+                courseId: modalCourseId,
+              })
+              triggerHaptic('success')
+              setModalTitle('')
+              setModalNote('')
+              setDeadlineModalOpen(false)
+            }}
+            className="mt-3 space-y-3"
+          >
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Task / Deadline Title *</label>
+              <input
+                value={modalTitle}
+                onChange={(e) => setModalTitle(e.target.value)}
+                placeholder="e.g. Computer Networks Quiz / Assignment"
+                required
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground">Priority</label>
+                <select
+                  value={modalPriority}
+                  onChange={(e) => setModalPriority(e.target.value as any)}
+                  className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                >
+                  <option value="high">🔴 High</option>
+                  <option value="medium">🟡 Medium</option>
+                  <option value="low">🔵 Low</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground">Subject</label>
+                <select
+                  value={modalCourseId}
+                  onChange={(e) => setModalCourseId(e.target.value as any)}
+                  className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                >
+                  <option value="general">General</option>
+                  <option value="cml">CML</option>
+                  <option value="mern">MERN</option>
+                  <option value="cn">CN</option>
+                  <option value="fdsa">FDSA</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Due Date</label>
+              <input
+                type="date"
+                value={modalDateIso}
+                onChange={(e) => setModalDateIso(e.target.value)}
+                required
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Optional Notes</label>
+              <textarea
+                value={modalNote}
+                onChange={(e) => setModalNote(e.target.value)}
+                placeholder="Details, instructions, or links"
+                rows={2}
+                className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setDeadlineModalOpen(false)} className="flex-1 rounded-xl">
+                Cancel
+              </Button>
+              <Button type="submit" className="flex-1 rounded-xl font-bold">
+                Save Deadline
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
