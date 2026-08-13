@@ -790,6 +790,71 @@ export function allCourseOccurrences(
   return result.sort((a, b) => a.ms - b.ms || a.startMin - b.startMin)
 }
 
+/** Effective events for a given week taking schedule overrides (cancels, reschedules, extras) into account. */
+export function effectiveEventsForWeek(
+  group: GroupKey,
+  weekIndex: number,
+  overrides: ScheduleOverride[] = getScheduleOverrides(),
+  excluded: Exclude<CourseId, 'clubs'>[] = getExcludedCourses(),
+): TimetableEvent[] {
+  const week = weekByIndex(weekIndex)
+  if (!week) return []
+
+  const baseEvents = timetable.eventsByGroup[group] ?? []
+  const cancelKeys = new Set(
+    overrides.filter((o) => o.type === 'cancel' || o.type === 'reschedule').map((o) => o.originalKey),
+  )
+
+  // 1. Base events excluding canceled/rescheduled slots and excluded subjects
+  const result: TimetableEvent[] = baseEvents.filter((e) => {
+    if (e.courseId && excluded.includes(e.courseId as Exclude<CourseId, 'clubs'>)) return false
+    const key = `${e.id}|${weekIndex}`
+    return !cancelKeys.has(key)
+  })
+
+  // 2. Add extra or rescheduled replacement slots in this week
+  const weekStartMs = week.days[0].ms
+  const weekEndMs = week.days[5].ms
+
+  for (const ov of overrides) {
+    if ((ov.type === 'extra' || ov.type === 'reschedule') && ov.dateIso) {
+      if (ov.courseId && excluded.includes(ov.courseId)) continue
+      const ms = isoToMs(ov.dateIso)
+      if (ms >= weekStartMs && ms <= weekEndMs) {
+        const dayIdx = week.days.findIndex((d) => d.ms === ms)
+        if (dayIdx >= 0) {
+          const course = ov.courseId ? timetable.courses[ov.courseId] : undefined
+          const startLabel = formatMinutes(ov.startMin)
+          const endLabel = formatMinutes(ov.endMin)
+          const durationMin = Math.max(15, ov.endMin - ov.startMin)
+
+          result.push({
+            id: ov.id,
+            day: timetable.meta.days[dayIdx] || 'Mon',
+            dayIndex: dayIdx,
+            startMin: ov.startMin,
+            endMin: ov.endMin,
+            startLabel,
+            endLabel,
+            durationMin,
+            type: 'class',
+            courseId: ov.courseId,
+            courseName: course?.name ?? ov.courseId?.toUpperCase() ?? 'Rescheduled Class',
+            code: course?.code ?? ov.courseId?.toUpperCase() ?? 'CLASS',
+            color: course?.color ?? '#4f46e5',
+            isLab: Boolean(ov.isLab),
+            faculty: 'SST Faculty',
+            room: ov.room || 'SST Room',
+            title: ov.title || 'Rescheduled Session',
+          })
+        }
+      }
+    }
+  }
+
+  return result
+}
+
 /** Course plan projected over real calendar dates, excluding published no-class days. */
 export function courseProgress(group: GroupKey, courseId: Exclude<CourseId, 'clubs'>, date = new Date()): CourseProgress {
   const planned = courseOccurrences(group, courseId)

@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { CalendarRange, CalendarDays, CalendarClock, GraduationCap, Flag, Wrench, CalendarPlus, Lock, Unlock, Search, Clock } from 'lucide-react'
 import {
   currentWeekIndex,
+  effectiveEventsForWeek,
   EXCLUDED_COURSES_CHANGED_EVENT,
   getExcludedCourses,
   getLockedGroup,
@@ -149,10 +150,9 @@ export function TimetableDashboard() {
     }
   }, [])
 
-  const rawEvents = timetable.eventsByGroup[group] ?? []
   const events = useMemo(
-    () => rawEvents.filter((e) => !e.courseId || !excluded.includes(e.courseId as Exclude<CourseId, 'clubs'>)),
-    [rawEvents, excluded],
+    () => effectiveEventsForWeek(group, weekIndex, overrides, excluded),
+    [group, weekIndex, overrides, excluded],
   )
 
   const isCurrentWeek = weekIndex === currentWeek
