@@ -75,9 +75,9 @@ export function EventDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] gap-0 overflow-hidden p-0 sm:max-w-lg">
+      <DialogContent className="max-h-[85vh] w-[94vw] gap-0 overflow-hidden rounded-3xl p-0 sm:max-w-lg">
         {event && (
-          <div className={cn('flex max-h-[90vh] flex-col', courseClass(event.courseId))}>
+          <div className={cn('flex max-h-[85vh] flex-col', courseClass(event.courseId))}>
             {/* Header */}
             <DialogHeader className="space-y-3 border-b border-[color:var(--c-border)] bg-[color:var(--c-soft)] p-5 text-left sm:p-6 pr-12">
               <div className="flex flex-wrap items-center gap-2">
@@ -217,7 +217,7 @@ export function EventDetailDialog({
                   <motion.div variants={riseItem}>
                     <Button
                       variant="default"
-                      className="w-full justify-between bg-primary font-bold shadow-md hover:brightness-110 active:scale-95"
+                      className="h-10 w-full justify-between bg-primary px-3.5 text-xs font-bold text-primary-foreground shadow-xs hover:brightness-110 active:scale-95"
                       onClick={() => {
                         const originalKey = `${event.id}|${weekIndex}`
                         const currentOverrides = getScheduleOverrides()
@@ -247,11 +247,11 @@ export function EventDetailDialog({
                         onOpenChange(false)
                       }}
                     >
-                      <span className="flex items-center gap-2 text-xs">
-                        <CalendarDays className="size-4 text-primary-foreground" />
-                        ⏩ Reschedule to Next Session (Domino Shift)
+                      <span className="flex items-center gap-2 truncate text-xs font-bold">
+                        <CalendarDays className="size-4 shrink-0 text-primary-foreground" />
+                        ⏩ Move to Next Session (Domino Shift)
                       </span>
-                      <ArrowUpRight className="size-4" />
+                      <ArrowUpRight className="size-4 shrink-0" />
                     </Button>
                   </motion.div>
                 )}
@@ -261,17 +261,17 @@ export function EventDetailDialog({
                   <motion.div variants={riseItem}>
                     <Button
                       variant="secondary"
-                      className="w-full justify-between border border-border"
+                      className="h-10 w-full justify-between border border-border px-3.5 text-xs font-semibold"
                       onClick={() => {
                         onOpenRescheduler(`${event.id}|${weekIndex}`)
                         onOpenChange(false)
                       }}
                     >
-                      <span className="flex items-center gap-2 text-xs font-semibold">
-                        <CalendarDays className="size-4 text-primary" />
+                      <span className="flex items-center gap-2 truncate text-xs">
+                        <CalendarDays className="size-4 shrink-0 text-primary" />
                         Custom Reschedule / Extra Class
                       </span>
-                      <ArrowUpRight className="size-4" />
+                      <ArrowUpRight className="size-4 shrink-0" />
                     </Button>
                   </motion.div>
                 )}
