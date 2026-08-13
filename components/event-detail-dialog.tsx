@@ -42,6 +42,8 @@ import {
   type TimetableEvent,
 } from '@/lib/timetable'
 import { staggerContainer, riseItem } from '@/lib/motion'
+import { getScheduleOverrides, saveScheduleOverrides, type ScheduleOverride } from '@/lib/schedule-overrides'
+import { triggerHaptic } from '@/lib/haptics'
 import { cn } from '@/lib/utils'
 
 interface EventDetailDialogProps {
@@ -210,6 +212,50 @@ export function EventDetailDialog({
                   occurrenceKey={`${event.id}|${weekIndex}`}
                 />
 
+                {/* 1-Tap Reschedule to Next Session (Domino Shift) */}
+                {event && cell && event.courseId && (
+                  <motion.div variants={riseItem}>
+                    <Button
+                      variant="default"
+                      className="w-full justify-between bg-primary font-bold shadow-md hover:brightness-110 active:scale-95"
+                      onClick={() => {
+                        const originalKey = `${event.id}|${weekIndex}`
+                        const currentOverrides = getScheduleOverrides()
+                        const d = new Date(cell.ms)
+                        const y = d.getUTCFullYear()
+                        const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+                        const dateNum = String(d.getUTCDate()).padStart(2, '0')
+                        const cellIso = `${y}-${m}-${dateNum}`
+
+                        const nextOverrides: ScheduleOverride[] = [
+                          ...currentOverrides.filter((o) => o.originalKey !== originalKey),
+                          {
+                            id: `resched-${Date.now()}`,
+                            type: 'cancel',
+                            originalKey,
+                            originalCode: event.code,
+                            originalDateIso: cellIso,
+                            courseId: event.courseId as any,
+                            dateIso: cellIso,
+                            startMin: event.startMin,
+                            endMin: event.endMin,
+                            note: 'Rescheduled to next session (Domino Shift applied)',
+                          },
+                        ]
+                        saveScheduleOverrides(nextOverrides)
+                        triggerHaptic('success')
+                        onOpenChange(false)
+                      }}
+                    >
+                      <span className="flex items-center gap-2 text-xs">
+                        <CalendarDays className="size-4 text-primary-foreground" />
+                        ⏩ Reschedule to Next Session (Domino Shift)
+                      </span>
+                      <ArrowUpRight className="size-4" />
+                    </Button>
+                  </motion.div>
+                )}
+
                 {/* Reschedule or Cancel button */}
                 {onOpenRescheduler && (
                   <motion.div variants={riseItem}>
@@ -223,7 +269,7 @@ export function EventDetailDialog({
                     >
                       <span className="flex items-center gap-2 text-xs font-semibold">
                         <CalendarDays className="size-4 text-primary" />
-                        Reschedule or cancel this class
+                        Custom Reschedule / Extra Class
                       </span>
                       <ArrowUpRight className="size-4" />
                     </Button>
